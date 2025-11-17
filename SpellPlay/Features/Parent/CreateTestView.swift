@@ -55,7 +55,7 @@ struct CreateTestView: View {
                 if !words.isEmpty {
                     Section("Words (\(words.count))") {
                         ForEach(Array(words.enumerated()), id: \.offset) { index, word in
-                            HStack {
+                            HStack(spacing: 12) {
                                 Text(word)
                                     .font(.system(size: AppConstants.bodySize))
                                 
@@ -67,17 +67,24 @@ struct CreateTestView: View {
                                 }) {
                                     Image(systemName: ttsService.isSpeaking && selectedWordForTTS == word ? "speaker.wave.2.fill" : "speaker.wave.2")
                                         .foregroundColor(AppConstants.primaryColor)
+                                        .font(.system(size: 18))
                                 }
+                                .buttonStyle(.plain)
                                 .frame(width: AppConstants.minimumTouchTarget, height: AppConstants.minimumTouchTarget)
+                                .contentShape(Rectangle())
                                 
                                 Button(action: {
                                     words.remove(at: index)
                                 }) {
                                     Image(systemName: "minus.circle.fill")
                                         .foregroundColor(AppConstants.errorColor)
+                                        .font(.system(size: 18))
                                 }
+                                .buttonStyle(.plain)
                                 .frame(width: AppConstants.minimumTouchTarget, height: AppConstants.minimumTouchTarget)
+                                .contentShape(Rectangle())
                             }
+                            .padding(.vertical, 4)
                         }
                     }
                 }
