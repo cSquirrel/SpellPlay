@@ -19,10 +19,23 @@ extension String {
     }
     
     /// Splits a string into words, filtering out empty strings
+    /// Handles commas, whitespaces, and newlines as separators
     func splitIntoWords() -> [String] {
-        return self.components(separatedBy: .whitespacesAndNewlines)
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
+        // First split by commas, then by whitespaces/newlines
+        let commaSeparated = self.components(separatedBy: ",")
+        var words: [String] = []
+        
+        for part in commaSeparated {
+            let whitespaceSeparated = part.components(separatedBy: .whitespacesAndNewlines)
+            for word in whitespaceSeparated {
+                let trimmed = word.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    words.append(trimmed)
+                }
+            }
+        }
+        
+        return words
     }
 }
 
