@@ -113,8 +113,26 @@ struct CreateTestView: View {
         let text = wordText
         let newWords = text.splitIntoWords()
         words.append(contentsOf: newWords)
-        words = Array(Set(words)) // Remove duplicates
+        words = removeDuplicatesPreservingOrder(words)
         wordText = ""
+    }
+    
+    /// Removes duplicate words while preserving the original order
+    /// - Parameter words: Array of words that may contain duplicates
+    /// - Returns: Array with duplicates removed, preserving first occurrence order
+    private func removeDuplicatesPreservingOrder(_ words: [String]) -> [String] {
+        var seen = Set<String>()
+        var result: [String] = []
+        
+        for word in words {
+            let normalized = word.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            if !seen.contains(normalized) {
+                seen.insert(normalized)
+                result.append(word) // Keep original casing
+            }
+        }
+        
+        return result
     }
     
     private func saveTest() {
