@@ -59,6 +59,7 @@ struct PracticeView: View {
                 feedbackTimer?.invalidate()
                 nextWordTimer?.invalidate()
             }
+            .errorAlert(errorMessage: $viewModel.errorMessage)
         }
     }
     

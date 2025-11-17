@@ -62,6 +62,7 @@ struct ParentHomeView: View {
             .onAppear {
                 viewModel.setup(modelContext: modelContext)
             }
+            .errorAlert(errorMessage: $viewModel.errorMessage)
         }
     }
     

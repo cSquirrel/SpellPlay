@@ -28,10 +28,13 @@ class PracticeViewModel {
     var wordsMastered: Set<UUID> = []
     var allWordsMastered = false
     var isRoundComplete = false
+    var errorMessage: String?
     
     func setup(test: SpellingTest, modelContext: ModelContext) {
         self.modelContext = modelContext
-        self.streakService = StreakService(modelContext: modelContext)
+        self.streakService = StreakService(modelContext: modelContext) { [weak self] errorMessage in
+            self?.errorMessage = errorMessage
+        }
         self.words = test.words
         self.currentWordIndex = 0
         self.userAnswer = ""
@@ -130,7 +133,7 @@ class PracticeViewModel {
             do {
                 try modelContext?.save()
             } catch {
-                print("Error saving practice session: \(error)")
+                errorMessage = "Your progress was saved, but some information couldn't be recorded."
             }
         }
     }

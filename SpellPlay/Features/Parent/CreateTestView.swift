@@ -17,6 +17,7 @@ struct CreateTestView: View {
     @State private var words: [String] = []
     @State private var showingTTS = false
     @State private var selectedWordForTTS: String?
+    @State private var errorMessage: String?
     
     @StateObject private var ttsService = TTSService()
     
@@ -106,6 +107,9 @@ struct CreateTestView: View {
                     .fontWeight(.semibold)
                 }
             }
+            .errorAlert(errorMessage: $errorMessage) {
+                saveTest()
+            }
         }
     }
     
@@ -149,7 +153,7 @@ struct CreateTestView: View {
             try modelContext.save()
             dismiss()
         } catch {
-            print("Error saving test: \(error)")
+            errorMessage = "Unable to save test. Please try again."
         }
     }
 }

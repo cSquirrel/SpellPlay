@@ -11,9 +11,11 @@ import SwiftData
 @MainActor
 class StreakService {
     private let modelContext: ModelContext
+    var onError: ((String) -> Void)?
     
-    init(modelContext: ModelContext) {
+    init(modelContext: ModelContext, onError: ((String) -> Void)? = nil) {
         self.modelContext = modelContext
+        self.onError = onError
     }
     
     func getCurrentStreak() -> Int {
@@ -83,7 +85,8 @@ class StreakService {
         do {
             try modelContext.save()
         } catch {
-            print("Error saving practice session: \(error)")
+            let errorMessage = "Unable to save practice session. Your progress may not be recorded."
+            onError?(errorMessage)
         }
         
         return newStreak
