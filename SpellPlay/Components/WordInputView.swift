@@ -32,15 +32,28 @@ struct WordInputView: View {
                     }
                 }
             
-            Button(action: {
-                onSubmit()
-            }) {
+            ZStack {
+                // Invisible tap area covering entire button - must fill entire ZStack
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        if !text.isEmpty {
+                            onSubmit()
+                        }
+                    }
+                
+                // Visible button content
                 Text("Submit")
                     .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                    .foregroundColor(.white)
             }
-            .largeButtonStyle(color: AppConstants.primaryColor)
-            .disabled(text.isEmpty)
-            .opacity(text.isEmpty ? 0.6 : 1.0)
+            .frame(height: AppConstants.largeButtonHeight)
+            .frame(maxWidth: .infinity)
+            .background(text.isEmpty ? AppConstants.primaryColor.opacity(0.6) : AppConstants.primaryColor)
+            .cornerRadius(AppConstants.cornerRadius)
+            .shadow(color: AppConstants.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
+            .contentShape(Rectangle())
+            .allowsHitTesting(!text.isEmpty)
         }
         .onAppear {
             isFocused = true
