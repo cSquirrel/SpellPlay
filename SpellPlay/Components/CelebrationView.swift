@@ -48,8 +48,10 @@ struct CelebrationView: View {
                 scale = 1.0
                 rotation = 360
             }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        }
+        .task {
+            try? await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
+            await MainActor.run {
                 showConfetti = true
             }
         }

@@ -72,8 +72,9 @@ struct PracticeSummaryView: View {
                 .padding(.bottom, 40)
             }
         }
-        .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+        .task {
+            try? await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
+            await MainActor.run {
                 withAnimation {
                     showCelebration = true
                 }
