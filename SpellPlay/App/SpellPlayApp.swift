@@ -35,14 +35,14 @@ struct SpellPlayApp: App {
                 .environment(appState)
                 .modelContainer(modelContainer)
                 .onAppear {
-                    // Show onboarding if role is selected and onboarding not completed
-                    if let role = appState.selectedRole, !appState.hasCompletedOnboarding {
+                    // Show onboarding if role is selected and onboarding not completed for that role
+                    if let role = appState.selectedRole, !appState.hasCompletedOnboarding(for: role) {
                         showOnboarding = true
                     }
                 }
                 .onChange(of: appState.selectedRole) { oldValue, newValue in
                     // Show onboarding when a role is selected for the first time
-                    if let role = newValue, !appState.hasCompletedOnboarding {
+                    if let role = newValue, !appState.hasCompletedOnboarding(for: role) {
                         showOnboarding = true
                     } else if newValue == nil {
                         showOnboarding = false
@@ -52,7 +52,7 @@ struct SpellPlayApp: App {
                     if let role = appState.selectedRole {
                         OnboardingView(role: role, isPresented: $showOnboarding)
                             .onDisappear {
-                                appState.hasCompletedOnboarding = true
+                                appState.setOnboardingCompleted(for: role, completed: true)
                             }
                     }
                 }

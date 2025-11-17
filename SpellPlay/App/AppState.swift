@@ -12,13 +12,17 @@ import SwiftUI
 class AppState {
     var currentRole: UserRole?
     var selectedTest: SpellingTest?
-    var hasCompletedOnboarding: Bool {
-        get {
-            UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: "hasCompletedOnboarding")
-        }
+    
+    /// Checks if onboarding has been completed for a specific role
+    func hasCompletedOnboarding(for role: UserRole) -> Bool {
+        let key = "hasCompletedOnboarding_\(role.rawValue)"
+        return UserDefaults.standard.bool(forKey: key)
+    }
+    
+    /// Marks onboarding as completed for a specific role
+    func setOnboardingCompleted(for role: UserRole, completed: Bool) {
+        let key = "hasCompletedOnboarding_\(role.rawValue)"
+        UserDefaults.standard.set(completed, forKey: key)
     }
     
     var selectedRole: UserRole? {
