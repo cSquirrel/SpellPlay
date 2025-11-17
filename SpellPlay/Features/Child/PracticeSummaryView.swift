@@ -8,17 +8,12 @@
 import SwiftUI
 
 struct PracticeSummaryView: View {
-    let score: (correct: Int, total: Int)
+    let roundsCompleted: Int
     let streak: Int
     let onPracticeAgain: () -> Void
     let onBack: () -> Void
     
     @State private var showCelebration = true
-    
-    var percentage: Int {
-        guard score.total > 0 else { return 0 }
-        return Int((Double(score.correct) / Double(score.total)) * 100)
-    }
     
     var body: some View {
         ZStack {
@@ -28,7 +23,7 @@ struct PracticeSummaryView: View {
             VStack(spacing: 32) {
                 Spacer()
                 
-                if showCelebration && percentage >= 80 {
+                if showCelebration {
                     CelebrationView()
                         .transition(.scale.combined(with: .opacity))
                 }
@@ -38,15 +33,15 @@ struct PracticeSummaryView: View {
                         .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
                         .foregroundColor(AppConstants.primaryColor)
                     
-                    // Score display
+                    // Round count display
                     VStack(spacing: 8) {
-                        Text("\(score.correct) / \(score.total)")
-                            .font(.system(size: 48, weight: .bold))
-                            .foregroundColor(.primary)
+                        Text("Completed in")
+                            .font(.system(size: AppConstants.bodySize))
+                            .foregroundColor(.secondary)
                         
-                        Text("\(percentage)%")
-                            .font(.system(size: AppConstants.titleSize, weight: .semibold))
-                            .foregroundColor(percentage >= 80 ? AppConstants.successColor : AppConstants.errorColor)
+                        Text("\(roundsCompleted) round\(roundsCompleted == 1 ? "" : "s")")
+                            .font(.system(size: 48, weight: .bold))
+                            .foregroundColor(AppConstants.primaryColor)
                     }
                     .padding(AppConstants.padding * 2)
                     .cardStyle()
@@ -78,11 +73,9 @@ struct PracticeSummaryView: View {
             }
         }
         .onAppear {
-            if percentage >= 80 {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    withAnimation {
-                        showCelebration = true
-                    }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                withAnimation {
+                    showCelebration = true
                 }
             }
         }

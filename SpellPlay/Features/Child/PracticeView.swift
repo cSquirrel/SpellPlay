@@ -17,6 +17,9 @@ struct PracticeView: View {
     @State private var viewModel = PracticeViewModel()
     @State private var showFeedback = false
     @State private var lastAnswerWasCorrect = false
+    @State private var showingRoundTransition = false
+    @State private var nextRoundNumber = 1
+    @State private var wordsRemaining = 0
     
     @StateObject private var ttsService = TTSService()
     
@@ -28,7 +31,7 @@ struct PracticeView: View {
                 
                 if viewModel.isComplete {
                     PracticeSummaryView(
-                        score: viewModel.score,
+                        roundsCompleted: viewModel.currentRound,
                         streak: viewModel.currentStreak,
                         onPracticeAgain: {
                             viewModel.reset()
@@ -38,6 +41,8 @@ struct PracticeView: View {
                             dismiss()
                         }
                     )
+                } else if showingRoundTransition {
+                    roundTransitionView
                 } else {
                     practiceContentView
                 }
@@ -115,6 +120,47 @@ struct PracticeView: View {
         }
     }
     
+    private var roundTransitionView: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            
+            VStack(spacing: 16) {
+                Text("Round \(nextRoundNumber)")
+                    .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
+                    .foregroundColor(AppConstants.primaryColor)
+                
+                Text("Misspelled Words")
+                    .font(.system(size: AppConstants.titleSize, weight: .semibold))
+                    .foregroundColor(.secondary)
+                
+                Text("\(wordsRemaining) word\(wordsRemaining == 1 ? "" : "s") remaining")
+                    .font(.system(size: AppConstants.bodySize))
+                    .foregroundColor(.secondary)
+            }
+            .padding(AppConstants.padding * 2)
+            .cardStyle()
+            
+            Spacer()
+        }
+        .padding(.horizontal, AppConstants.padding)
+        .onAppear {
+            // Auto-dismiss after 2.5 seconds and start next round
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                withAnimation {
+                    showingRoundTransition = false
+                }
+                viewModel.startNextRound()
+                
+                // Auto-play first word of new round
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    if let firstWord = viewModel.currentWord {
+                        ttsService.speak(firstWord.text)
+                    }
+                }
+            }
+        }
+    }
+    
     private func submitAnswer() {
         guard let word = viewModel.currentWord else { return }
         
@@ -131,8 +177,16 @@ struct PracticeView: View {
             }
             viewModel.submitAnswer()
             
-            // Auto-play next word
-            if !viewModel.isComplete, let nextWord = viewModel.currentWord {
+            // Check if round is complete but not all words mastered
+            if viewModel.isRoundComplete && !viewModel.allWordsMastered {
+                // Show round transition
+                nextRoundNumber = viewModel.currentRound + 1
+                wordsRemaining = viewModel.words.count - viewModel.wordsMastered.count
+                withAnimation {
+                    showingRoundTransition = true
+                }
+            } else if !viewModel.isComplete, let nextWord = viewModel.currentWord {
+                // Auto-play next word
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     ttsService.speak(nextWord.text)
                 }

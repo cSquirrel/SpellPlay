@@ -19,8 +19,15 @@ class PracticeViewModel {
     var words: [Word] = []
     var correctAnswers: [Bool] = []
     var isComplete = false
-    var score: (correct: Int, total: Int) = (0, 0)
     var currentStreak = 0
+    
+    // Round tracking properties
+    var currentRound = 1
+    var wordsInCurrentRound: [Word] = []
+    var roundResults: [UUID: Bool] = [:]
+    var wordsMastered: Set<UUID> = []
+    var allWordsMastered = false
+    var isRoundComplete = false
     
     func setup(test: SpellingTest, modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -30,22 +37,29 @@ class PracticeViewModel {
         self.userAnswer = ""
         self.correctAnswers = []
         self.isComplete = false
-        self.score = (0, 0)
         self.currentStreak = streakService?.getCurrentStreak() ?? 0
+        
+        // Initialize round tracking
+        self.currentRound = 1
+        self.wordsInCurrentRound = test.words
+        self.roundResults = [:]
+        self.wordsMastered = []
+        self.allWordsMastered = false
+        self.isRoundComplete = false
     }
     
     var currentWord: Word? {
-        guard currentWordIndex < words.count else { return nil }
-        return words[currentWordIndex]
+        guard currentWordIndex < wordsInCurrentRound.count else { return nil }
+        return wordsInCurrentRound[currentWordIndex]
     }
     
     var progress: Double {
-        guard !words.isEmpty else { return 0 }
-        return Double(currentWordIndex) / Double(words.count)
+        guard !wordsInCurrentRound.isEmpty else { return 0 }
+        return Double(currentWordIndex) / Double(wordsInCurrentRound.count)
     }
     
     var progressText: String {
-        return "\(currentWordIndex + 1) of \(words.count)"
+        return "Round \(currentRound): Word \(currentWordIndex + 1) of \(wordsInCurrentRound.count)"
     }
     
     func submitAnswer() {
@@ -53,31 +67,55 @@ class PracticeViewModel {
         
         let isCorrect = word.text.matches(userAnswer)
         correctAnswers.append(isCorrect)
+        roundResults[word.id] = isCorrect
         
+        // If answer is correct, mark word as mastered
         if isCorrect {
-            score.correct += 1
+            wordsMastered.insert(word.id)
         }
-        score.total += 1
         
         userAnswer = ""
         
-        if currentWordIndex < words.count - 1 {
+        // Check if we've completed the current round
+        if currentWordIndex < wordsInCurrentRound.count - 1 {
             currentWordIndex += 1
         } else {
-            completePractice()
+            // Round is complete
+            isRoundComplete = true
+            
+            // Check if all words have been mastered
+            if wordsMastered.count == words.count {
+                allWordsMastered = true
+                completePractice()
+            }
+            // If not all words mastered, prepare for next round
+            // (The actual transition will be handled by the view)
         }
+    }
+    
+    func startNextRound() {
+        // Filter words that are NOT yet mastered
+        wordsInCurrentRound = words.filter { !wordsMastered.contains($0.id) }
+        currentWordIndex = 0
+        roundResults = [:]
+        currentRound += 1
+        isRoundComplete = false
     }
     
     private func completePractice() {
         isComplete = true
         
-        // Update streak
+        // Update streak - use total words attempted across all rounds
         if let test = words.first?.test,
            let streakService = streakService {
+            // Calculate total words attempted (all rounds combined)
+            let totalAttempts = correctAnswers.count
+            let totalCorrect = wordsMastered.count
+            
             currentStreak = streakService.updateStreak(
                 for: test.id,
-                wordsAttempted: words.count,
-                wordsCorrect: score.correct
+                wordsAttempted: totalAttempts,
+                wordsCorrect: totalCorrect
             )
             
             // Update test's lastPracticed date
@@ -96,7 +134,14 @@ class PracticeViewModel {
         userAnswer = ""
         correctAnswers = []
         isComplete = false
-        score = (0, 0)
+        
+        // Reset round tracking
+        currentRound = 1
+        wordsInCurrentRound = words
+        roundResults = [:]
+        wordsMastered = []
+        allWordsMastered = false
+        isRoundComplete = false
     }
 }
 
