@@ -1,0 +1,137 @@
+//
+//  EditTestView.swift
+//  SpellPlay
+//
+//  Created on [Date]
+//
+
+import SwiftUI
+import SwiftData
+
+struct EditTestView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    
+    let test: SpellingTest
+    
+    @State private var testName: String
+    @State private var wordText = ""
+    @State private var words: [Word]
+    @State private var selectedWordForTTS: Word?
+    
+    @StateObject private var ttsService = TTSService()
+    
+    init(test: SpellingTest) {
+        self.test = test
+        _testName = State(initialValue: test.name)
+        _words = State(initialValue: test.words)
+    }
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("Test Name") {
+                    TextField("Enter test name", text: $testName)
+                        .font(.system(size: AppConstants.bodySize))
+                }
+                
+                Section("Add Words") {
+                    VStack(alignment: .leading, spacing: 12) {
+                        TextEditor(text: $wordText)
+                            .frame(height: 120)
+                            .font(.system(size: AppConstants.bodySize))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: AppConstants.cornerRadius)
+                                    .stroke(Color(.systemGray4), lineWidth: 1)
+                            )
+                        
+                        Text("Enter words separated by commas or new lines")
+                            .font(.system(size: AppConstants.captionSize))
+                            .foregroundColor(.secondary)
+                        
+                        Button(action: addWords) {
+                            HStack {
+                                Image(systemName: "plus.circle.fill")
+                                Text("Add Words")
+                            }
+                        }
+                        .disabled(wordText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    }
+                }
+                
+                if !words.isEmpty {
+                    Section("Words (\(words.count))") {
+                        ForEach(Array(words.enumerated()), id: \.element.id) { index, word in
+                            HStack {
+                                Text(word.text)
+                                    .font(.system(size: AppConstants.bodySize))
+                                
+                                Spacer()
+                                
+                                Button(action: {
+                                    selectedWordForTTS = word
+                                    ttsService.speak(word.text)
+                                }) {
+                                    Image(systemName: ttsService.isSpeaking && selectedWordForTTS?.id == word.id ? "speaker.wave.2.fill" : "speaker.wave.2")
+                                        .foregroundColor(AppConstants.primaryColor)
+                                }
+                                .frame(width: AppConstants.minimumTouchTarget, height: AppConstants.minimumTouchTarget)
+                                
+                                Button(action: {
+                                    modelContext.delete(word)
+                                    words.remove(at: index)
+                                }) {
+                                    Image(systemName: "minus.circle.fill")
+                                        .foregroundColor(AppConstants.errorColor)
+                                }
+                                .frame(width: AppConstants.minimumTouchTarget, height: AppConstants.minimumTouchTarget)
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Edit Test")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        saveTest()
+                    }
+                    .fontWeight(.semibold)
+                }
+            }
+        }
+    }
+    
+    private func addWords() {
+        let text = wordText
+        let newWordTexts = text.splitIntoWords()
+        
+        for wordText in newWordTexts {
+            let word = Word(text: wordText)
+            word.test = test
+            test.words.append(word)
+            words.append(word)
+        }
+        
+        wordText = ""
+    }
+    
+    private func saveTest() {
+        test.name = testName
+        
+        do {
+            try modelContext.save()
+            dismiss()
+        } catch {
+            print("Error saving test: \(error)")
+        }
+    }
+}
+
