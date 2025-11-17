@@ -34,6 +34,7 @@ struct EditTestView: View {
                 Section("Test Name") {
                     TextField("Enter test name", text: $testName)
                         .font(.system(size: AppConstants.bodySize))
+                        .accessibilityIdentifier("EditTest_TestNameField")
                 }
                 
                 Section("Add Words") {
@@ -45,6 +46,7 @@ struct EditTestView: View {
                                 RoundedRectangle(cornerRadius: AppConstants.cornerRadius)
                                     .stroke(Color(.systemGray4), lineWidth: 1)
                             )
+                            .accessibilityIdentifier("EditTest_WordTextEditor")
                         
                         Text("Enter words separated by commas or new lines")
                             .font(.system(size: AppConstants.captionSize))
@@ -57,6 +59,7 @@ struct EditTestView: View {
                             }
                         }
                         .disabled(wordText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        .accessibilityIdentifier("EditTest_AddWordsButton")
                     }
                 }
                 
@@ -66,6 +69,7 @@ struct EditTestView: View {
                             HStack(spacing: 12) {
                                 Text(word.text)
                                     .font(.system(size: AppConstants.bodySize))
+                                    .accessibilityIdentifier("EditTest_Word_\(word.text)")
                                 
                                 Spacer()
                                 
@@ -105,6 +109,7 @@ struct EditTestView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .accessibilityIdentifier("EditTest_CancelButton")
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -112,6 +117,7 @@ struct EditTestView: View {
                         saveTest()
                     }
                     .fontWeight(.semibold)
+                    .accessibilityIdentifier("EditTest_SaveButton")
                 }
             }
             .errorAlert(errorMessage: $errorMessage) {

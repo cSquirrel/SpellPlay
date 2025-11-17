@@ -39,6 +39,7 @@ struct ParentHomeView: View {
                             .font(.system(size: 20))
                             .foregroundColor(.secondary)
                     }
+                    .accessibilityIdentifier("ParentHome_SettingsButton")
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -48,6 +49,7 @@ struct ParentHomeView: View {
                         Image(systemName: "plus")
                             .font(.system(size: 20, weight: .semibold))
                     }
+                    .accessibilityIdentifier("ParentHome_CreateTestToolbarButton")
                 }
             }
             .sheet(isPresented: $showingRoleSwitcher) {
@@ -75,6 +77,7 @@ struct ParentHomeView: View {
             Text("No Tests Yet")
                 .font(.system(size: AppConstants.titleSize, weight: .semibold))
                 .foregroundColor(.primary)
+                .accessibilityIdentifier("ParentHome_EmptyStateText")
             
             Text("Create your first spelling test to get started")
                 .font(.system(size: AppConstants.bodySize))
@@ -90,6 +93,7 @@ struct ParentHomeView: View {
             }
             .largeButtonStyle(color: AppConstants.primaryColor)
             .padding(.horizontal, AppConstants.padding)
+            .accessibilityIdentifier("ParentHome_CreateTestButton")
         }
     }
     
@@ -130,6 +134,7 @@ struct TestCardView: View {
                 Text(test.name)
                     .font(.system(size: AppConstants.bodySize, weight: .semibold))
                     .foregroundColor(.primary)
+                    .accessibilityIdentifier("TestCard_Name_\(test.name)")
                 
                 Text("\(test.words.count) words")
                     .font(.system(size: AppConstants.captionSize))
@@ -160,6 +165,7 @@ struct TestCardView: View {
         }
         .padding(AppConstants.padding)
         .cardStyle()
+        .accessibilityIdentifier("TestCard_\(test.name)")
     }
 }
 

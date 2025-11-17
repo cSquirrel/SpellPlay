@@ -42,6 +42,7 @@ struct PracticeSummaryView: View {
                         Text("\(roundsCompleted) round\(roundsCompleted == 1 ? "" : "s")")
                             .font(.system(size: 48, weight: .bold))
                             .foregroundColor(AppConstants.primaryColor)
+                            .accessibilityIdentifier("PracticeSummary_RoundsCompleted")
                     }
                     .padding(AppConstants.padding * 2)
                     .cardStyle()
@@ -61,12 +62,14 @@ struct PracticeSummaryView: View {
                             .font(.system(size: AppConstants.bodySize, weight: .semibold))
                     }
                     .largeButtonStyle(color: AppConstants.primaryColor)
+                    .accessibilityIdentifier("PracticeSummary_PracticeAgainButton")
                     
                     Button(action: onBack) {
                         Text("Back to Tests")
                             .font(.system(size: AppConstants.bodySize, weight: .semibold))
                     }
                     .largeButtonStyle(color: AppConstants.secondaryColor)
+                    .accessibilityIdentifier("PracticeSummary_BackToTestsButton")
                 }
                 .padding(.horizontal, AppConstants.padding)
                 .padding(.bottom, 40)

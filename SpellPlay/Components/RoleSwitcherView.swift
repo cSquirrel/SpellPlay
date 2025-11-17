@@ -28,6 +28,7 @@ struct RoleSwitcherView: View {
                                 .foregroundColor(AppConstants.primaryColor)
                             Text("Switch to Parent Mode")
                                 .foregroundColor(.primary)
+                                .accessibilityIdentifier("RoleSwitcher_ParentButton")
                             Spacer()
                             if appState.currentRole == .parent {
                                 Image(systemName: "checkmark")
@@ -45,6 +46,7 @@ struct RoleSwitcherView: View {
                                 .foregroundColor(AppConstants.secondaryColor)
                             Text("Switch to Kid Mode")
                                 .foregroundColor(.primary)
+                                .accessibilityIdentifier("RoleSwitcher_ChildButton")
                             Spacer()
                             if appState.currentRole == .child {
                                 Image(systemName: "checkmark")

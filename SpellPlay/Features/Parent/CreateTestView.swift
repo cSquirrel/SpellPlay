@@ -27,6 +27,7 @@ struct CreateTestView: View {
                 Section("Test Name") {
                     TextField("Enter test name", text: $testName)
                         .font(.system(size: AppConstants.bodySize))
+                        .accessibilityIdentifier("CreateTest_TestNameField")
                 }
                 
                 Section("Add Words") {
@@ -38,6 +39,7 @@ struct CreateTestView: View {
                                 RoundedRectangle(cornerRadius: AppConstants.cornerRadius)
                                     .stroke(Color(.systemGray4), lineWidth: 1)
                             )
+                            .accessibilityIdentifier("CreateTest_WordTextEditor")
                         
                         Text("Enter words separated by commas or new lines")
                             .font(.system(size: AppConstants.captionSize))
@@ -50,6 +52,7 @@ struct CreateTestView: View {
                             }
                         }
                         .disabled(wordText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                        .accessibilityIdentifier("CreateTest_AddWordsButton")
                     }
                 }
                 
@@ -59,6 +62,7 @@ struct CreateTestView: View {
                             HStack(spacing: 12) {
                                 Text(word)
                                     .font(.system(size: AppConstants.bodySize))
+                                    .accessibilityIdentifier("CreateTest_Word_\(word)")
                                 
                                 Spacer()
                                 
@@ -97,6 +101,7 @@ struct CreateTestView: View {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .accessibilityIdentifier("CreateTest_CancelButton")
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -105,6 +110,7 @@ struct CreateTestView: View {
                     }
                     .disabled(testName.isEmpty || words.isEmpty)
                     .fontWeight(.semibold)
+                    .accessibilityIdentifier("CreateTest_SaveButton")
                 }
             }
             .errorAlert(errorMessage: $errorMessage) {

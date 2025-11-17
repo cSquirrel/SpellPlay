@@ -65,6 +65,7 @@ struct OnboardingView: View {
             .largeButtonStyle(color: role == .parent ? AppConstants.primaryColor : AppConstants.secondaryColor)
             .padding(.horizontal, AppConstants.padding)
             .padding(.bottom, 40)
+            .accessibilityIdentifier("Onboarding_GetStartedButton")
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(AppConstants.backgroundColor)

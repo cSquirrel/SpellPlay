@@ -74,6 +74,7 @@ struct PracticeView: View {
                 Text(viewModel.progressText)
                     .font(.system(size: AppConstants.captionSize))
                     .foregroundColor(.secondary)
+                    .accessibilityIdentifier("Practice_ProgressText")
             }
             .padding(.horizontal, AppConstants.padding)
             .padding(.top, AppConstants.padding)
@@ -135,10 +136,12 @@ struct PracticeView: View {
                 Text("Round \(nextRoundNumber)")
                     .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
                     .foregroundColor(AppConstants.primaryColor)
+                    .accessibilityIdentifier("RoundTransition_RoundTitle")
                 
                 Text("Misspelled Words")
                     .font(.system(size: AppConstants.titleSize, weight: .semibold))
                     .foregroundColor(.secondary)
+                    .accessibilityIdentifier("RoundTransition_Subtitle")
             }
             .padding(.top, AppConstants.padding * 2)
             
@@ -150,6 +153,7 @@ struct PracticeView: View {
                             Text(word.text)
                                 .font(.system(size: AppConstants.bodySize, weight: .medium))
                                 .foregroundColor(.primary)
+                                .accessibilityIdentifier("RoundTransition_Word_\(word.text)")
                             
                             Spacer()
                             
@@ -193,6 +197,7 @@ struct PracticeView: View {
             .largeButtonStyle(color: AppConstants.primaryColor)
             .padding(.horizontal, AppConstants.padding)
             .padding(.bottom, AppConstants.padding)
+            .accessibilityIdentifier("RoundTransition_StartRoundButton")
         }
     }
     

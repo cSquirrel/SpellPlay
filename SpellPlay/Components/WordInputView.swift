@@ -26,6 +26,7 @@ struct WordInputView: View {
                 .autocorrectionDisabled()
                 .autocapitalization(.none)
                 .submitLabel(.done)
+                .accessibilityIdentifier("WordInput_TextField")
                 .onSubmit {
                     if !text.isEmpty {
                         onSubmit()
@@ -46,6 +47,7 @@ struct WordInputView: View {
                 Text("Submit")
                     .font(.system(size: AppConstants.bodySize, weight: .semibold))
                     .foregroundColor(.white)
+                    .accessibilityIdentifier("WordInput_SubmitButton")
             }
             .frame(height: AppConstants.largeButtonHeight)
             .frame(maxWidth: .infinity)

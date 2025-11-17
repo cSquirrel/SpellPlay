@@ -19,6 +19,7 @@ struct RoleSelectionView: View {
                 .foregroundColor(AppConstants.primaryColor)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, AppConstants.padding)
+                .accessibilityIdentifier("RoleSelection_WelcomeText")
             
             Text("Choose your role to get started")
                 .font(.system(size: AppConstants.bodySize))
@@ -40,6 +41,7 @@ struct RoleSelectionView: View {
                     }
                 }
                 .largeButtonStyle(color: AppConstants.primaryColor)
+                .accessibilityIdentifier("RoleSelection_ParentButton")
                 
                 Button(action: {
                     appState.selectedRole = .child
@@ -52,6 +54,7 @@ struct RoleSelectionView: View {
                     }
                 }
                 .largeButtonStyle(color: AppConstants.secondaryColor)
+                .accessibilityIdentifier("RoleSelection_ChildButton")
             }
             .padding(.horizontal, AppConstants.padding)
             

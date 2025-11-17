@@ -38,6 +38,7 @@ struct ChildHomeView: View {
                             .font(.system(size: 20))
                             .foregroundColor(.secondary)
                     }
+                    .accessibilityIdentifier("ChildHome_SettingsButton")
                 }
             }
             .onAppear {
@@ -62,6 +63,7 @@ struct ChildHomeView: View {
             Text("No Tests Available")
                 .font(.system(size: AppConstants.titleSize, weight: .semibold))
                 .foregroundColor(.primary)
+                .accessibilityIdentifier("ChildHome_EmptyStateText")
             
             Text("Ask a parent to create a spelling test for you!")
                 .font(.system(size: AppConstants.bodySize))
@@ -117,6 +119,7 @@ struct ChildTestCardView: View {
                     .font(.system(size: AppConstants.titleSize, weight: .bold))
                     .foregroundColor(.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityIdentifier("ChildTestCard_Name_\(test.name)")
                 
                 Text("\(test.words.count) words")
                     .font(.system(size: AppConstants.bodySize))
@@ -127,6 +130,7 @@ struct ChildTestCardView: View {
             .cardStyle()
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier("ChildTestCard_\(test.name)")
     }
 }
 
