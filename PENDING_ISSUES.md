@@ -1,5 +1,7 @@
 ## Pending Issues
 
+_Last updated: 2025-11-17_
+
 1. **Practice answer grading uses stale text**
    - `PracticeView.submitAnswer()` waits before calling into `PracticeViewModel.submitAnswer()`, which re-reads `userAnswer`. Kids can edit the field during the delay, so the recorded score may not match what they originally submitted. Evaluate immediately or pass the captured answer through before any delay.  
    - Path: `SpellPlay/Features/Child/PracticeView.swift`, `SpellPlay/Features/Child/ViewModels/PracticeViewModel.swift`
