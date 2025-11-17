@@ -62,6 +62,10 @@ class PracticeViewModel {
         return "Round \(currentRound): Word \(currentWordIndex + 1) of \(wordsInCurrentRound.count)"
     }
     
+    var misspelledWords: [Word] {
+        return words.filter { !wordsMastered.contains($0.id) }
+    }
+    
     func submitAnswer(with answer: String? = nil) {
         guard let word = currentWord else { return }
         

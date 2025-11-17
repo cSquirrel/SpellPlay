@@ -19,7 +19,6 @@ struct PracticeView: View {
     @State private var lastAnswerWasCorrect = false
     @State private var showingRoundTransition = false
     @State private var nextRoundNumber = 1
-    @State private var wordsRemaining = 0
     @State private var isInputDisabled = false
     @State private var feedbackTimer: Timer?
     @State private var nextWordTimer: Timer?
@@ -131,8 +130,6 @@ struct PracticeView: View {
     
     private var roundTransitionView: some View {
         VStack(spacing: 24) {
-            Spacer()
-            
             VStack(spacing: 16) {
                 Text("Round \(nextRoundNumber)")
                     .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
@@ -141,36 +138,60 @@ struct PracticeView: View {
                 Text("Misspelled Words")
                     .font(.system(size: AppConstants.titleSize, weight: .semibold))
                     .foregroundColor(.secondary)
-                
-                Text("\(wordsRemaining) word\(wordsRemaining == 1 ? "" : "s") remaining")
-                    .font(.system(size: AppConstants.bodySize))
-                    .foregroundColor(.secondary)
             }
-            .padding(AppConstants.padding * 2)
-            .cardStyle()
+            .padding(.top, AppConstants.padding * 2)
             
-            Spacer()
-        }
-        .padding(.horizontal, AppConstants.padding)
-        .onAppear {
-            // Auto-dismiss after 2.5 seconds and start next round
-            Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { _ in
-                Task { @MainActor in
-                    withAnimation {
-                        showingRoundTransition = false
-                    }
-                    viewModel.startNextRound()
-                    
-                    // Auto-play first word of new round after a short delay
-                    Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
-                        Task { @MainActor in
-                            if let firstWord = viewModel.currentWord {
-                                ttsService.speak(firstWord.text)
+            // List of misspelled words
+            ScrollView {
+                VStack(spacing: 12) {
+                    ForEach(viewModel.misspelledWords, id: \.id) { word in
+                        HStack {
+                            Text(word.text)
+                                .font(.system(size: AppConstants.bodySize, weight: .medium))
+                                .foregroundColor(.primary)
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                ttsService.speak(word.text)
+                            }) {
+                                Image(systemName: ttsService.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(AppConstants.primaryColor)
                             }
+                            .buttonStyle(.plain)
+                            .contentShape(Rectangle())
+                            .disabled(ttsService.isSpeaking)
+                        }
+                        .padding(AppConstants.padding)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(AppConstants.cornerRadius)
+                    }
+                }
+                .padding(.horizontal, AppConstants.padding)
+            }
+            
+            Button(action: {
+                withAnimation {
+                    showingRoundTransition = false
+                }
+                viewModel.startNextRound()
+                
+                // Auto-play first word of new round after a short delay
+                Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+                    Task { @MainActor in
+                        if let firstWord = viewModel.currentWord {
+                            ttsService.speak(firstWord.text)
                         }
                     }
                 }
+            }) {
+                Text("Start Round")
+                    .font(.system(size: AppConstants.bodySize, weight: .semibold))
             }
+            .largeButtonStyle(color: AppConstants.primaryColor)
+            .padding(.horizontal, AppConstants.padding)
+            .padding(.bottom, AppConstants.padding)
         }
     }
     
@@ -212,7 +233,6 @@ struct PracticeView: View {
                 if viewModel.isRoundComplete && !viewModel.allWordsMastered {
                     // Show round transition
                     nextRoundNumber = viewModel.currentRound + 1
-                    wordsRemaining = viewModel.words.count - viewModel.wordsMastered.count
                     withAnimation {
                         showingRoundTransition = true
                     }
