@@ -18,13 +18,6 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:SpellPlayPackage",
-        "identifier" : "SpellPlayFeatureTests",
-        "name" : "SpellPlayFeatureTests"
-      }
-    },
-    {
-      "target" : {
         "containerPath" : "container:SpellPlay.xcodeproj",
         "identifier" : "8B41F65B2DEDD0D6001A66F9",
         "name" : "SpellPlayUITests"

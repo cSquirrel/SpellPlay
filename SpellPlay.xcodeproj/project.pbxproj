@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8B41F6832DEDD23B001A66F9 /* SpellPlayFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 8B41F6822DEDD23B001A66F9 /* SpellPlayFeature */; };
-		8B41F6852DEDD25C001A66F9 /* SpellPlayFeature in Frameworks */ = {isa = PBXBuildFile; productRef = 8B41F6842DEDD25C001A66F9 /* SpellPlayFeature */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,7 +63,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B41F6852DEDD25C001A66F9 /* SpellPlayFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -73,7 +70,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B41F6832DEDD23B001A66F9 /* SpellPlayFeature in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -128,7 +124,6 @@
 			);
 			name = SpellPlay;
 			packageProductDependencies = (
-				8B41F6842DEDD25C001A66F9 /* SpellPlayFeature */,
 			);
 			productName = SpellPlay;
 			productReference = 8B41F6452DEDD0D5001A66F9 /* SpellPlay.app */;
@@ -152,7 +147,6 @@
 			);
 			name = SpellPlayUITests;
 			packageProductDependencies = (
-				8B41F6822DEDD23B001A66F9 /* SpellPlayFeature */,
 			);
 			productName = SpellPlayUITests;
 			productReference = 8B41F65C2DEDD0D6001A66F9 /* SpellPlay.xctest */;
@@ -468,14 +462,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		8B41F6822DEDD23B001A66F9 /* SpellPlayFeature */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SpellPlayFeature;
-		};
-		8B41F6842DEDD25C001A66F9 /* SpellPlayFeature */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SpellPlayFeature;
-		};
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8B41F63D2DEDD0D5001A66F9 /* Project object */;
