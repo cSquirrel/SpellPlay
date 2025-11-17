@@ -14,16 +14,22 @@ struct SpellPlayApp: App {
     @State private var showOnboarding = false
     
     var modelContainer: ModelContainer = {
-        let schema = Schema([
-            SpellingTest.self,
-            Word.self,
-            PracticeSession.self
-        ])
+        let migrationPlan = SpellPlayMigrationPlan.self
         
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        // Create schema from the current versioned schema
+        let schema = Schema(CurrentSchema.models)
+        
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false
+        )
         
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            return try ModelContainer(
+                for: schema,
+                migrationPlan: migrationPlan,
+                configurations: [modelConfiguration]
+            )
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
