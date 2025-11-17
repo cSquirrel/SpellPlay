@@ -20,6 +20,9 @@ struct PracticeView: View {
     @State private var showingRoundTransition = false
     @State private var nextRoundNumber = 1
     @State private var wordsRemaining = 0
+    @State private var isInputDisabled = false
+    @State private var feedbackTimer: Timer?
+    @State private var nextWordTimer: Timer?
     
     @StateObject private var ttsService = TTSService()
     
@@ -51,6 +54,11 @@ struct PracticeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 viewModel.setup(test: test, modelContext: modelContext)
+            }
+            .onDisappear {
+                // Clean up timers when view disappears
+                feedbackTimer?.invalidate()
+                nextWordTimer?.invalidate()
             }
         }
     }
@@ -115,6 +123,7 @@ struct PracticeView: View {
                 },
                 placeholder: "Type the word here"
             )
+            .disabled(isInputDisabled)
             .padding(.horizontal, AppConstants.padding)
             .padding(.bottom, AppConstants.padding)
         }
@@ -145,16 +154,20 @@ struct PracticeView: View {
         .padding(.horizontal, AppConstants.padding)
         .onAppear {
             // Auto-dismiss after 2.5 seconds and start next round
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                withAnimation {
-                    showingRoundTransition = false
-                }
-                viewModel.startNextRound()
-                
-                // Auto-play first word of new round
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    if let firstWord = viewModel.currentWord {
-                        ttsService.speak(firstWord.text)
+            Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { _ in
+                Task { @MainActor in
+                    withAnimation {
+                        showingRoundTransition = false
+                    }
+                    viewModel.startNextRound()
+                    
+                    // Auto-play first word of new round after a short delay
+                    Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+                        Task { @MainActor in
+                            if let firstWord = viewModel.currentWord {
+                                ttsService.speak(firstWord.text)
+                            }
+                        }
                     }
                 }
             }
@@ -164,31 +177,54 @@ struct PracticeView: View {
     private func submitAnswer() {
         guard let word = viewModel.currentWord else { return }
         
-        let isCorrect = word.text.matches(viewModel.userAnswer)
+        // Capture answer immediately before any delay
+        let capturedAnswer = viewModel.userAnswer
+        
+        // Evaluate correctness immediately
+        let isCorrect = word.text.matches(capturedAnswer)
         lastAnswerWasCorrect = isCorrect
         
+        // Disable input during feedback animation
+        isInputDisabled = true
+        
+        // Submit the answer immediately with captured value to prevent stale text issues
+        viewModel.submitAnswer(with: capturedAnswer)
+        
+        // Show feedback animation
         withAnimation {
             showFeedback = true
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            withAnimation {
-                showFeedback = false
-            }
-            viewModel.submitAnswer()
-            
-            // Check if round is complete but not all words mastered
-            if viewModel.isRoundComplete && !viewModel.allWordsMastered {
-                // Show round transition
-                nextRoundNumber = viewModel.currentRound + 1
-                wordsRemaining = viewModel.words.count - viewModel.wordsMastered.count
+        // Cancel any existing timer
+        feedbackTimer?.invalidate()
+        
+        // Wait to hide feedback and move to next word (UX delay for user to see feedback)
+        feedbackTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+            Task { @MainActor in
                 withAnimation {
-                    showingRoundTransition = true
+                    showFeedback = false
                 }
-            } else if !viewModel.isComplete, let nextWord = viewModel.currentWord {
-                // Auto-play next word
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    ttsService.speak(nextWord.text)
+                
+                // Re-enable input
+                isInputDisabled = false
+                
+                // Check if round is complete but not all words mastered
+                if viewModel.isRoundComplete && !viewModel.allWordsMastered {
+                    // Show round transition
+                    nextRoundNumber = viewModel.currentRound + 1
+                    wordsRemaining = viewModel.words.count - viewModel.wordsMastered.count
+                    withAnimation {
+                        showingRoundTransition = true
+                    }
+                } else if !viewModel.isComplete, let nextWord = viewModel.currentWord {
+                    // Auto-play next word after a short delay
+                    let nextWordText = nextWord.text
+                    nextWordTimer?.invalidate()
+                    nextWordTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+                        Task { @MainActor in
+                            ttsService.speak(nextWordText)
+                        }
+                    }
                 }
             }
         }

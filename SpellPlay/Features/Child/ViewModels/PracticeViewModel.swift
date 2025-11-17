@@ -62,10 +62,12 @@ class PracticeViewModel {
         return "Round \(currentRound): Word \(currentWordIndex + 1) of \(wordsInCurrentRound.count)"
     }
     
-    func submitAnswer() {
+    func submitAnswer(with answer: String? = nil) {
         guard let word = currentWord else { return }
         
-        let isCorrect = word.text.matches(userAnswer)
+        // Use provided answer if available, otherwise fall back to userAnswer
+        let answerToEvaluate = answer ?? userAnswer
+        let isCorrect = word.text.matches(answerToEvaluate)
         correctAnswers.append(isCorrect)
         roundResults[word.id] = isCorrect
         
