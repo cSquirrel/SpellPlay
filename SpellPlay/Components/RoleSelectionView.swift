@@ -1,6 +1,6 @@
 //
 //  RoleSelectionView.swift
-//  SpellPlay
+//  WordCraft
 //
 //  Created on [Date]
 //
@@ -14,7 +14,7 @@ struct RoleSelectionView: View {
         VStack(spacing: 32) {
             Spacer()
             
-            Text("Welcome to SpellPlay!")
+            Text("Welcome to WordCraft!")
                 .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
                 .foregroundColor(AppConstants.primaryColor)
                 .multilineTextAlignment(.center)

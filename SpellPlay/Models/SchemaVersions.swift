@@ -1,6 +1,6 @@
 //
 //  SchemaVersions.swift
-//  SpellPlay
+//  WordCraft
 //
 //  SwiftData schema versioning
 //
@@ -17,7 +17,7 @@ import Foundation
 import SwiftData
 
 /// Version 1.0.0 - Initial schema
-enum SpellPlaySchemaV1_0_0: VersionedSchema {
+enum WordCraftSchemaV1_0_0: VersionedSchema {
     static var versionIdentifier = Schema.Version(1, 0, 0)
     
     static var models: [any PersistentModel.Type] {
@@ -30,24 +30,24 @@ enum SpellPlaySchemaV1_0_0: VersionedSchema {
 }
 
 /// Current schema version
-typealias CurrentSchema = SpellPlaySchemaV1_0_0
+typealias CurrentSchema = WordCraftSchemaV1_0_0
 
 /// Top-level typealiases for easy access to current schema models
-typealias SpellingTest = SpellPlaySchemaV1_0_0.SpellingTest
-typealias Word = SpellPlaySchemaV1_0_0.Word
-typealias PracticeSession = SpellPlaySchemaV1_0_0.PracticeSession
+typealias SpellingTest = WordCraftSchemaV1_0_0.SpellingTest
+typealias Word = WordCraftSchemaV1_0_0.Word
+typealias PracticeSession = WordCraftSchemaV1_0_0.PracticeSession
 
 /// Migration plan for schema versions
-enum SpellPlayMigrationPlan: SchemaMigrationPlan {
+enum WordCraftMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [SpellPlaySchemaV1_0_0.self]
+        [WordCraftSchemaV1_0_0.self]
     }
     
     static var stages: [MigrationStage] {
         // No migrations yet - this is the initial version
         // Add migration stages here when creating new schema versions
         // Example:
-        // [.lightweight(fromVersion: SpellPlaySchemaV1_0_0.self, toVersion: SpellPlaySchemaV2_0_0.self)]
+        // [.lightweight(fromVersion: WordCraftSchemaV1_0_0.self, toVersion: WordCraftSchemaV2_0_0.self)]
         return []
     }
 }

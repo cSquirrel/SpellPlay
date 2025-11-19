@@ -40,13 +40,13 @@ Replace silent error handling (print statements) with user-friendly error messag
 
 ## Files to Modify
 
-1. **SpellPlay/Components/ErrorAlert.swift** (NEW) - Reusable error alert component
-2. **SpellPlay/Features/Parent/CreateTestView.swift** - Add error alert for save failures
-3. **SpellPlay/Features/Parent/EditTestView.swift** - Add error alert for save failures
-4. **SpellPlay/Features/Parent/ParentHomeView.swift** - Display TestListViewModel errorMessage
-5. **SpellPlay/Features/Child/ViewModels/PracticeViewModel.swift** - Add error state and expose to view
-6. **SpellPlay/Features/Child/PracticeView.swift** - Display practice session save errors
-7. **SpellPlay/Services/StreakService.swift** - Return errors instead of printing (or use callback)
+1. **WordCraft/Components/ErrorAlert.swift** (NEW) - Reusable error alert component
+2. **WordCraft/Features/Parent/CreateTestView.swift** - Add error alert for save failures
+3. **WordCraft/Features/Parent/EditTestView.swift** - Add error alert for save failures
+4. **WordCraft/Features/Parent/ParentHomeView.swift** - Display TestListViewModel errorMessage
+5. **WordCraft/Features/Child/ViewModels/PracticeViewModel.swift** - Add error state and expose to view
+6. **WordCraft/Features/Child/PracticeView.swift** - Display practice session save errors
+7. **WordCraft/Services/StreakService.swift** - Return errors instead of printing (or use callback)
 
 ## Implementation Details
 

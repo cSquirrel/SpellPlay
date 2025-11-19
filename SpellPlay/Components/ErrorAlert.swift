@@ -1,6 +1,6 @@
 //
 //  ErrorAlert.swift
-//  SpellPlay
+//  WordCraft
 //
 //  Reusable error alert component for user-facing error messages
 //

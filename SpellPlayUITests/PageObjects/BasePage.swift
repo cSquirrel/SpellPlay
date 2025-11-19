@@ -1,6 +1,6 @@
 //
 //  BasePage.swift
-//  SpellPlayUITests
+//  WordCraftUITests
 //
 //  Created on [Date]
 //

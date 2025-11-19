@@ -1,7 +1,7 @@
 # UI Testing Implementation Plan
 
 ## Overview
-Implement comprehensive UI tests for SpellPlay app using XCTest and XCUIApplication following the **Page Object Model (POM)** architecture pattern. Tests will cover critical user flows, edge cases, error scenarios, and data persistence across both Parent and Child roles.
+Implement comprehensive UI tests for WordCraft app using XCTest and XCUIApplication following the **Page Object Model (POM)** architecture pattern. Tests will cover critical user flows, edge cases, error scenarios, and data persistence across both Parent and Child roles.
 
 ## Page Object Model (POM) Architecture
 
@@ -20,7 +20,7 @@ The Page Object Model is a design pattern that:
 4. **Fluent Interface**: Page Objects return other Page Objects for navigation (method chaining)
 5. **Reusability**: Common functionality is shared through a base class
 
-### Benefits for SpellPlay
+### Benefits for WordCraft
 - **Maintainability**: When UI elements change (e.g., button labels, accessibility IDs), update only the Page Object
 - **Readability**: Tests read naturally: `parentHomePage.tapCreateTest().enterTestName("My Test").tapSave()`
 - **Consistency**: All tests use the same interaction patterns
@@ -30,7 +30,7 @@ The Page Object Model is a design pattern that:
 
 ### File Organization
 
-**Page Objects** (located in `SpellPlayUITests/PageObjects/`):
+**Page Objects** (located in `WordCraftUITests/PageObjects/`):
 - `BasePage.swift` - Base class with common functionality for all page objects
 - `RoleSelectionPage.swift` - Role selection screen
 - `OnboardingPage.swift` - Onboarding screen
@@ -43,19 +43,19 @@ The Page Object Model is a design pattern that:
 - `PracticeSummaryPage.swift` - Practice completion summary
 - `RoleSwitcherPage.swift` - Role switching modal
 
-**Test Files** (located in `SpellPlayUITests/`):
+**Test Files** (located in `WordCraftUITests/`):
 - `RoleSelectionTests.swift` - Role selection and onboarding flows
 - `ParentFlowTests.swift` - Parent test management (create, edit, delete)
 - `ChildFlowTests.swift` - Child practice flows and iterative rounds
 - `EdgeCaseTests.swift` - Empty states, error handling, data persistence
 
-**Helpers** (located in `SpellPlayUITests/Helpers/`):
+**Helpers** (located in `WordCraftUITests/Helpers/`):
 - `TestHelpers.swift` - Reusable test utilities and setup helpers
 
 ## Page Object Implementation Details
 
 ### Base Page Object
-**File**: `SpellPlayUITests/PageObjects/BasePage.swift`
+**File**: `WordCraftUITests/PageObjects/BasePage.swift`
 
 All page objects inherit from `BasePage`, which provides common functionality:
 
@@ -170,12 +170,12 @@ class ParentHomePage: BasePage {
 ## Detailed Page Object Specifications
 
 ### 1. RoleSelectionPage
-**File**: `SpellPlayUITests/PageObjects/RoleSelectionPage.swift`
+**File**: `WordCraftUITests/PageObjects/RoleSelectionPage.swift`
 
 **Properties**:
 - `parentButton: XCUIElement` - "I am a Parent" button
 - `childButton: XCUIElement` - "I am a Kid" button
-- `welcomeText: XCUIElement` - "Welcome to SpellPlay!" text
+- `welcomeText: XCUIElement` - "Welcome to WordCraft!" text
 
 **Methods**:
 - `tapParentButton() -> OnboardingPage` - Tap parent button, return onboarding page
@@ -183,7 +183,7 @@ class ParentHomePage: BasePage {
 - `verifyWelcomeText() -> Bool` - Verify welcome message is displayed
 
 ### 2. OnboardingPage
-**File**: `SpellPlayUITests/PageObjects/OnboardingPage.swift`
+**File**: `WordCraftUITests/PageObjects/OnboardingPage.swift`
 
 **Properties**:
 - `dismissButton: XCUIElement` - Dismiss/close button
@@ -194,7 +194,7 @@ class ParentHomePage: BasePage {
 - `verifyOnboardingContent(for role: UserRole) -> Bool` - Verify role-specific content is displayed
 
 ### 3. ParentHomePage
-**File**: `SpellPlayUITests/PageObjects/ParentHomePage.swift`
+**File**: `WordCraftUITests/PageObjects/ParentHomePage.swift`
 
 **Properties**:
 - `createTestButton: XCUIElement` - "Create New Test" button
@@ -212,7 +212,7 @@ class ParentHomePage: BasePage {
 - `getTestCount() -> Int` - Get number of tests displayed
 
 ### 4. CreateTestPage
-**File**: `SpellPlayUITests/PageObjects/CreateTestPage.swift`
+**File**: `WordCraftUITests/PageObjects/CreateTestPage.swift`
 
 **Properties**:
 - `testNameField: XCUIElement` - Test name text field
@@ -234,7 +234,7 @@ class ParentHomePage: BasePage {
 - `verifyAddWordsButtonEnabled() -> Bool` - Check if "Add Words" is enabled
 
 ### 5. EditTestPage
-**File**: `SpellPlayUITests/PageObjects/EditTestPage.swift`
+**File**: `WordCraftUITests/PageObjects/EditTestPage.swift`
 
 **Properties**:
 - `testNameField: XCUIElement` - Test name text field
@@ -254,7 +254,7 @@ class ParentHomePage: BasePage {
 - `verifyWordExists(_ word: String) -> Bool` - Verify word is in list
 
 ### 6. ChildHomePage
-**File**: `SpellPlayUITests/PageObjects/ChildHomePage.swift`
+**File**: `WordCraftUITests/PageObjects/ChildHomePage.swift`
 
 **Properties**:
 - `testCards: XCUIElementQuery` - Query for all test cards
@@ -270,7 +270,7 @@ class ParentHomePage: BasePage {
 - `tapSettings() -> RoleSwitcherPage` - Open role switcher
 
 ### 7. PracticePage
-**File**: `SpellPlayUITests/PageObjects/PracticePage.swift`
+**File**: `WordCraftUITests/PageObjects/PracticePage.swift`
 
 **Properties**:
 - `currentWordText: XCUIElement` - Displayed word text
@@ -294,7 +294,7 @@ class ParentHomePage: BasePage {
 - `isInputEnabled() -> Bool` - Check if input field is enabled
 
 ### 8. RoundTransitionPage
-**File**: `SpellPlayUITests/PageObjects/RoundTransitionPage.swift`
+**File**: `WordCraftUITests/PageObjects/RoundTransitionPage.swift`
 
 **Properties**:
 - `roundTitle: XCUIElement` - Round number/title text
@@ -308,7 +308,7 @@ class ParentHomePage: BasePage {
 - `tapStartRound() -> PracticePage` - Start next round
 
 ### 9. PracticeSummaryPage
-**File**: `SpellPlayUITests/PageObjects/PracticeSummaryPage.swift`
+**File**: `WordCraftUITests/PageObjects/PracticeSummaryPage.swift`
 
 **Properties**:
 - `roundsCompletedText: XCUIElement` - Rounds completed display
@@ -323,7 +323,7 @@ class ParentHomePage: BasePage {
 - `tapBackToTests() -> ChildHomePage` - Return to test list
 
 ### 10. RoleSwitcherPage
-**File**: `SpellPlayUITests/PageObjects/RoleSwitcherPage.swift`
+**File**: `WordCraftUITests/PageObjects/RoleSwitcherPage.swift`
 
 **Properties**:
 - `parentButton: XCUIElement` - Switch to parent button
@@ -338,7 +338,7 @@ class ParentHomePage: BasePage {
 ## Test Implementation Details
 
 ### 1. Role Selection and Onboarding Tests
-**File**: `SpellPlayUITests/RoleSelectionTests.swift`
+**File**: `WordCraftUITests/RoleSelectionTests.swift`
 
 **Test Cases**:
 - `testRoleSelection_ParentFlow` - Verify parent button selection shows onboarding
@@ -372,7 +372,7 @@ func testRoleSelection_ParentFlow() {
 - Child home view appears after child onboarding
 
 ### 2. Parent Flow Tests
-**File**: `SpellPlayUITests/ParentFlowTests.swift`
+**File**: `WordCraftUITests/ParentFlowTests.swift`
 
 **Test Cases**:
 - `testCreateTest_EmptyState` - Verify empty state message when no tests exist
@@ -415,7 +415,7 @@ func testCreateTest_ValidInput() {
 - Navigation works correctly (back buttons, dismiss)
 
 ### 3. Child Flow Tests
-**File**: `SpellPlayUITests/ChildFlowTests.swift`
+**File**: `WordCraftUITests/ChildFlowTests.swift`
 
 **Test Cases**:
 - `testChildHome_EmptyState` - Verify empty state when no tests available
@@ -478,7 +478,7 @@ func testPracticeFlow_IterativeRounds() {
 - Summary view displays correct information
 
 ### 4. Edge Cases and Error Scenarios
-**File**: `SpellPlayUITests/EdgeCaseTests.swift`
+**File**: `WordCraftUITests/EdgeCaseTests.swift`
 
 **Test Cases**:
 - `testEmptyTestName_Validation` - Attempt to create test with empty name
@@ -503,7 +503,7 @@ func testPracticeFlow_IterativeRounds() {
 ## Test Helpers
 
 ### TestHelpers
-**File**: `SpellPlayUITests/Helpers/TestHelpers.swift`
+**File**: `WordCraftUITests/Helpers/TestHelpers.swift`
 
 **Helper Functions**:
 - `launchAppWithRole(_ role: UserRole) -> ParentHomePage | ChildHomePage` - Launch app and select role, return appropriate page
@@ -530,12 +530,12 @@ func testPracticeFlow_IterativeRounds() {
 Add accessibility identifiers to key UI elements for reliable test targeting:
 
 **Files to Modify**:
-- `SpellPlay/Components/RoleSelectionView.swift` - Add identifiers to role buttons
-- `SpellPlay/Features/Parent/ParentHomeView.swift` - Add identifiers to test cards, buttons
-- `SpellPlay/Features/Child/ChildHomeView.swift` - Add identifiers to test cards
-- `SpellPlay/Features/Child/PracticeView.swift` - Add identifiers to practice elements
-- `SpellPlay/Features/Parent/CreateTestView.swift` - Add identifiers to form fields
-- `SpellPlay/Features/Parent/EditTestView.swift` - Add identifiers to form fields
+- `WordCraft/Components/RoleSelectionView.swift` - Add identifiers to role buttons
+- `WordCraft/Features/Parent/ParentHomeView.swift` - Add identifiers to test cards, buttons
+- `WordCraft/Features/Child/ChildHomeView.swift` - Add identifiers to test cards
+- `WordCraft/Features/Child/PracticeView.swift` - Add identifiers to practice elements
+- `WordCraft/Features/Parent/CreateTestView.swift` - Add identifiers to form fields
+- `WordCraft/Features/Parent/EditTestView.swift` - Add identifiers to form fields
 
 **Example**:
 ```swift
@@ -574,26 +574,26 @@ Button("I am a Parent") {
 ## Files to Create
 
 ### Page Objects
-1. `SpellPlayUITests/PageObjects/BasePage.swift`
-2. `SpellPlayUITests/PageObjects/RoleSelectionPage.swift`
-3. `SpellPlayUITests/PageObjects/OnboardingPage.swift`
-4. `SpellPlayUITests/PageObjects/ParentHomePage.swift`
-5. `SpellPlayUITests/PageObjects/CreateTestPage.swift`
-6. `SpellPlayUITests/PageObjects/EditTestPage.swift`
-7. `SpellPlayUITests/PageObjects/ChildHomePage.swift`
-8. `SpellPlayUITests/PageObjects/PracticePage.swift`
-9. `SpellPlayUITests/PageObjects/RoundTransitionPage.swift`
-10. `SpellPlayUITests/PageObjects/PracticeSummaryPage.swift`
-11. `SpellPlayUITests/PageObjects/RoleSwitcherPage.swift`
+1. `WordCraftUITests/PageObjects/BasePage.swift`
+2. `WordCraftUITests/PageObjects/RoleSelectionPage.swift`
+3. `WordCraftUITests/PageObjects/OnboardingPage.swift`
+4. `WordCraftUITests/PageObjects/ParentHomePage.swift`
+5. `WordCraftUITests/PageObjects/CreateTestPage.swift`
+6. `WordCraftUITests/PageObjects/EditTestPage.swift`
+7. `WordCraftUITests/PageObjects/ChildHomePage.swift`
+8. `WordCraftUITests/PageObjects/PracticePage.swift`
+9. `WordCraftUITests/PageObjects/RoundTransitionPage.swift`
+10. `WordCraftUITests/PageObjects/PracticeSummaryPage.swift`
+11. `WordCraftUITests/PageObjects/RoleSwitcherPage.swift`
 
 ### Test Files
-12. `SpellPlayUITests/RoleSelectionTests.swift`
-13. `SpellPlayUITests/ParentFlowTests.swift`
-14. `SpellPlayUITests/ChildFlowTests.swift`
-15. `SpellPlayUITests/EdgeCaseTests.swift`
+12. `WordCraftUITests/RoleSelectionTests.swift`
+13. `WordCraftUITests/ParentFlowTests.swift`
+14. `WordCraftUITests/ChildFlowTests.swift`
+15. `WordCraftUITests/EdgeCaseTests.swift`
 
 ### Helpers
-16. `SpellPlayUITests/Helpers/TestHelpers.swift`
+16. `WordCraftUITests/Helpers/TestHelpers.swift`
 
 ## Implementation Todos
 

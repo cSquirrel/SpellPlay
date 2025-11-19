@@ -1,6 +1,6 @@
 //
 //  PracticePage.swift
-//  SpellPlayUITests
+//  WordCraftUITests
 //
 //  Created on [Date]
 //

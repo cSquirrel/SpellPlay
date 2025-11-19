@@ -1,6 +1,6 @@
 //
 //  EdgeCaseTests.swift
-//  SpellPlayUITests
+//  WordCraftUITests
 //
 //  Created on [Date]
 //

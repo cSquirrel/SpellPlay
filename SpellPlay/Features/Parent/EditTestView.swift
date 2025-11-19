@@ -1,6 +1,6 @@
 //
 //  EditTestView.swift
-//  SpellPlay
+//  WordCraft
 //
 //  Created on [Date]
 //

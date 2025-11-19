@@ -1,4 +1,4 @@
-# SpellPlay - iOS App
+# WordCraft - iOS App
 
 A modern iOS application using a **workspace + SPM package** architecture for clean separation between app shell and feature code.
 
@@ -30,13 +30,13 @@ These rules files are **starting points** - feel free to:
 ## Project Architecture
 
 ```
-SpellPlay/
-├── SpellPlay.xcworkspace/              # Open this file in Xcode
-├── SpellPlay.xcodeproj/                # App shell project
-├── SpellPlay/                          # App target (minimal)
+WordCraft/
+├── WordCraft.xcworkspace/              # Open this file in Xcode
+├── WordCraft.xcodeproj/                # App shell project
+├── WordCraft/                          # App target (minimal)
 │   ├── Assets.xcassets/                # App-level assets (icons, colors)
-│   ├── SpellPlayApp.swift              # App entry point
-│   └── SpellPlay.xctestplan            # Test configuration
+│   ├── WordCraftApp.swift              # App entry point
+│   └── WordCraft.xctestplan            # Test configuration
 ├── SpellPlayPackage/                   # 🚀 Primary development area
 │   ├── Package.swift                   # Package configuration
 │   ├── Sources/SpellPlayFeature/       # Your feature code
@@ -47,8 +47,8 @@ SpellPlay/
 ## Key Architecture Points
 
 ### Workspace + SPM Structure
-- **App Shell**: `SpellPlay/` contains minimal app lifecycle code
-- **Feature Code**: `SpellPlayPackage/Sources/SpellPlayFeature/` is where most development happens
+- **App Shell**: `WordCraft/` contains minimal app lifecycle code
+- **Feature Code**: `WordCraftPackage/Sources/WordCraftFeature/` is where most development happens
 - **Separation**: Business logic lives in the SPM package, app target just imports and displays it
 
 ### Buildable Folders (Xcode 16)
@@ -59,7 +59,7 @@ SpellPlay/
 ## Development Notes
 
 ### Code Organization
-Most development happens in `SpellPlayPackage/Sources/SpellPlayFeature/` - organize your code as you prefer.
+Most development happens in `WordCraftPackage/Sources/WordCraftFeature/` - organize your code as you prefer.
 
 ### Public API Requirements
 Types exposed to the app target need `public` access:
@@ -81,16 +81,16 @@ dependencies: [
 ],
 targets: [
     .target(
-        name: "SpellPlayFeature",
+        name: "WordCraftFeature",
         dependencies: ["SomePackage"]
     ),
 ]
 ```
 
 ### Test Structure
-- **Unit Tests**: `SpellPlayPackage/Tests/SpellPlayFeatureTests/` (Swift Testing framework)
-- **UI Tests**: `SpellPlayUITests/` (XCUITest framework)
-- **Test Plan**: `SpellPlay.xctestplan` coordinates all tests
+- **Unit Tests**: `WordCraftPackage/Tests/WordCraftFeatureTests/` (Swift Testing framework)
+- **UI Tests**: `WordCraftUITests/` (XCUITest framework)
+- **Test Plan**: `WordCraft.xctestplan` coordinates all tests
 
 ## Configuration
 
@@ -103,19 +103,19 @@ Build settings are managed through **XCConfig files** in `Config/`:
 
 ### Entitlements Management
 App capabilities are managed through a **declarative entitlements file**:
-- `Config/SpellPlay.entitlements` - All app entitlements and capabilities
+- `Config/WordCraft.entitlements` - All app entitlements and capabilities
 - AI agents can safely edit this XML file to add HealthKit, CloudKit, Push Notifications, etc.
 - No need to modify complex Xcode project files
 
 ### Asset Management
-- **App-Level Assets**: `SpellPlay/Assets.xcassets/` (app icon, accent color)
+- **App-Level Assets**: `WordCraft/Assets.xcassets/` (app icon, accent color)
 - **Feature Assets**: Add `Resources/` folder to SPM package if needed
 
 ### SPM Package Resources
 To include assets in your feature package:
 ```swift
 .target(
-    name: "SpellPlayFeature",
+    name: "WordCraftFeature",
     dependencies: [],
     resources: [.process("Resources")]
 )

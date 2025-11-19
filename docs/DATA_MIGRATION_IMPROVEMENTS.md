@@ -85,10 +85,10 @@ Create a `MigrationService` that:
 
 ## Files to Create/Modify
 
-1. **SpellPlay/Services/MigrationService.swift** (NEW) - Core migration service
-2. **SpellPlay/App/SpellPlayApp.swift** - Update ModelContainer initialization with versioning
-3. **SpellPlay/Models/SchemaVersion.swift** (NEW) - Schema version tracking model
-4. **SpellPlay/Utilities/MigrationHelpers.swift** (NEW) - Migration utility functions
+1. **WordCraft/Services/MigrationService.swift** (NEW) - Core migration service
+2. **WordCraft/App/WordCraftApp.swift** - Update ModelContainer initialization with versioning
+3. **WordCraft/Models/SchemaVersion.swift** (NEW) - Schema version tracking model
+4. **WordCraft/Utilities/MigrationHelpers.swift** (NEW) - Migration utility functions
 5. **docs/MIGRATION_GUIDE.md** (NEW) - Documentation for future migrations
 
 ## Migration Scenarios to Support
@@ -168,7 +168,7 @@ Create a `MigrationService` that:
 
 1. **schema-version-tracking** - Create SchemaVersion model and version tracking system to track current schema version in SwiftData
 2. **migration-service** - Create MigrationService class with version detection, migration execution, and validation logic
-3. **model-container-versioning** - Update SpellPlayApp ModelContainer initialization to support schema versioning and migration
+3. **model-container-versioning** - Update WordCraftApp ModelContainer initialization to support schema versioning and migration
 4. **migration-helpers** - Create MigrationHelpers utility functions for common migration patterns (property mapping, type conversion, etc.)
 5. **example-migration** - Create example v1 → v2 migration (e.g., adding new optional property) to demonstrate migration pattern
 6. **migration-documentation** - Create docs/MIGRATION_GUIDE.md with documentation on how to create new migrations, migration patterns, and best practices

@@ -22,10 +22,10 @@ Enhance TTSService to properly detect TTS availability, handle errors, manage au
 - Show fallback when TTS fails
 
 ## Files to Modify
-- `SpellPlay/Services/TTSService.swift` - Core TTS service enhancements
-- `SpellPlay/Features/Child/PracticeView.swift` - Fallback UI for practice
-- `SpellPlay/Features/Parent/CreateTestView.swift` - Fallback for word preview
-- `SpellPlay/Features/Parent/EditTestView.swift` - Fallback for word preview
+- `WordCraft/Services/TTSService.swift` - Core TTS service enhancements
+- `WordCraft/Features/Child/PracticeView.swift` - Fallback UI for practice
+- `WordCraft/Features/Parent/CreateTestView.swift` - Fallback for word preview
+- `WordCraft/Features/Parent/EditTestView.swift` - Fallback for word preview
 
 ## Implementation Todos
 

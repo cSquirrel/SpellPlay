@@ -1,6 +1,6 @@
 //
 //  Word.swift
-//  SpellPlay
+//  WordCraft
 //
 //  Created on [Date]
 //
@@ -8,7 +8,7 @@
 import Foundation
 import SwiftData
 
-extension SpellPlaySchemaV1_0_0 {
+extension WordCraftSchemaV1_0_0 {
     @Model
     final class Word {
         var id: UUID

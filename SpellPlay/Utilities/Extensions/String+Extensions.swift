@@ -1,6 +1,6 @@
 //
 //  String+Extensions.swift
-//  SpellPlay
+//  WordCraft
 //
 //  Created on [Date]
 //

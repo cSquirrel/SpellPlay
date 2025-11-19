@@ -1,4 +1,4 @@
-# SpellPlay iOS MVP Implementation Plan
+# WordCraft iOS MVP Implementation Plan
 
 ## Project Structure
 
@@ -33,7 +33,7 @@ Create a new iOS Xcode project with the following architecture:
 
 **Location**: `App/`
 
-1. **SpellPlayApp.swift** - Main app entry point
+1. **WordCraftApp.swift** - Main app entry point
    - Initialize SwiftData model container
    - Handle first-launch role selection
    - Navigation structure
@@ -179,9 +179,9 @@ Create a new iOS Xcode project with the following architecture:
 ## File Structure
 
 ```
-SpellPlay/
+WordCraft/
 ├── App/
-│   ├── SpellPlayApp.swift
+│   ├── WordCraftApp.swift
 │   └── AppState.swift
 ├── Models/
 │   ├── SpellingTest.swift

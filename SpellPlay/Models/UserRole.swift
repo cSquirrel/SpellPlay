@@ -1,6 +1,6 @@
 //
 //  UserRole.swift
-//  SpellPlay
+//  WordCraft
 //
 //  Created on [Date]
 //

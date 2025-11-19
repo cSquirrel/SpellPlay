@@ -1,6 +1,6 @@
 //
-//  SpellPlayApp.swift
-//  SpellPlay
+//  WordCraftApp.swift
+//  WordCraft
 //
 //  Created on [Date]
 //
@@ -9,12 +9,12 @@ import SwiftUI
 import SwiftData
 
 @main
-struct SpellPlayApp: App {
+struct WordCraftApp: App {
     @State private var appState = AppState()
     @State private var showOnboarding = false
     
     var modelContainer: ModelContainer = {
-        let migrationPlan = SpellPlayMigrationPlan.self
+        let migrationPlan = WordCraftMigrationPlan.self
         
         // Create schema from the current versioned schema
         let schema = Schema(CurrentSchema.models)

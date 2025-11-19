@@ -1,6 +1,6 @@
 //
 //  TestHelpers.swift
-//  SpellPlayUITests
+//  WordCraftUITests
 //
 //  Created on [Date]
 //

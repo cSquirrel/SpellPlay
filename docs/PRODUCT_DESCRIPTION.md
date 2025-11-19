@@ -1,4 +1,4 @@
-# Spelling Test iOS App – "SpellPlay"
+# Spelling Test iOS App – "WordCraft"
 
 ## TL;DR
 
@@ -92,7 +92,7 @@ A simple iOS app enabling parents to create custom spelling tests for their chil
 
 ## Narrative
 
-Sarah is a busy parent who wants her daughter to build strong spelling skills. After struggling to keep her daughter engaged with paper lists, Sarah downloads "SpellPlay." In less than a minute, she creates a list of this week's spelling words. Her daughter, Mia, opens the app, easily finds her test, and starts practicing. With each word pronounced out loud in a friendly voice, Mia types in her answers. The colorful rewards keep her coming back every day, and Sarah quickly sees Mia's progress. Their routine is transformed—no reminders needed, and spelling time is now a highlight, not a chore.
+Sarah is a busy parent who wants her daughter to build strong spelling skills. After struggling to keep her daughter engaged with paper lists, Sarah downloads "WordCraft." In less than a minute, she creates a list of this week's spelling words. Her daughter, Mia, opens the app, easily finds her test, and starts practicing. With each word pronounced out loud in a friendly voice, Mia types in her answers. The colorful rewards keep her coming back every day, and Sarah quickly sees Mia's progress. Their routine is transformed—no reminders needed, and spelling time is now a highlight, not a chore.
 
 ## Success Metrics
 

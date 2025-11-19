@@ -1,6 +1,6 @@
 //
 //  ChildFlowTests.swift
-//  SpellPlayUITests
+//  WordCraftUITests
 //
 //  Created on [Date]
 //

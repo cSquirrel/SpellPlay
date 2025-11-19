@@ -1,6 +1,6 @@
 //
 //  ChildHomeView.swift
-//  SpellPlay
+//  WordCraft
 //
 //  Created on [Date]
 //
@@ -28,7 +28,7 @@ struct ChildHomeView: View {
                     testListView
                 }
             }
-            .navigationTitle("SpellPlay")
+            .navigationTitle("WordCraft")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {

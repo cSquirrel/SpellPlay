@@ -1,6 +1,6 @@
 //
 //  RoleSelectionTests.swift
-//  SpellPlayUITests
+//  WordCraftUITests
 //
 //  Created on [Date]
 //
@@ -75,7 +75,7 @@ final class RoleSelectionTests: XCTestCase {
         sleep(2)
         
         // Should go directly to child home
-        XCTAssertTrue(app.navigationBars["SpellPlay"].exists, "Should be on child home without onboarding")
+        XCTAssertTrue(app.navigationBars["WordCraft"].exists, "Should be on child home without onboarding")
     }
     
     func testRoleSwitching() throws {

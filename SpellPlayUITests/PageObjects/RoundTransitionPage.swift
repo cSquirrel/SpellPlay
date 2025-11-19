@@ -1,6 +1,6 @@
 //
 //  RoundTransitionPage.swift
-//  SpellPlayUITests
+//  WordCraftUITests
 //
 //  Created on [Date]
 //

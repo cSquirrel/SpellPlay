@@ -1,6 +1,6 @@
 //
 //  ParentHomePage.swift
-//  SpellPlayUITests
+//  WordCraftUITests
 //
 //  Created on [Date]
 //

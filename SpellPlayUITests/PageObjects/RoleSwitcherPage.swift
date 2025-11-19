@@ -1,6 +1,6 @@
 //
 //  RoleSwitcherPage.swift
-//  SpellPlayUITests
+//  WordCraftUITests
 //
 //  Created on [Date]
 //

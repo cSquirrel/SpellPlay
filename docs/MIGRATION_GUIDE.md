@@ -1,28 +1,28 @@
 # SwiftData Migration Guide
 
-This guide explains how to handle schema migrations for the SpellPlay app using SwiftData's VersionedSchema.
+This guide explains how to handle schema migrations for the WordCraft app using SwiftData's VersionedSchema.
 
 ## Overview
 
-The SpellPlay app uses SwiftData's `VersionedSchema` and `SchemaMigrationPlan` for proper schema versioning. **SwiftData handles most migrations automatically** - you typically don't need to write migration code for simple changes.
+The WordCraft app uses SwiftData's `VersionedSchema` and `SchemaMigrationPlan` for proper schema versioning. **SwiftData handles most migrations automatically** - you typically don't need to write migration code for simple changes.
 
 ## Architecture
 
 ### Current Implementation
 
-- **VersionedSchema**: `SpellPlaySchemaV1_0_0` - Defines schema version 1.0.0
-- **Model Encapsulation**: All models (`SpellingTest`, `Word`, `PracticeSession`) are defined within `extension SpellPlaySchemaV1_0_0`
-- **Migration Plan**: `SpellPlayMigrationPlan` - Defines migration stages between schema versions
+- **VersionedSchema**: `WordCraftSchemaV1_0_0` - Defines schema version 1.0.0
+- **Model Encapsulation**: All models (`SpellingTest`, `Word`, `PracticeSession`) are defined within `extension WordCraftSchemaV1_0_0`
+- **Migration Plan**: `WordCraftMigrationPlan` - Defines migration stages between schema versions
 - **Top-level Typealiases**: Convenient access to current schema models
 
 ### File Structure
 
 ```
-SpellPlay/Models/
+WordCraft/Models/
 ├── SchemaVersions.swift      # VersionedSchema definitions and migration plan
-├── SpellingTest.swift         # Model defined in extension SpellPlaySchemaV1_0_0
-├── Word.swift                 # Model defined in extension SpellPlaySchemaV1_0_0
-└── PracticeSession.swift      # Model defined in extension SpellPlaySchemaV1_0_0
+├── SpellingTest.swift         # Model defined in extension WordCraftSchemaV1_0_0
+├── Word.swift                 # Model defined in extension WordCraftSchemaV1_0_0
+└── PracticeSession.swift      # Model defined in extension WordCraftSchemaV1_0_0
 ```
 
 ## When SwiftData Handles Migrations Automatically
@@ -50,8 +50,8 @@ You only need to write migration code for:
 Modify the existing model classes as needed. For example, adding a new property:
 
 ```swift
-// SpellPlay/Models/SpellingTest.swift
-extension SpellPlaySchemaV1_0_0 {
+// WordCraft/Models/SpellingTest.swift
+extension WordCraftSchemaV1_0_0 {
     @Model
     final class SpellingTest {
         // ... existing properties
@@ -65,10 +65,10 @@ extension SpellPlaySchemaV1_0_0 {
 Create a new schema version in `SchemaVersions.swift`:
 
 ```swift
-// SpellPlay/Models/SchemaVersions.swift
+// WordCraft/Models/SchemaVersions.swift
 
 // Keep the old version!
-enum SpellPlaySchemaV1_0_0: VersionedSchema {
+enum WordCraftSchemaV1_0_0: VersionedSchema {
     static var versionIdentifier = Schema.Version(1, 0, 0)
     static var models: [any PersistentModel.Type] {
         [SpellingTest.self, Word.self, PracticeSession.self]
@@ -76,7 +76,7 @@ enum SpellPlaySchemaV1_0_0: VersionedSchema {
 }
 
 // Create new version
-enum SpellPlaySchemaV2_0_0: VersionedSchema {
+enum WordCraftSchemaV2_0_0: VersionedSchema {
     static var versionIdentifier = Schema.Version(2, 0, 0)
     static var models: [any PersistentModel.Type] {
         [SpellingTest.self, Word.self, PracticeSession.self]  // Updated models
@@ -84,12 +84,12 @@ enum SpellPlaySchemaV2_0_0: VersionedSchema {
 }
 
 // Update current schema
-typealias CurrentSchema = SpellPlaySchemaV2_0_0
+typealias CurrentSchema = WordCraftSchemaV2_0_0
 
 // Update top-level typealiases
-typealias SpellingTest = SpellPlaySchemaV2_0_0.SpellingTest
-typealias Word = SpellPlaySchemaV2_0_0.Word
-typealias PracticeSession = SpellPlaySchemaV2_0_0.PracticeSession
+typealias SpellingTest = WordCraftSchemaV2_0_0.SpellingTest
+typealias Word = WordCraftSchemaV2_0_0.Word
+typealias PracticeSession = WordCraftSchemaV2_0_0.PracticeSession
 ```
 
 ### Step 3: Move Models to New Schema Extension
@@ -97,8 +97,8 @@ typealias PracticeSession = SpellPlaySchemaV2_0_0.PracticeSession
 Move the model definitions to the new schema extension:
 
 ```swift
-// SpellPlay/Models/SpellingTest.swift
-extension SpellPlaySchemaV2_0_0 {  // Changed from V1_0_0
+// WordCraft/Models/SpellingTest.swift
+extension WordCraftSchemaV2_0_0 {  // Changed from V1_0_0
     @Model
     final class SpellingTest {
         // ... properties including new ones
@@ -112,11 +112,11 @@ extension SpellPlaySchemaV2_0_0 {  // Changed from V1_0_0
 Add the new schema and migration stage to the migration plan:
 
 ```swift
-enum SpellPlayMigrationPlan: SchemaMigrationPlan {
+enum WordCraftMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
         [
-            SpellPlaySchemaV1_0_0.self,  // Old version
-            SpellPlaySchemaV2_0_0.self    // New version
+            WordCraftSchemaV1_0_0.self,  // Old version
+            WordCraftSchemaV2_0_0.self    // New version
         ]
     }
     
@@ -124,8 +124,8 @@ enum SpellPlayMigrationPlan: SchemaMigrationPlan {
         [
             // Lightweight migration - SwiftData handles automatically
             .lightweight(
-                fromVersion: SpellPlaySchemaV1_0_0.self,
-                toVersion: SpellPlaySchemaV2_0_0.self
+                fromVersion: WordCraftSchemaV1_0_0.self,
+                toVersion: WordCraftSchemaV2_0_0.self
             )
         ]
     }
@@ -137,7 +137,7 @@ enum SpellPlayMigrationPlan: SchemaMigrationPlan {
 The app automatically uses the new schema via `CurrentSchema`:
 
 ```swift
-// SpellPlayApp.swift - no changes needed!
+// WordCraftApp.swift - no changes needed!
 // It already uses CurrentSchema which now points to V2_0_0
 ```
 
@@ -159,7 +159,7 @@ Requires custom migration to set default values:
 ```swift
 // 1. Create new schema version (V2_0_0)
 // 2. Add required property to model
-extension SpellPlaySchemaV2_0_0 {
+extension WordCraftSchemaV2_0_0 {
     @Model
     final class SpellingTest {
         var difficulty: String  // Required property
@@ -170,11 +170,11 @@ extension SpellPlaySchemaV2_0_0 {
 static var stages: [MigrationStage] {
     [
         .custom(
-            fromVersion: SpellPlaySchemaV1_0_0.self,
-            toVersion: SpellPlaySchemaV2_0_0.self,
+            fromVersion: WordCraftSchemaV1_0_0.self,
+            toVersion: WordCraftSchemaV2_0_0.self,
             willMigrate: { context in
                 // Set default values for existing records
-                let descriptor = FetchDescriptor<SpellPlaySchemaV1_0_0.SpellingTest>()
+                let descriptor = FetchDescriptor<WordCraftSchemaV1_0_0.SpellingTest>()
                 let tests = try context.fetch(descriptor)
                 for test in tests {
                     // Access through old schema version
@@ -192,7 +192,7 @@ Requires custom migration with data copying:
 
 ```swift
 // Step 1: Add new property alongside old one
-extension SpellPlaySchemaV2_0_0 {
+extension WordCraftSchemaV2_0_0 {
     @Model
     final class SpellingTest {
         var lastPracticed: Date?      // Old property (keep temporarily)
@@ -202,8 +202,8 @@ extension SpellPlaySchemaV2_0_0 {
 
 // Step 2: Custom migration to copy data
 .custom(
-    fromVersion: SpellPlaySchemaV1_0_0.self,
-    toVersion: SpellPlaySchemaV2_0_0.self,
+    fromVersion: WordCraftSchemaV1_0_0.self,
+    toVersion: WordCraftSchemaV2_0_0.self,
     willMigrate: { context in
         // Copy data from old property to new property
     }
@@ -218,8 +218,8 @@ Requires custom migration with type conversion:
 
 ```swift
 .custom(
-    fromVersion: SpellPlaySchemaV1_0_0.self,
-    toVersion: SpellPlaySchemaV2_0_0.self,
+    fromVersion: WordCraftSchemaV1_0_0.self,
+    toVersion: WordCraftSchemaV2_0_0.self,
     willMigrate: { context in
         // Convert property types
         // Example: Int to Int64
@@ -256,9 +256,9 @@ Requires custom migration with type conversion:
 
 ### Version 1.0.0 (Current)
 
-- `SpellPlaySchemaV1_0_0` - Initial schema
+- `WordCraftSchemaV1_0_0` - Initial schema
 - Models: `SpellingTest`, `Word`, `PracticeSession`
-- All models encapsulated in `extension SpellPlaySchemaV1_0_0`
+- All models encapsulated in `extension WordCraftSchemaV1_0_0`
 - No migration stages (initial version)
 
 ## Example: Complete Migration (Adding Optional Property)
@@ -268,8 +268,8 @@ Here's a complete example for adding an optional property:
 ### 1. Modify Model
 
 ```swift
-// SpellPlay/Models/SpellingTest.swift
-extension SpellPlaySchemaV2_0_0 {  // New version
+// WordCraft/Models/SpellingTest.swift
+extension WordCraftSchemaV2_0_0 {  // New version
     @Model
     final class SpellingTest {
         @Attribute(.unique) var id: UUID
@@ -295,31 +295,31 @@ extension SpellPlaySchemaV2_0_0 {  // New version
 ### 2. Create New Schema Version
 
 ```swift
-// SpellPlay/Models/SchemaVersions.swift
-enum SpellPlaySchemaV2_0_0: VersionedSchema {
+// WordCraft/Models/SchemaVersions.swift
+enum WordCraftSchemaV2_0_0: VersionedSchema {
     static var versionIdentifier = Schema.Version(2, 0, 0)
     static var models: [any PersistentModel.Type] {
         [SpellingTest.self, Word.self, PracticeSession.self]
     }
 }
 
-typealias CurrentSchema = SpellPlaySchemaV2_0_0
-typealias SpellingTest = SpellPlaySchemaV2_0_0.SpellingTest
+typealias CurrentSchema = WordCraftSchemaV2_0_0
+typealias SpellingTest = WordCraftSchemaV2_0_0.SpellingTest
 ```
 
 ### 3. Update Migration Plan
 
 ```swift
-enum SpellPlayMigrationPlan: SchemaMigrationPlan {
+enum WordCraftMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [SpellPlaySchemaV1_0_0.self, SpellPlaySchemaV2_0_0.self]
+        [WordCraftSchemaV1_0_0.self, WordCraftSchemaV2_0_0.self]
     }
     
     static var stages: [MigrationStage] {
         [
             .lightweight(
-                fromVersion: SpellPlaySchemaV1_0_0.self,
-                toVersion: SpellPlaySchemaV2_0_0.self
+                fromVersion: WordCraftSchemaV1_0_0.self,
+                toVersion: WordCraftSchemaV2_0_0.self
             )
         ]
     }
