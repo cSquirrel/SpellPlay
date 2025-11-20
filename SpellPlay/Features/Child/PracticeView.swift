@@ -261,9 +261,9 @@ struct PracticeView: View {
                 onSubmit: {
                     submitAnswer()
                 },
-                placeholder: "Type the word here"
+                placeholder: "Type the word here",
+                isDisabled: isInputDisabled
             )
-            .disabled(isInputDisabled)
             .padding(.horizontal, AppConstants.padding)
             .padding(.bottom, AppConstants.padding)
         }

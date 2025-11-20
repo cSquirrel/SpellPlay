@@ -11,6 +11,7 @@ struct WordInputView: View {
     @Binding var text: String
     let onSubmit: () -> Void
     let placeholder: String
+    var isDisabled: Bool = false
     
     @FocusState private var isFocused: Bool
     
@@ -23,6 +24,7 @@ struct WordInputView: View {
                 .background(Color(.systemGray6))
                 .cornerRadius(AppConstants.cornerRadius)
                 .focused($isFocused)
+                .disabled(isDisabled)
                 .autocorrectionDisabled()
                 .autocapitalization(.none)
                 .submitLabel(.done)
@@ -58,7 +60,33 @@ struct WordInputView: View {
             .allowsHitTesting(!text.isEmpty)
         }
         .onAppear {
+            // Focus the field after a short delay to ensure view is ready
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isFocused = true
+            }
+        }
+        .task {
+            // Also try to focus when task starts
+            try? await Task.sleep(nanoseconds: 300_000_000)
             isFocused = true
+        }
+        .onChange(of: text) { oldValue, newValue in
+            // Refocus when text is cleared (moving to next word)
+            if oldValue.isEmpty == false && newValue.isEmpty {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    if !isDisabled {
+                        isFocused = true
+                    }
+                }
+            }
+        }
+        .onChange(of: isDisabled) { oldValue, newValue in
+            // Refocus when field becomes enabled again
+            if oldValue == true && newValue == false {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    isFocused = true
+                }
+            }
         }
     }
 }
