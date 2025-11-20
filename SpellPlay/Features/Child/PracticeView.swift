@@ -69,6 +69,13 @@ struct PracticeView: View {
             .onAppear {
                 viewModel.setup(test: test, modelContext: modelContext)
                 previousComboCount = 0
+                
+                // Auto-play first word after a short delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    if let firstWord = viewModel.currentWord {
+                        ttsService.speak(firstWord.text)
+                    }
+                }
             }
             .onChange(of: viewModel.newlyUnlockedAchievements) { oldValue, newValue in
                 // Show achievement unlock when new achievements are unlocked
