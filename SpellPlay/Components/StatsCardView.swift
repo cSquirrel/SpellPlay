@@ -144,62 +144,48 @@ struct StatsCardView: View {
                     )
                 }
                 
-                // Achievements section
-                if !progress.unlockedAchievements.isEmpty {
-                    VStack(spacing: 12) {
-                        HStack {
-                            Text("Achievements")
-                                .font(.system(size: AppConstants.bodySize, weight: .semibold))
-                                .foregroundColor(.primary)
-                            Spacer()
-                            Text("\(progress.unlockedAchievements.count)/\(Achievement.allAchievements.count)")
-                                .font(.system(size: AppConstants.captionSize))
-                                .foregroundColor(.secondary)
-                        }
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 12) {
-                                ForEach(progress.unlockedAchievements, id: \.self) { achievementIdString in
-                                    if let achievementId = AchievementID(rawValue: achievementIdString),
-                                       let achievement = Achievement.achievement(for: achievementId) {
-                                        VStack(spacing: 6) {
-                                            Text(achievement.icon)
-                                                .font(.system(size: 40))
-                                            
-                                            Text(achievement.name)
-                                                .font(.system(size: AppConstants.captionSize, weight: .medium))
-                                                .foregroundColor(.primary)
-                                                .lineLimit(2)
-                                                .multilineTextAlignment(.center)
-                                                .frame(width: 80)
-                                        }
-                                        .padding(8)
-                                        .background(Color.green.opacity(0.1))
-                                        .cornerRadius(8)
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, 4)
-                        }
-                    }
-                    .padding(.top, 8)
-                } else {
-                    // No achievements yet
-                    VStack(spacing: 8) {
-                        Text("No Achievements Yet")
-                            .font(.system(size: AppConstants.bodySize, weight: .medium))
-                            .foregroundColor(.secondary)
-                        
-                        Text("Complete practice sessions to unlock achievements!")
+                // Achievements section - show all achievements
+                VStack(spacing: 12) {
+                    HStack {
+                        Text("Achievements")
+                            .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                            .foregroundColor(.primary)
+                        Spacer()
+                        Text("\(progress.unlockedAchievements.count)/\(Achievement.allAchievements.count)")
                             .font(.system(size: AppConstants.captionSize))
                             .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
                     }
-                    .padding(.vertical, 12)
-                    .frame(maxWidth: .infinity)
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(AppConstants.cornerRadius)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(Achievement.allAchievements, id: \.id) { achievement in
+                                let isUnlocked = progress.hasAchievement(achievement.id)
+                                
+                                VStack(spacing: 6) {
+                                    Text(achievement.icon)
+                                        .font(.system(size: 40))
+                                    
+                                    Text(achievement.name)
+                                        .font(.system(size: AppConstants.captionSize, weight: .medium))
+                                        .foregroundColor(.primary)
+                                        .lineLimit(2)
+                                        .multilineTextAlignment(.center)
+                                        .frame(width: 80)
+                                }
+                                .padding(8)
+                                .background(isUnlocked ? Color.green.opacity(0.1) : Color.gray.opacity(0.1))
+                                .cornerRadius(8)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(isUnlocked ? Color.green : Color.gray.opacity(0.3), lineWidth: 2)
+                                )
+                                .opacity(isUnlocked ? 1.0 : 0.4) // Fade out locked achievements
+                            }
+                        }
+                        .padding(.horizontal, 4)
+                    }
                 }
+                .padding(.top, 8)
             }
             .padding(AppConstants.padding)
             .cardStyle()
