@@ -25,6 +25,10 @@ struct PracticeView: View {
     @State private var incorrectAnswer: String = ""
     @State private var correctWord: String = ""
     @State private var showContinueButton = false
+    @State private var showAchievementUnlock = false
+    @State private var unlockedAchievement: AchievementID?
+    @State private var previousComboCount = 0
+    @State private var showComboBreakthrough = false
     
     @StateObject private var ttsService = TTSService()
     
@@ -38,6 +42,14 @@ struct PracticeView: View {
                     PracticeSummaryView(
                         roundsCompleted: viewModel.currentRound,
                         streak: viewModel.currentStreak,
+                        sessionPoints: viewModel.sessionPoints,
+                        totalStars: viewModel.totalStarsEarned,
+                        performanceGrade: viewModel.performanceGrade,
+                        newlyUnlockedAchievements: viewModel.newlyUnlockedAchievements,
+                        levelUpOccurred: viewModel.levelUpOccurred,
+                        newLevel: viewModel.newLevel,
+                        currentLevel: viewModel.userProgress?.level ?? 1,
+                        experiencePoints: viewModel.userProgress?.experiencePoints ?? 0,
                         onPracticeAgain: {
                             viewModel.reset()
                             viewModel.setup(test: test, modelContext: modelContext)
@@ -56,6 +68,16 @@ struct PracticeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
                 viewModel.setup(test: test, modelContext: modelContext)
+                previousComboCount = 0
+            }
+            .onChange(of: viewModel.newlyUnlockedAchievements) { oldValue, newValue in
+                // Show achievement unlock when new achievements are unlocked
+                if let firstAchievement = newValue.first, !oldValue.contains(firstAchievement) {
+                    unlockedAchievement = firstAchievement
+                    withAnimation {
+                        showAchievementUnlock = true
+                    }
+                }
             }
             .onDisappear {
                 // Clean up timers when view disappears
@@ -63,11 +85,50 @@ struct PracticeView: View {
                 nextWordTimer?.invalidate()
             }
             .errorAlert(errorMessage: $viewModel.errorMessage)
+            .overlay {
+                // Combo breakthrough overlay
+                if showComboBreakthrough {
+                    CelebrationView(
+                        type: .comboBreakthrough,
+                        message: "\(viewModel.comboMultiplier)x Combo!",
+                        emoji: "⚡"
+                    )
+                    .transition(.scale.combined(with: .opacity))
+                }
+                
+                // Achievement unlock overlay
+                if showAchievementUnlock, let achievementId = unlockedAchievement,
+                   let achievement = Achievement.achievement(for: achievementId) {
+                    AchievementUnlockView(achievement: achievement)
+                        .transition(.scale.combined(with: .opacity))
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                                withAnimation {
+                                    showAchievementUnlock = false
+                                }
+                            }
+                        }
+                }
+            }
         }
     }
     
     private var practiceContentView: some View {
-        VStack(spacing: 32) {
+        VStack(spacing: 24) {
+            // Gamification header
+            HStack(spacing: 12) {
+                PointsDisplayView(points: viewModel.sessionPoints)
+                
+                if viewModel.comboCount > 0 {
+                    ComboIndicatorView(
+                        comboCount: viewModel.comboCount,
+                        multiplier: viewModel.comboMultiplier
+                    )
+                }
+            }
+            .padding(.horizontal, AppConstants.padding)
+            .padding(.top, AppConstants.padding)
+            
             // Progress indicator
             VStack(spacing: 8) {
                 ProgressView(value: viewModel.progress)
@@ -80,7 +141,6 @@ struct PracticeView: View {
                     .accessibilityIdentifier("Practice_ProgressText")
             }
             .padding(.horizontal, AppConstants.padding)
-            .padding(.top, AppConstants.padding)
             
             Spacer()
             
@@ -111,10 +171,19 @@ struct PracticeView: View {
                     if showFeedback {
                         VStack(spacing: 16) {
                             if lastAnswerWasCorrect {
-                                Text("✓ Correct!")
-                                    .font(.system(size: AppConstants.titleSize, weight: .bold))
-                                    .foregroundColor(AppConstants.successColor)
-                                    .transition(.scale.combined(with: .opacity))
+                                VStack(spacing: 12) {
+                                    CelebrationView(type: .wordCorrect)
+                                        .transition(.scale.combined(with: .opacity))
+                                    
+                                    // Show stars earned
+                                    if let lastStarCount = viewModel.starsEarned.last, lastStarCount > 0 {
+                                        StarCollectionView(
+                                            stars: lastStarCount,
+                                            totalStars: viewModel.totalStarsEarned
+                                        )
+                                        .transition(.scale.combined(with: .opacity))
+                                    }
+                                }
                             } else {
                                 // Incorrect answer feedback
                                 VStack(spacing: 12) {
@@ -270,15 +339,27 @@ struct PracticeView: View {
         // Capture answer immediately before any delay
         let capturedAnswer = viewModel.userAnswer
         
-        // Evaluate correctness immediately
+        // Check for combo breakthrough before submitting
+        let previousCombo = viewModel.comboCount
+        let previousMultiplier = viewModel.comboMultiplier
+        
+        // Submit the answer and get points result
+        let pointsResult = viewModel.submitAnswer(with: capturedAnswer)
+        
+        // Evaluate correctness
         let isCorrect = word.text.matches(capturedAnswer)
         lastAnswerWasCorrect = isCorrect
         
+        // Check for combo breakthrough
+        if isCorrect && viewModel.comboMultiplier > previousMultiplier {
+            showComboBreakthrough = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                showComboBreakthrough = false
+            }
+        }
+        
         // Disable input during feedback
         isInputDisabled = true
-        
-        // Submit the answer immediately with captured value to prevent stale text issues
-        viewModel.submitAnswer(with: capturedAnswer)
         
         if isCorrect {
             // For correct answers, show feedback and auto-advance
@@ -291,7 +372,7 @@ struct PracticeView: View {
             feedbackTimer?.invalidate()
             
             // Wait to hide feedback and move to next word
-            feedbackTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+            feedbackTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { _ in
                 Task { @MainActor in
                     continueToNext()
                 }

@@ -7,12 +7,15 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 @MainActor
 @Observable
 class PracticeViewModel {
     private var modelContext: ModelContext?
     private var streakService: StreakService?
+    private var achievementService: AchievementService?
+    var userProgress: UserProgress?
     
     var currentWordIndex = 0
     var userAnswer = ""
@@ -21,6 +24,7 @@ class PracticeViewModel {
     var isComplete = false
     var currentStreak = 0
     var availableCoins = 0
+    var initialCoins = 0
     
     // Round tracking properties
     var currentRound = 1
@@ -31,11 +35,30 @@ class PracticeViewModel {
     var isRoundComplete = false
     var errorMessage: String?
     
+    // Gamification properties
+    var sessionPoints = 0
+    var comboCount = 0
+    var comboMultiplier = 1
+    var starsEarned: [Int] = [] // Stars per word
+    var totalStarsEarned = 0
+    var wordStartTime: Date?
+    var roundStartTime: Date?
+    var hadInitialMistakes = false
+    var newlyUnlockedAchievements: [AchievementID] = []
+    var performanceGrade: PerformanceGrade?
+    var levelUpOccurred = false
+    var newLevel: Int?
+    
     func setup(test: SpellingTest, modelContext: ModelContext) {
         self.modelContext = modelContext
         self.streakService = StreakService(modelContext: modelContext) { [weak self] errorMessage in
             self?.errorMessage = errorMessage
         }
+        self.achievementService = AchievementService(modelContext: modelContext) { [weak self] errorMessage in
+            self?.errorMessage = errorMessage
+        }
+        self.userProgress = achievementService?.getUserProgress()
+        
         self.words = test.words
         self.currentWordIndex = 0
         self.userAnswer = ""
@@ -43,6 +66,7 @@ class PracticeViewModel {
         self.isComplete = false
         self.currentStreak = streakService?.getCurrentStreak() ?? 0
         self.availableCoins = test.helpCoins
+        self.initialCoins = test.helpCoins
         
         // Initialize round tracking
         self.currentRound = 1
@@ -51,6 +75,22 @@ class PracticeViewModel {
         self.wordsMastered = []
         self.allWordsMastered = false
         self.isRoundComplete = false
+        
+        // Initialize gamification
+        self.sessionPoints = 0
+        self.comboCount = 0
+        self.comboMultiplier = 1
+        self.starsEarned = []
+        self.totalStarsEarned = 0
+        self.roundStartTime = Date()
+        self.hadInitialMistakes = false
+        self.newlyUnlockedAchievements = []
+        self.performanceGrade = nil
+        self.levelUpOccurred = false
+        self.newLevel = nil
+        
+        // Start timing for first word
+        self.wordStartTime = Date()
     }
     
     var currentWord: Word? {
@@ -71,27 +111,79 @@ class PracticeViewModel {
         return words.filter { !wordsMastered.contains($0.id) }
     }
     
-    func submitAnswer(with answer: String? = nil) {
-        guard let word = currentWord else { return }
+    func submitAnswer(with answer: String? = nil) -> PointsResult? {
+        guard let word = currentWord else { return nil }
         
         // Use provided answer if available, otherwise fall back to userAnswer
         let answerToEvaluate = answer ?? userAnswer
         let isCorrect = word.text.matches(answerToEvaluate)
+        let isFirstTry = !roundResults.keys.contains(word.id) || roundResults[word.id] == nil
+        
+        // Track if there were initial mistakes
+        if !isCorrect && !hadInitialMistakes {
+            hadInitialMistakes = true
+        }
+        
         correctAnswers.append(isCorrect)
         roundResults[word.id] = isCorrect
         
-        // If answer is correct, mark word as mastered
+        // Calculate time taken
+        let timeTaken = wordStartTime.map { Date().timeIntervalSince($0) }
+        
+        // Calculate points and stars
+        var pointsResult: PointsResult?
+        var stars = 0
+        
         if isCorrect {
+            // Increment combo for correct answers
+            comboCount += 1
+            comboMultiplier = PointsService.getComboMultiplier(for: comboCount)
+            
+            // Calculate points
+            pointsResult = PointsService.calculatePoints(
+                isCorrect: true,
+                comboCount: comboCount,
+                timeTaken: timeTaken,
+                isFirstTry: isFirstTry
+            )
+            
+            // Add points to session
+            sessionPoints += pointsResult!.totalPoints
+            
+            // Calculate stars (1-3 based on performance)
+            if let time = timeTaken, time <= PointsService.speedBonusThreshold && isFirstTry {
+                stars = 3
+            } else if isFirstTry {
+                stars = 2
+            } else {
+                stars = 1
+            }
+            
+            totalStarsEarned += stars
             wordsMastered.insert(word.id)
+        } else {
+            // Reset combo on incorrect answer
+            comboCount = 0
+            comboMultiplier = 1
+            stars = 0
         }
         
+        starsEarned.append(stars)
         userAnswer = ""
+        
+        // Reset word timing for next word
+        wordStartTime = Date()
         
         // Check if we've completed the current round
         if currentWordIndex < wordsInCurrentRound.count - 1 {
             currentWordIndex += 1
         } else {
-            // Round is complete
+            // Round is complete - check for perfect round bonus
+            if isRoundPerfect() {
+                let bonus = PointsService.getPerfectRoundBonus()
+                sessionPoints += bonus
+            }
+            
             isRoundComplete = true
             
             // Check if all words have been mastered
@@ -102,6 +194,12 @@ class PracticeViewModel {
             // If not all words mastered, prepare for next round
             // (The actual transition will be handled by the view)
         }
+        
+        return pointsResult
+    }
+    
+    private func isRoundPerfect() -> Bool {
+        return roundResults.values.allSatisfy { $0 }
     }
     
     func startNextRound() {
@@ -111,6 +209,8 @@ class PracticeViewModel {
         roundResults = [:]
         currentRound += 1
         isRoundComplete = false
+        roundStartTime = Date()
+        wordStartTime = Date()
     }
     
     func useHelpCoin() {
@@ -151,6 +251,9 @@ class PracticeViewModel {
     private func completePractice() {
         isComplete = true
         
+        // Calculate round time
+        let roundTime = roundStartTime.map { Date().timeIntervalSince($0) } ?? 0
+        
         // Update streak - use total words attempted across all rounds
         if let test = words.first?.test,
            let streakService = streakService {
@@ -167,6 +270,56 @@ class PracticeViewModel {
             // Update test's lastPracticed date
             test.lastPracticed = Date()
             
+            // Update user progress with points and stars
+            if let progress = userProgress {
+                progress.addPoints(sessionPoints)
+                progress.addStars(totalStarsEarned)
+                
+                // Update words mastered count
+                let newWordsMastered = wordsMastered.count
+                let previousWordsMastered = progress.totalWordsMastered
+                if newWordsMastered > previousWordsMastered {
+                    for _ in previousWordsMastered..<newWordsMastered {
+                        progress.incrementWordsMastered()
+                    }
+                }
+                
+                progress.incrementSessionsCompleted()
+                
+                // Check for level up
+                let oldLevel = progress.level
+                progress.level = LevelService.levelFromExperience(progress.experiencePoints)
+                if progress.level > oldLevel {
+                    levelUpOccurred = true
+                    newLevel = progress.level
+                }
+            }
+            
+            // Check achievements
+            if let achievementService = achievementService,
+               let progress = userProgress {
+                let sessionResults = AchievementService.SessionResults(
+                    isFirstSession: progress.totalSessionsCompleted == 1,
+                    hasPerfectRound: isRoundPerfect(),
+                    roundTimeSeconds: roundTime,
+                    currentStreak: currentStreak,
+                    helpCoinsUsed: initialCoins - availableCoins,
+                    wordsAttempted: totalAttempts,
+                    allWordsMastered: allWordsMastered,
+                    hadInitialMistakes: hadInitialMistakes
+                )
+                
+                newlyUnlockedAchievements = achievementService.checkAchievements(
+                    sessionResults: sessionResults,
+                    userProgress: progress
+                )
+            }
+            
+            // Calculate performance grade
+            let accuracy = words.count > 0 ? Double(wordsMastered.count) / Double(words.count) : 0.0
+            let allFirstTry = roundResults.values.allSatisfy { $0 } && correctAnswers.count == words.count
+            performanceGrade = PerformanceGrade.calculate(accuracy: accuracy, allFirstTry: allFirstTry)
+            
             do {
                 try modelContext?.save()
             } catch {
@@ -181,15 +334,6 @@ class PracticeViewModel {
         correctAnswers = []
         isComplete = false
         
-        // Reset available coins if we want to reset them on retry?
-        // Usually retry means "try test again", so yes.
-        // However, we need the original test value.
-        // We can get it from words.first?.test?.helpCoins if the relation is navigable,
-        // or we rely on setup() being called again.
-        // PracticeView calls setup() onAppear, so reset() internal logic might suffice if setup is called.
-        // But PracticeView's "Practice Again" action calls viewModel.reset() then viewModel.setup().
-        // So reset() just needs to clear state. setup() will re-init coins.
-        
         // Reset round tracking
         currentRound = 1
         wordsInCurrentRound = words
@@ -197,6 +341,54 @@ class PracticeViewModel {
         wordsMastered = []
         allWordsMastered = false
         isRoundComplete = false
+        
+        // Reset gamification
+        sessionPoints = 0
+        comboCount = 0
+        comboMultiplier = 1
+        starsEarned = []
+        totalStarsEarned = 0
+        hadInitialMistakes = false
+        newlyUnlockedAchievements = []
+        performanceGrade = nil
+        levelUpOccurred = false
+        newLevel = nil
     }
 }
+
+// Performance grade enum
+enum PerformanceGrade: String {
+    case perfect = "Perfect!"
+    case excellent = "Excellent!"
+    case great = "Great Job!"
+    case good = "Good Work!"
+    case keepPracticing = "Keep Practicing!"
+    
+    var color: Color {
+        switch self {
+        case .perfect: return Color(red: 1.0, green: 0.84, blue: 0.0) // Gold
+        case .excellent: return Color(red: 0.2, green: 0.8, blue: 0.3) // Green
+        case .great: return Color(red: 0.2, green: 0.6, blue: 0.9) // Blue
+        case .good: return Color(red: 0.9, green: 0.5, blue: 0.2) // Orange
+        case .keepPracticing: return Color(red: 0.9, green: 0.2, blue: 0.2) // Red
+        }
+    }
+    
+    static func calculate(accuracy: Double, allFirstTry: Bool) -> PerformanceGrade {
+        if accuracy == 1.0 && allFirstTry {
+            return .perfect
+        } else if accuracy >= 0.9 {
+            return .excellent
+        } else if accuracy >= 0.75 {
+            return .great
+        } else if accuracy >= 0.6 {
+            return .good
+        } else {
+            return .keepPracticing
+        }
+    }
+}
+
+// Points result type alias
+typealias PointsResult = PointsService.PointsResult
 

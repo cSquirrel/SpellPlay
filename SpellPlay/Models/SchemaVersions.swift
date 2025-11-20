@@ -24,7 +24,8 @@ enum WordCraftSchemaV1_0_0: VersionedSchema {
         [
             SpellingTest.self,
             Word.self,
-            PracticeSession.self
+            PracticeSession.self,
+            UserProgress.self
         ]
     }
 }
@@ -36,6 +37,7 @@ typealias CurrentSchema = WordCraftSchemaV1_0_0
 typealias SpellingTest = WordCraftSchemaV1_0_0.SpellingTest
 typealias Word = WordCraftSchemaV1_0_0.Word
 typealias PracticeSession = WordCraftSchemaV1_0_0.PracticeSession
+typealias UserProgress = WordCraftSchemaV1_0_0.UserProgress
 
 /// Migration plan for schema versions
 enum WordCraftMigrationPlan: SchemaMigrationPlan {
