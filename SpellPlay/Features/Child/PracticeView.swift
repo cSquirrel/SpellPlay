@@ -22,6 +22,9 @@ struct PracticeView: View {
     @State private var isInputDisabled = false
     @State private var feedbackTimer: Timer?
     @State private var nextWordTimer: Timer?
+    @State private var incorrectAnswer: String = ""
+    @State private var correctWord: String = ""
+    @State private var showContinueButton = false
     
     @StateObject private var ttsService = TTSService()
     
@@ -104,12 +107,43 @@ struct PracticeView: View {
                     }
                     .disabled(ttsService.isSpeaking)
                     
-                    // Feedback animation
+                    // Feedback
                     if showFeedback {
-                        Text(lastAnswerWasCorrect ? "✓ Correct!" : "✗ Try again")
-                            .font(.system(size: AppConstants.titleSize, weight: .bold))
-                            .foregroundColor(lastAnswerWasCorrect ? AppConstants.successColor : AppConstants.errorColor)
-                            .transition(.scale.combined(with: .opacity))
+                        VStack(spacing: 16) {
+                            if lastAnswerWasCorrect {
+                                Text("✓ Correct!")
+                                    .font(.system(size: AppConstants.titleSize, weight: .bold))
+                                    .foregroundColor(AppConstants.successColor)
+                                    .transition(.scale.combined(with: .opacity))
+                            } else {
+                                // Incorrect answer feedback
+                                VStack(spacing: 12) {
+                                    Text("Incorrect")
+                                        .font(.system(size: AppConstants.titleSize, weight: .bold))
+                                        .foregroundColor(AppConstants.errorColor)
+                                    
+                                    Text(incorrectAnswer)
+                                        .font(.system(size: AppConstants.bodySize, weight: .medium))
+                                        .foregroundColor(AppConstants.errorColor)
+                                    
+                                    Text(correctWord)
+                                        .font(.system(size: AppConstants.bodySize, weight: .medium))
+                                        .foregroundColor(AppConstants.successColor)
+                                    
+                                    if showContinueButton {
+                                        Button(action: {
+                                            continueToNext()
+                                        }) {
+                                            Text("Continue")
+                                                .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                                        }
+                                        .largeButtonStyle(color: AppConstants.primaryColor)
+                                        .padding(.top, 8)
+                                    }
+                                }
+                                .transition(.scale.combined(with: .opacity))
+                            }
+                        }
                     }
                 }
             }
@@ -211,46 +245,66 @@ struct PracticeView: View {
         let isCorrect = word.text.matches(capturedAnswer)
         lastAnswerWasCorrect = isCorrect
         
-        // Disable input during feedback animation
+        // Disable input during feedback
         isInputDisabled = true
         
         // Submit the answer immediately with captured value to prevent stale text issues
         viewModel.submitAnswer(with: capturedAnswer)
         
-        // Show feedback animation
+        if isCorrect {
+            // For correct answers, show feedback and auto-advance
+            withAnimation {
+                showFeedback = true
+                showContinueButton = false
+            }
+            
+            // Cancel any existing timer
+            feedbackTimer?.invalidate()
+            
+            // Wait to hide feedback and move to next word
+            feedbackTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+                Task { @MainActor in
+                    continueToNext()
+                }
+            }
+        } else {
+            // For incorrect answers, show detailed feedback with continue button
+            incorrectAnswer = capturedAnswer
+            correctWord = word.text
+            
+            withAnimation {
+                showFeedback = true
+                showContinueButton = true
+            }
+        }
+    }
+    
+    private func continueToNext() {
         withAnimation {
-            showFeedback = true
+            showFeedback = false
+            showContinueButton = false
         }
         
-        // Cancel any existing timer
-        feedbackTimer?.invalidate()
+        // Clear the input field
+        viewModel.userAnswer = ""
         
-        // Wait to hide feedback and move to next word (UX delay for user to see feedback)
-        feedbackTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
-            Task { @MainActor in
-                withAnimation {
-                    showFeedback = false
-                }
-                
-                // Re-enable input
-                isInputDisabled = false
-                
-                // Check if round is complete but not all words mastered
-                if viewModel.isRoundComplete && !viewModel.allWordsMastered {
-                    // Show round transition
-                    nextRoundNumber = viewModel.currentRound + 1
-                    withAnimation {
-                        showingRoundTransition = true
-                    }
-                } else if !viewModel.isComplete, let nextWord = viewModel.currentWord {
-                    // Auto-play next word after a short delay
-                    let nextWordText = nextWord.text
-                    nextWordTimer?.invalidate()
-                    nextWordTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
-                        Task { @MainActor in
-                            ttsService.speak(nextWordText)
-                        }
-                    }
+        // Re-enable input
+        isInputDisabled = false
+        
+        // Check if round is complete but not all words mastered
+        if viewModel.isRoundComplete && !viewModel.allWordsMastered {
+            // Show round transition
+            nextRoundNumber = viewModel.currentRound + 1
+            withAnimation {
+                showingRoundTransition = true
+            }
+        } else if !viewModel.isComplete, let nextWord = viewModel.currentWord {
+            // Auto-play next word after a short delay
+            let nextWordText = nextWord.text
+            nextWordTimer?.invalidate()
+            nextWordTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+                Task { @MainActor in
+                    ttsService.speak(nextWordText)
                 }
             }
         }
