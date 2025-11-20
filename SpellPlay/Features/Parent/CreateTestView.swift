@@ -13,6 +13,7 @@ struct CreateTestView: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var testName = ""
+    @State private var helpCoins = 3
     @State private var wordText = ""
     @State private var words: [String] = []
     @State private var showingTTS = false
@@ -28,6 +29,15 @@ struct CreateTestView: View {
                     TextField("Enter test name", text: $testName)
                         .font(.system(size: AppConstants.bodySize))
                         .accessibilityIdentifier("CreateTest_TestNameField")
+                }
+                
+                Section("Settings") {
+                    Stepper("Help Coins: \(helpCoins)", value: $helpCoins, in: 0...10)
+                        .accessibilityIdentifier("CreateTest_HelpCoinsStepper")
+                    
+                    Text("Number of hints available during the test.")
+                        .font(.system(size: AppConstants.captionSize))
+                        .foregroundColor(.secondary)
                 }
                 
                 Section("Add Words") {
@@ -146,7 +156,7 @@ struct CreateTestView: View {
     }
     
     private func saveTest() {
-        let test = SpellingTest(name: testName)
+        let test = SpellingTest(name: testName, helpCoins: helpCoins)
         
         for wordText in words {
             let word = Word(text: wordText)

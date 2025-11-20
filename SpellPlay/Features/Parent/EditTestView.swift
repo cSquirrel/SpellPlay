@@ -15,6 +15,7 @@ struct EditTestView: View {
     let test: SpellingTest
     
     @State private var testName: String
+    @State private var helpCoins: Int
     @State private var wordText = ""
     @State private var words: [Word]
     @State private var selectedWordForTTS: Word?
@@ -25,6 +26,7 @@ struct EditTestView: View {
     init(test: SpellingTest) {
         self.test = test
         _testName = State(initialValue: test.name)
+        _helpCoins = State(initialValue: test.helpCoins)
         _words = State(initialValue: test.words)
     }
     
@@ -35,6 +37,15 @@ struct EditTestView: View {
                     TextField("Enter test name", text: $testName)
                         .font(.system(size: AppConstants.bodySize))
                         .accessibilityIdentifier("EditTest_TestNameField")
+                }
+                
+                Section("Settings") {
+                    Stepper("Help Coins: \(helpCoins)", value: $helpCoins, in: 0...10)
+                        .accessibilityIdentifier("EditTest_HelpCoinsStepper")
+                    
+                    Text("Number of hints available during the test.")
+                        .font(.system(size: AppConstants.captionSize))
+                        .foregroundColor(.secondary)
                 }
                 
                 Section("Add Words") {
@@ -142,6 +153,7 @@ struct EditTestView: View {
     
     private func saveTest() {
         test.name = testName
+        test.helpCoins = helpCoins
         
         do {
             try modelContext.save()

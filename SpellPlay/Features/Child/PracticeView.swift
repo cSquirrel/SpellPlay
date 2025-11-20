@@ -150,6 +150,35 @@ struct PracticeView: View {
             
             Spacer()
             
+            // Help Coin Button
+            if !viewModel.isRoundComplete && viewModel.currentWord != nil {
+                let isWordComplete = viewModel.currentWord?.text.matches(viewModel.userAnswer) ?? false
+                
+                Button(action: {
+                    viewModel.useHelpCoin()
+                }) {
+                    HStack(spacing: 8) {
+                        Text("🪙")
+                            .font(.system(size: 20))
+                        Text("Help (\(viewModel.availableCoins))")
+                            .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(Color.orange.opacity(0.15))
+                    .foregroundColor(.orange)
+                    .clipShape(Capsule())
+                    .overlay(
+                        Capsule()
+                            .stroke(Color.orange, lineWidth: 1.5)
+                    )
+                }
+                .disabled(viewModel.availableCoins <= 0 || isInputDisabled || isWordComplete)
+                .opacity(viewModel.availableCoins <= 0 || isWordComplete ? 0.6 : 1)
+                .padding(.bottom, 8)
+                .accessibilityIdentifier("Practice_HelpCoinButton")
+            }
+            
             // Word input
             WordInputView(
                 text: $viewModel.userAnswer,

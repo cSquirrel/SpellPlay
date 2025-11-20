@@ -20,6 +20,7 @@ class PracticeViewModel {
     var correctAnswers: [Bool] = []
     var isComplete = false
     var currentStreak = 0
+    var availableCoins = 0
     
     // Round tracking properties
     var currentRound = 1
@@ -41,6 +42,7 @@ class PracticeViewModel {
         self.correctAnswers = []
         self.isComplete = false
         self.currentStreak = streakService?.getCurrentStreak() ?? 0
+        self.availableCoins = test.helpCoins
         
         // Initialize round tracking
         self.currentRound = 1
@@ -111,6 +113,41 @@ class PracticeViewModel {
         isRoundComplete = false
     }
     
+    func useHelpCoin() {
+        guard availableCoins > 0, let word = currentWord else { return }
+        
+        let targetWord = word.text
+        let currentInput = userAnswer
+        
+        // Find common prefix
+        var commonPrefixIndex = 0
+        let targetChars = Array(targetWord)
+        let inputChars = Array(currentInput)
+        
+        let maxIndex = min(targetChars.count, inputChars.count)
+        
+        // While characters match (case insensitive)
+        while commonPrefixIndex < maxIndex {
+             if String(targetChars[commonPrefixIndex]).lowercased() != String(inputChars[commonPrefixIndex]).lowercased() {
+                 break
+             }
+             commonPrefixIndex += 1
+        }
+        
+        // If we haven't revealed the whole word
+        if commonPrefixIndex < targetChars.count {
+            // Reveal up to the common prefix + 1 character
+            let nextChar = targetChars[commonPrefixIndex]
+            let prefix = String(targetChars.prefix(commonPrefixIndex))
+            
+            // Update the answer: keep correct prefix and add next correct character
+            // This effectively corrects any errors after the prefix and adds the next letter
+            userAnswer = prefix + String(nextChar)
+            
+            availableCoins -= 1
+        }
+    }
+    
     private func completePractice() {
         isComplete = true
         
@@ -143,6 +180,15 @@ class PracticeViewModel {
         userAnswer = ""
         correctAnswers = []
         isComplete = false
+        
+        // Reset available coins if we want to reset them on retry?
+        // Usually retry means "try test again", so yes.
+        // However, we need the original test value.
+        // We can get it from words.first?.test?.helpCoins if the relation is navigable,
+        // or we rely on setup() being called again.
+        // PracticeView calls setup() onAppear, so reset() internal logic might suffice if setup is called.
+        // But PracticeView's "Practice Again" action calls viewModel.reset() then viewModel.setup().
+        // So reset() just needs to clear state. setup() will re-init coins.
         
         // Reset round tracking
         currentRound = 1
