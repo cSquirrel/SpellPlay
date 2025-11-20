@@ -156,33 +156,35 @@ struct StatsCardView: View {
                             .foregroundColor(.secondary)
                     }
                     
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            ForEach(Achievement.allAchievements, id: \.id) { achievement in
-                                let isUnlocked = progress.hasAchievement(achievement.id)
+                    LazyVGrid(columns: [
+                        GridItem(.flexible(), spacing: 12),
+                        GridItem(.flexible(), spacing: 12),
+                        GridItem(.flexible(), spacing: 12)
+                    ], spacing: 12) {
+                        ForEach(Achievement.allAchievements, id: \.id) { achievement in
+                            let isUnlocked = progress.hasAchievement(achievement.id)
+                            
+                            VStack(spacing: 6) {
+                                Text(achievement.icon)
+                                    .font(.system(size: 40))
                                 
-                                VStack(spacing: 6) {
-                                    Text(achievement.icon)
-                                        .font(.system(size: 40))
-                                    
-                                    Text(achievement.name)
-                                        .font(.system(size: AppConstants.captionSize, weight: .medium))
-                                        .foregroundColor(.primary)
-                                        .lineLimit(2)
-                                        .multilineTextAlignment(.center)
-                                        .frame(width: 80)
-                                }
-                                .padding(8)
-                                .background(isUnlocked ? Color.green.opacity(0.1) : Color.gray.opacity(0.1))
-                                .cornerRadius(8)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(isUnlocked ? Color.green : Color.gray.opacity(0.3), lineWidth: 2)
-                                )
-                                .opacity(isUnlocked ? 1.0 : 0.4) // Fade out locked achievements
+                                Text(achievement.name)
+                                    .font(.system(size: AppConstants.captionSize, weight: .medium))
+                                    .foregroundColor(.primary)
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.center)
+                                    .frame(width: 80)
                             }
+                            .padding(8)
+                            .frame(maxWidth: .infinity)
+                            .background(isUnlocked ? Color.green.opacity(0.1) : Color.gray.opacity(0.1))
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(isUnlocked ? Color.green : Color.gray.opacity(0.3), lineWidth: 2)
+                            )
+                            .opacity(isUnlocked ? 1.0 : 0.4) // Fade out locked achievements
                         }
-                        .padding(.horizontal, 4)
                     }
                 }
                 .padding(.top, 8)
