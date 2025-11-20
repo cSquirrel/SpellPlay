@@ -59,7 +59,7 @@ struct CelebrationView: View {
                 
                 if let message = displayMessage {
                     Text(message)
-                        .font(.system(size: AppConstants.titleSize, weight: .bold))
+                    .font(.system(size: AppConstants.titleSize, weight: .bold))
                         .foregroundColor(messageColor)
                 }
             }

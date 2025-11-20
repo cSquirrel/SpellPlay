@@ -35,7 +35,7 @@ struct PracticeSummaryView: View {
                 ScrollView {
                     VStack(spacing: 24) {
                         Spacer(minLength: 20)
-                        
+                
                         // Level up celebration (if occurred)
                         if showLevelUp, let level = newLevel {
                             LevelUpView(newLevel: level)
@@ -54,13 +54,13 @@ struct PracticeSummaryView: View {
                         // Main celebration
                         if showCelebration && !showLevelUp && !showAchievementUnlock {
                             CelebrationView(type: .sessionComplete)
-                                .transition(.scale.combined(with: .opacity))
-                        }
-                        
+                        .transition(.scale.combined(with: .opacity))
+                }
+                
                         VStack(spacing: 20) {
-                            Text("Practice Complete!")
-                                .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
-                                .foregroundColor(AppConstants.primaryColor)
+                    Text("Practice Complete!")
+                        .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
+                        .foregroundColor(AppConstants.primaryColor)
                             
                             // Performance grade
                             if let grade = performanceGrade {
@@ -108,31 +108,31 @@ struct PracticeSummaryView: View {
                                     .background(Color.yellow.opacity(0.1))
                                     .cornerRadius(AppConstants.cornerRadius)
                                 }
-                                
-                                // Round count display
-                                VStack(spacing: 8) {
-                                    Text("Completed in")
-                                        .font(.system(size: AppConstants.bodySize))
-                                        .foregroundColor(.secondary)
-                                    
-                                    Text("\(roundsCompleted) round\(roundsCompleted == 1 ? "" : "s")")
+                    
+                    // Round count display
+                    VStack(spacing: 8) {
+                        Text("Completed in")
+                            .font(.system(size: AppConstants.bodySize))
+                            .foregroundColor(.secondary)
+                        
+                        Text("\(roundsCompleted) round\(roundsCompleted == 1 ? "" : "s")")
                                         .font(.system(size: 36, weight: .bold))
-                                        .foregroundColor(AppConstants.primaryColor)
-                                        .accessibilityIdentifier("PracticeSummary_RoundsCompleted")
-                                }
-                                .padding(AppConstants.padding * 2)
-                                .cardStyle()
+                            .foregroundColor(AppConstants.primaryColor)
+                            .accessibilityIdentifier("PracticeSummary_RoundsCompleted")
+                    }
+                    .padding(AppConstants.padding * 2)
+                    .cardStyle()
                                 
                                 // Level progress
                                 LevelProgressView(
                                     level: currentLevel,
                                     experience: experiencePoints
                                 )
-                                
-                                // Streak update
-                                if streak > 0 {
-                                    StreakIndicatorView(streak: streak)
-                                }
+                    
+                    // Streak update
+                    if streak > 0 {
+                        StreakIndicatorView(streak: streak)
+                    }
                                 
                                 // Newly unlocked achievements
                                 if !newlyUnlockedAchievements.isEmpty {
@@ -158,8 +158,8 @@ struct PracticeSummaryView: View {
                                     .padding(.vertical, AppConstants.padding)
                                 }
                             }
-                        }
-                        
+                }
+                
                         Spacer(minLength: 20)
                     }
                     .padding(.horizontal, AppConstants.padding)

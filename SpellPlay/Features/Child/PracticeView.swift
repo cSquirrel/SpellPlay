@@ -181,7 +181,7 @@ struct PracticeView: View {
                                             stars: lastStarCount,
                                             totalStars: viewModel.totalStarsEarned
                                         )
-                                        .transition(.scale.combined(with: .opacity))
+                                    .transition(.scale.combined(with: .opacity))
                                     }
                                 }
                             } else {

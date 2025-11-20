@@ -15,8 +15,27 @@ struct ChildHomeView: View {
     @State private var selectedTest: SpellingTest?
     @State private var currentStreak = 0
     @State private var showingRoleSwitcher = false
+    @State private var selectedTab = 0
     
     var body: some View {
+        TabView(selection: $selectedTab) {
+            // Tests Tab
+            testsTabView
+                .tabItem {
+                    Label("Tests", systemImage: "book.fill")
+                }
+                .tag(0)
+            
+            // Stats Tab
+            StatsView()
+                .tabItem {
+                    Label("Stats", systemImage: "star.fill")
+                }
+                .tag(1)
+        }
+    }
+    
+    private var testsTabView: some View {
         NavigationStack {
             ZStack {
                 AppConstants.backgroundColor
@@ -79,6 +98,7 @@ struct ChildHomeView: View {
                 // Streak indicator
                 if currentStreak > 0 {
                     StreakIndicatorView(streak: currentStreak)
+                        .padding(.horizontal, AppConstants.padding)
                         .padding(.top, AppConstants.padding)
                 }
                 
