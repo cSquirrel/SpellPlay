@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import AVFoundation
 
 struct PracticeView: View {
     @Environment(\.modelContext) private var modelContext
@@ -73,7 +74,7 @@ struct PracticeView: View {
                 // Auto-play first word after a short delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     if let firstWord = viewModel.currentWord {
-                        ttsService.speak(firstWord.text)
+                        ttsService.speak(firstWord.text, rate: AVSpeechUtteranceDefaultSpeechRate)
                     }
                 }
             }
@@ -154,25 +155,53 @@ struct PracticeView: View {
             // Word display and audio
             VStack(spacing: 24) {
                 if let word = viewModel.currentWord {
-                    // Audio play button
-                    Button(action: {
-                        ttsService.speak(word.text)
-                    }) {
-                        VStack(spacing: 12) {
-                            Image(systemName: ttsService.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
-                                .font(.system(size: 60))
-                                .foregroundColor(.white)
-                            
-                            Text("Tap to hear the word")
-                                .font(.system(size: AppConstants.bodySize, weight: .medium))
-                                .foregroundColor(.white)
+                    // Audio play buttons - normal and slow speed
+                    HStack(spacing: 16) {
+                        // Normal speed button
+                        Button(action: {
+                            ttsService.speak(word.text, rate: AVSpeechUtteranceDefaultSpeechRate)
+                        }) {
+                            VStack(spacing: 8) {
+                                Image(systemName: ttsService.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
+                                    .font(.system(size: 40))
+                                    .foregroundColor(.white)
+                                
+                                Text("Normal")
+                                    .font(.system(size: AppConstants.captionSize, weight: .medium))
+                                    .foregroundColor(.white)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 120)
+                            .background(AppConstants.primaryColor)
+                            .cornerRadius(AppConstants.cornerRadius)
+                            .shadow(color: AppConstants.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
-                        .frame(width: 200, height: 200)
-                        .background(AppConstants.primaryColor)
-                        .clipShape(Circle())
-                        .shadow(color: AppConstants.primaryColor.opacity(0.3), radius: 12, x: 0, y: 6)
+                        .disabled(ttsService.isSpeaking)
+                        
+                        // Slow speed button (40% speed)
+                        Button(action: {
+                            // Use a slower rate for 40% speed
+                            // Default is ~0.5, so 40% would be ~0.2
+                            ttsService.speak(word.text, rate: 0.2)
+                        }) {
+                            VStack(spacing: 8) {
+                                Image(systemName: ttsService.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
+                                    .font(.system(size: 40))
+                                    .foregroundColor(.white)
+                                
+                                Text("Slow")
+                                    .font(.system(size: AppConstants.captionSize, weight: .medium))
+                                    .foregroundColor(.white)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 120)
+                            .background(AppConstants.primaryColor)
+                            .cornerRadius(AppConstants.cornerRadius)
+                            .shadow(color: AppConstants.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
+                        }
+                        .disabled(ttsService.isSpeaking)
                     }
-                    .disabled(ttsService.isSpeaking)
+                    .padding(.horizontal, AppConstants.padding)
                     
                     // Feedback
                     if showFeedback {
@@ -297,7 +326,7 @@ struct PracticeView: View {
                             Spacer()
                             
                             Button(action: {
-                                ttsService.speak(word.text)
+                                ttsService.speak(word.text, rate: AVSpeechUtteranceDefaultSpeechRate)
                             }) {
                                 Image(systemName: ttsService.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
                                     .font(.system(size: 20))
@@ -325,7 +354,7 @@ struct PracticeView: View {
                 Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
                     Task { @MainActor in
                         if let firstWord = viewModel.currentWord {
-                            ttsService.speak(firstWord.text)
+                            ttsService.speak(firstWord.text, rate: AVSpeechUtteranceDefaultSpeechRate)
                         }
                     }
                 }
@@ -421,7 +450,7 @@ struct PracticeView: View {
             nextWordTimer?.invalidate()
             nextWordTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
                 Task { @MainActor in
-                    ttsService.speak(nextWordText)
+                    ttsService.speak(nextWordText, rate: AVSpeechUtteranceDefaultSpeechRate)
                 }
             }
         }

@@ -29,7 +29,7 @@ class TTSService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
         isAvailable = true
     }
     
-    func speak(_ text: String, rate: Float = 0.5, pitch: Float = 1.0) {
+    func speak(_ text: String, rate: Float = AVSpeechUtteranceDefaultSpeechRate, pitch: Float = 1.0) {
         guard isAvailable else { return }
         
         stopSpeaking()
@@ -41,7 +41,9 @@ class TTSService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
             utterance.voice = voice
         }
         
-        utterance.rate = rate
+        // Clamp rate to valid range and set it
+        let clampedRate = max(AVSpeechUtteranceMinimumSpeechRate, min(AVSpeechUtteranceMaximumSpeechRate, rate))
+        utterance.rate = clampedRate
         utterance.pitchMultiplier = pitch
         utterance.volume = 1.0
         
