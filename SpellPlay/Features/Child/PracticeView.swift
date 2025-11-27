@@ -74,7 +74,7 @@ struct PracticeView: View {
                 // Auto-play first word after a short delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     if let firstWord = viewModel.currentWord {
-                        ttsService.speak(firstWord.text, rate: AVSpeechUtteranceDefaultSpeechRate)
+                        ttsService.speak(firstWord.text, rate: 0.3)
                     }
                 }
             }
@@ -159,7 +159,7 @@ struct PracticeView: View {
                     HStack(spacing: 16) {
                         // Normal speed button
                         Button(action: {
-                            ttsService.speak(word.text, rate: AVSpeechUtteranceDefaultSpeechRate)
+                            ttsService.speak(word.text, rate: 0.3)
                         }) {
                             VStack(spacing: 8) {
                                 Image(systemName: ttsService.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
@@ -178,11 +178,11 @@ struct PracticeView: View {
                         }
                         .disabled(ttsService.isSpeaking)
                         
-                        // Slow speed button (40% speed)
+                        // Slow speed button (20% speed)
                         Button(action: {
-                            // Use a slower rate for 40% speed
-                            // Default is ~0.5, so 40% would be ~0.2
-                            ttsService.speak(word.text, rate: 0.2)
+                            // Use a slower rate for 20% speed
+                            // Default is ~0.5, so 20% would be ~0.1
+                            ttsService.speak(word.text, rate: 0.1)
                         }) {
                             VStack(spacing: 8) {
                                 Image(systemName: ttsService.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
@@ -326,7 +326,7 @@ struct PracticeView: View {
                             Spacer()
                             
                             Button(action: {
-                                ttsService.speak(word.text, rate: AVSpeechUtteranceDefaultSpeechRate)
+                                ttsService.speak(word.text, rate: 0.3)
                             }) {
                                 Image(systemName: ttsService.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
                                     .font(.system(size: 20))
@@ -354,7 +354,7 @@ struct PracticeView: View {
                 Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
                     Task { @MainActor in
                         if let firstWord = viewModel.currentWord {
-                            ttsService.speak(firstWord.text, rate: AVSpeechUtteranceDefaultSpeechRate)
+                            ttsService.speak(firstWord.text, rate: 0.3)
                         }
                     }
                 }
@@ -450,7 +450,7 @@ struct PracticeView: View {
             nextWordTimer?.invalidate()
             nextWordTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
                 Task { @MainActor in
-                    ttsService.speak(nextWordText, rate: AVSpeechUtteranceDefaultSpeechRate)
+                    ttsService.speak(nextWordText, rate: 0.3)
                 }
             }
         }
