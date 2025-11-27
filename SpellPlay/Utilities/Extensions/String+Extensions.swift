@@ -20,6 +20,7 @@ extension String {
     
     /// Splits a string into words, filtering out empty strings
     /// Handles commas, whitespaces, and newlines as separators
+    /// Sanitizes words by removing all whitespace and converting to lowercase
     func splitIntoWords() -> [String] {
         // First split by commas, then by whitespaces/newlines
         let commaSeparated = self.components(separatedBy: ",")
@@ -28,9 +29,13 @@ extension String {
         for part in commaSeparated {
             let whitespaceSeparated = part.components(separatedBy: .whitespacesAndNewlines)
             for word in whitespaceSeparated {
-                let trimmed = word.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !trimmed.isEmpty {
-                    words.append(trimmed)
+                // Remove all whitespace characters and convert to lowercase
+                let sanitized = word
+                    .filter { !$0.isWhitespace && !$0.isNewline }
+                    .lowercased()
+                
+                if !sanitized.isEmpty {
+                    words.append(sanitized)
                 }
             }
         }
