@@ -265,13 +265,18 @@ struct PracticeView: View {
                                         .font(.system(size: AppConstants.titleSize, weight: .bold))
                                         .foregroundColor(AppConstants.errorColor)
                                     
-                                    Text(incorrectAnswer)
-                                        .font(.system(size: AppConstants.bodySize, weight: .medium))
-                                        .foregroundColor(AppConstants.errorColor)
-                                    
-                                    Text(correctWord)
-                                        .font(.system(size: AppConstants.bodySize, weight: .medium))
-                                        .foregroundColor(AppConstants.successColor)
+                                    // Letter-by-letter comparison
+                                    VStack(spacing: 8) {
+                                        SpellingComparisonView(
+                                            userAnswer: incorrectAnswer,
+                                            correctWord: correctWord
+                                        )
+                                        
+                                        // Show correct word below for reference
+                                        Text(correctWord)
+                                            .font(.system(size: AppConstants.bodySize, weight: .medium))
+                                            .foregroundColor(.secondary)
+                                    }
                                     
                                     if showContinueButton {
                                         Button(action: {
