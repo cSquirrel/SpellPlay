@@ -56,14 +56,18 @@ struct PracticeView: View {
                         onPracticeAgain: {
                             viewModel.reset()
                             viewModel.setup(test: test, modelContext: modelContext)
-                            hasStartedPractice = false
+                            hasStartedPractice = true
+                            // Auto-play first word after a short delay
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                if let firstWord = viewModel.currentWord {
+                                    ttsService.speak(firstWord.text, rate: 0.3)
+                                }
+                            }
                         },
                         onBack: {
                             dismiss()
                         }
                     )
-                } else if !hasStartedPractice {
-                    wordListReviewView
                 } else if showingRoundTransition {
                     roundTransitionView
                 } else {
@@ -103,7 +107,13 @@ struct PracticeView: View {
             .onAppear {
                 viewModel.setup(test: test, modelContext: modelContext)
                 previousComboCount = 0
-                hasStartedPractice = false
+                hasStartedPractice = true
+                // Auto-play first word after a short delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    if let firstWord = viewModel.currentWord {
+                        ttsService.speak(firstWord.text, rate: 0.3)
+                    }
+                }
             }
             .onChange(of: viewModel.newlyUnlockedAchievements) { oldValue, newValue in
                 // Show achievement unlock when new achievements are unlocked
@@ -145,76 +155,6 @@ struct PracticeView: View {
                         }
                 }
             }
-        }
-    }
-    
-    private var wordListReviewView: some View {
-        VStack(spacing: 24) {
-            // Header
-            VStack(spacing: 8) {
-                Text("Words to Practice")
-                    .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
-                    .foregroundColor(.primary)
-                    .accessibilityIdentifier("Practice_WordListTitle")
-                
-                Text("\(test.words.count) word\(test.words.count == 1 ? "" : "s")")
-                    .font(.system(size: AppConstants.bodySize))
-                    .foregroundColor(.secondary)
-                    .accessibilityIdentifier("Practice_WordListCount")
-            }
-            .padding(.top, AppConstants.padding * 2)
-            
-            // Words list
-            ScrollView {
-                LazyVStack(spacing: 12) {
-                    ForEach(test.words) { word in
-                        HStack(spacing: 16) {
-                            Text(word.text)
-                                .font(.system(size: AppConstants.bodySize, weight: .medium))
-                                .foregroundColor(.primary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .accessibilityIdentifier("Practice_WordList_Word_\(word.text)")
-                            
-                            Button(action: {
-                                ttsService.speak(word.text, rate: 0.3)
-                            }) {
-                                Image(systemName: ttsService.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(AppConstants.primaryColor)
-                                    .frame(width: 44, height: 44)
-                            }
-                            .buttonStyle(.plain)
-                            .disabled(ttsService.isSpeaking)
-                            .accessibilityLabel("Play pronunciation")
-                            .accessibilityIdentifier("Practice_WordList_PlayButton_\(word.text)")
-                        }
-                        .padding(AppConstants.padding)
-                        .background(AppConstants.cardColor)
-                        .cornerRadius(AppConstants.cornerRadius)
-                        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
-                    }
-                }
-                .padding(.horizontal, AppConstants.padding)
-            }
-            
-            // Start button
-            Button(action: {
-                withAnimation {
-                    hasStartedPractice = true
-                }
-                // Auto-play first word after a short delay
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    if let firstWord = viewModel.currentWord {
-                        ttsService.speak(firstWord.text, rate: 0.3)
-                    }
-                }
-            }) {
-                Text("Start")
-            }
-            .largeButtonStyle(color: AppConstants.primaryColor)
-            .padding(.horizontal, AppConstants.padding)
-            .padding(.bottom, AppConstants.padding)
-            .accessibilityIdentifier("Practice_StartButton")
         }
     }
     
