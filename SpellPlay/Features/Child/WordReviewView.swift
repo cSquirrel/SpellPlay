@@ -66,6 +66,8 @@ struct WordReviewView: View {
                     }) {
                         Text("Start")
                             .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .contentShape(Rectangle())
                     }
                     .largeButtonStyle(color: AppConstants.primaryColor)
                     .padding(.horizontal, AppConstants.padding)
