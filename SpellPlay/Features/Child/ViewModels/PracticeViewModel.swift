@@ -59,7 +59,8 @@ class PracticeViewModel {
         }
         self.userProgress = achievementService?.getUserProgress()
         
-        self.words = test.words
+        // Sort words by displayOrder to preserve entry order
+        self.words = test.words.sortedAsCreated()
         self.currentWordIndex = 0
         self.userAnswer = ""
         self.correctAnswers = []
@@ -70,7 +71,8 @@ class PracticeViewModel {
         
         // Initialize round tracking
         self.currentRound = 1
-        self.wordsInCurrentRound = test.words
+        // Use sorted words for the round
+        self.wordsInCurrentRound = self.words
         self.roundResults = [:]
         self.wordsMastered = []
         self.allWordsMastered = false

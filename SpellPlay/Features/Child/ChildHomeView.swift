@@ -65,7 +65,7 @@ struct ChildHomeView: View {
                 currentStreak = service.getCurrentStreak()
             }
             .sheet(item: $selectedTest) { test in
-                PracticeView(test: test)
+                WordReviewView(test: test)
             }
             .sheet(isPresented: $showingRoleSwitcher) {
                 RoleSwitcherView()

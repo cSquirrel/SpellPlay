@@ -45,6 +45,8 @@ struct CreateTestView: View {
                         TextEditor(text: $wordText)
                             .frame(height: 120)
                             .font(.system(size: AppConstants.bodySize))
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
                             .overlay(
                                 RoundedRectangle(cornerRadius: AppConstants.cornerRadius)
                                     .stroke(Color(.systemGray4), lineWidth: 1)
@@ -158,8 +160,8 @@ struct CreateTestView: View {
     private func saveTest() {
         let test = SpellingTest(name: testName, helpCoins: helpCoins)
         
-        for wordText in words {
-            let word = Word(text: wordText)
+        for (index, wordText) in words.enumerated() {
+            let word = Word(text: wordText, displayOrder: index)
             test.words.append(word)
         }
         
