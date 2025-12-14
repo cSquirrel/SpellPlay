@@ -34,3 +34,69 @@ enum AppConstants {
     static let childRole = "Kid"
 }
 
+/// Provides encouraging feedback messages based on spelling similarity
+enum FeedbackMessages {
+    /// Messages for low similarity (<20% match)
+    static let lowSimilarityMessages = [
+        "Unlucky",
+        "You've tried",
+        "Needs practice",
+        "Keep going",
+        "Don't give up",
+        "Try again",
+        "Practice makes perfect",
+        "You can do it",
+        "Keep learning",
+        "Stay focused"
+    ]
+    
+    /// Messages for medium similarity (20-80% match)
+    static let mediumSimilarityMessages = [
+        "Great effort",
+        "Working hard",
+        "A little bit more",
+        "Almost matched",
+        "Getting closer",
+        "Good attempt",
+        "You're improving",
+        "Nice try",
+        "Keep it up",
+        "Making progress"
+    ]
+    
+    /// Messages for high similarity (>80% match)
+    static let highSimilarityMessages = [
+        "Near perfection",
+        "Almost there",
+        "Minor mistakes",
+        "So close",
+        "Almost perfect",
+        "Just a bit off",
+        "Very close",
+        "Almost got it",
+        "Nearly correct",
+        "Almost right"
+    ]
+    
+    /// Returns a random feedback message based on similarity percentage
+    /// - Parameter similarity: A value between 0.0 and 1.0 representing similarity percentage
+    /// - Returns: A random encouraging message from the appropriate category
+    static func getFeedbackMessage(for similarity: Double) -> String {
+        let messages: [String]
+        
+        if similarity < 0.2 {
+            // Low similarity (<20%)
+            messages = lowSimilarityMessages
+        } else if similarity <= 0.8 {
+            // Medium similarity (20-80%)
+            messages = mediumSimilarityMessages
+        } else {
+            // High similarity (>80%)
+            messages = highSimilarityMessages
+        }
+        
+        // Return a random message from the selected category
+        return messages.randomElement() ?? messages[0]
+    }
+}
+

@@ -25,6 +25,7 @@ struct PracticeView: View {
     @State private var nextWordTimer: Timer?
     @State private var incorrectAnswer: String = ""
     @State private var correctWord: String = ""
+    @State private var feedbackMessage: String = ""
     @State private var showContinueButton = false
     @State private var showAchievementUnlock = false
     @State private var unlockedAchievement: AchievementID?
@@ -260,7 +261,7 @@ struct PracticeView: View {
                             } else {
                                 // Incorrect answer feedback
                                 VStack(spacing: 12) {
-                                    Text("Incorrect")
+                                    Text(feedbackMessage.isEmpty ? "Incorrect" : feedbackMessage)
                                         .font(.system(size: AppConstants.titleSize, weight: .bold))
                                         .foregroundColor(AppConstants.errorColor)
                                     
@@ -451,9 +452,13 @@ struct PracticeView: View {
                 }
             }
         } else {
-            // For incorrect answers, show detailed feedback with continue button
+            // For incorrect answers, calculate similarity and show detailed feedback with continue button
             incorrectAnswer = capturedAnswer
             correctWord = word.text
+            
+            // Calculate similarity percentage and get appropriate feedback message
+            let similarity = word.text.similarityPercentage(to: capturedAnswer)
+            feedbackMessage = FeedbackMessages.getFeedbackMessage(for: similarity)
             
             withAnimation {
                 showFeedback = true
@@ -468,8 +473,9 @@ struct PracticeView: View {
             showContinueButton = false
         }
         
-        // Clear the input field
+        // Clear the input field and feedback message
         viewModel.userAnswer = ""
+        feedbackMessage = ""
         
         // Re-enable input
         isInputDisabled = false
