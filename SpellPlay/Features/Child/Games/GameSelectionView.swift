@@ -41,8 +41,8 @@ struct GameSelectionView: View {
                             GridItem(.flexible(), spacing: 12)
                         ], spacing: 12) {
                             gameCard(.balloonPop)
-                            gameCard(.fishCatcher, isEnabled: false)
-                            gameCard(.wordBuilder, isEnabled: false)
+                            gameCard(.fishCatcher)
+                            gameCard(.wordBuilder)
                             gameCard(.fallingStars)
                             gameCard(.rocketLaunch, isEnabled: false)
                         }
@@ -68,9 +68,13 @@ struct GameSelectionView: View {
                 switch game {
                 case .balloonPop:
                     BalloonPopView(words: selectedWords)
+                case .fishCatcher:
+                    FishCatcherView(words: selectedWords)
+                case .wordBuilder:
+                    WordBuilderView(words: selectedWords)
                 case .fallingStars:
                     FallingStarsView(words: selectedWords)
-                case .fishCatcher, .wordBuilder, .rocketLaunch:
+                case .rocketLaunch:
                     ComingSoonView(gameName: game.title)
                 }
             }
