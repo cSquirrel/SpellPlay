@@ -15,6 +15,7 @@ struct WordReviewView: View {
     let test: SpellingTest
     
     @State private var showPractice = false
+    @State private var showGameSelection = false
     
     // Words sorted by displayOrder to preserve entry order
     private var sortedWords: [Word] {
@@ -61,18 +62,34 @@ struct WordReviewView: View {
                     }
                     
                     // Start button
-                    Button(action: {
-                        showPractice = true
-                    }) {
-                        Text("Start")
+                    VStack(spacing: 12) {
+                        Button(action: {
+                            showPractice = true
+                        }) {
+                            Text("Start")
+                                .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .contentShape(Rectangle())
+                        }
+                        .largeButtonStyle(color: AppConstants.primaryColor)
+                        .accessibilityIdentifier("WordReview_StartButton")
+                        
+                        Button(action: {
+                            showGameSelection = true
+                        }) {
+                            HStack(spacing: 10) {
+                                Image(systemName: "gamecontroller.fill")
+                                Text("Play Games")
+                            }
                             .font(.system(size: AppConstants.bodySize, weight: .semibold))
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .contentShape(Rectangle())
+                        }
+                        .largeButtonStyle(color: AppConstants.secondaryColor)
+                        .accessibilityIdentifier("WordReview_PlayGamesButton")
                     }
-                    .largeButtonStyle(color: AppConstants.primaryColor)
                     .padding(.horizontal, AppConstants.padding)
                     .padding(.bottom, AppConstants.padding)
-                    .accessibilityIdentifier("WordReview_StartButton")
                 }
             }
             .navigationTitle(test.name)
@@ -92,6 +109,9 @@ struct WordReviewView: View {
             }
             .fullScreenCover(isPresented: $showPractice) {
                 PracticeView(test: test)
+            }
+            .fullScreenCover(isPresented: $showGameSelection) {
+                GameSelectionView(test: test)
             }
         }
     }
