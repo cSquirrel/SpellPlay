@@ -11,12 +11,13 @@ import SwiftData
 extension WordCraftSchemaV1_0_0 {
     @Model
     final class PracticeSession {
-        @Attribute(.unique) var id: UUID
-        var testId: UUID
-        var date: Date
-        var wordsAttempted: Int
-        var wordsCorrect: Int
-        var streak: Int
+        // CloudKit doesn't support unique constraints - removed @Attribute(.unique)
+        var id: UUID = UUID()
+        var testId: UUID = UUID()
+        var date: Date = Date()
+        var wordsAttempted: Int = 0
+        var wordsCorrect: Int = 0
+        var streak: Int = 0
         
         init(testId: UUID, wordsAttempted: Int, wordsCorrect: Int, streak: Int) {
             self.id = UUID()

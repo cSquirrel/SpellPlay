@@ -160,9 +160,14 @@ struct CreateTestView: View {
     private func saveTest() {
         let test = SpellingTest(name: testName, helpCoins: helpCoins)
         
+        // Ensure words array is initialized
+        if test.words == nil {
+            test.words = []
+        }
+        
         for (index, wordText) in words.enumerated() {
             let word = Word(text: wordText, displayOrder: index)
-            test.words.append(word)
+            test.words?.append(word)
         }
         
         modelContext.insert(test)

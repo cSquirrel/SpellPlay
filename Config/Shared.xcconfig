@@ -28,6 +28,8 @@ INFOPLIST_KEY_CFBundleIconName = AppIcon
 INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationLandscapeRight UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationPortrait
 INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationLandscapeRight UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown
 INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO
+// Background modes for CloudKit push notifications (optional but recommended)
+INFOPLIST_KEY_UIBackgroundModes = remote-notification
 
 // ==========================================
 // Entitlements

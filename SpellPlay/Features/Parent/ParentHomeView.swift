@@ -32,14 +32,18 @@ struct ParentHomeView: View {
             .navigationTitle("My Spelling Tests")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        showingRoleSwitcher = true
-                    }) {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(.secondary)
+                    HStack(spacing: 12) {
+                        Button(action: {
+                            showingRoleSwitcher = true
+                        }) {
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 20))
+                                .foregroundColor(.secondary)
+                        }
+                        .accessibilityIdentifier("ParentHome_SettingsButton")
+                        
+                        SyncStatusView()
                     }
-                    .accessibilityIdentifier("ParentHome_SettingsButton")
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -136,7 +140,7 @@ struct TestCardView: View {
                     .foregroundColor(.primary)
                     .accessibilityIdentifier("TestCard_Name_\(test.name)")
                 
-                Text("\(test.words.count) words")
+                Text("\((test.words ?? []).count) words")
                     .font(.system(size: AppConstants.captionSize))
                     .foregroundColor(.secondary)
                 

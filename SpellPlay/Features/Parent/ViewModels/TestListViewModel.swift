@@ -49,7 +49,7 @@ class TestListViewModel {
     }
     
     func getTestStats(for test: SpellingTest) -> (totalWords: Int, lastPracticed: String) {
-        let totalWords = test.words.count
+        let totalWords = (test.words ?? []).count
         
         let lastPracticed: String
         if let lastDate = test.lastPracticed {

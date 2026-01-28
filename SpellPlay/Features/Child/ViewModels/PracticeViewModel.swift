@@ -60,7 +60,7 @@ class PracticeViewModel {
         self.userProgress = achievementService?.getUserProgress()
         
         // Sort words by displayOrder to preserve entry order
-        self.words = test.words.sortedAsCreated()
+        self.words = (test.words ?? []).sortedAsCreated()
         self.currentWordIndex = 0
         self.userAnswer = ""
         self.correctAnswers = []
