@@ -13,7 +13,7 @@ struct WordSelectionView: View {
 
     // Words sorted by displayOrder to preserve entry order
     private var sortedWords: [Word] {
-        (test.words ?? []).sortedAsCreated()
+        test.words?.sortedAsCreated() ?? []
     }
 
     @State private var selectedWordIds: Set<UUID> = []
