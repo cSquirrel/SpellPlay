@@ -19,7 +19,7 @@ struct WordReviewView: View {
     
     // Words sorted by displayOrder to preserve entry order
     private var sortedWords: [Word] {
-        test.words.sortedAsCreated()
+        (test.words ?? []).sortedAsCreated()
     }
     
     var body: some View {

@@ -49,6 +49,10 @@ struct ChildHomeView: View {
             }
             .navigationTitle("WordCraft")
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    SyncStatusView()
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         showingRoleSwitcher = true
@@ -141,7 +145,7 @@ struct ChildTestCardView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .accessibilityIdentifier("ChildTestCard_Name_\(test.name)")
                 
-                Text("\(test.words.count) words")
+                Text("\((test.words ?? []).count) words")
                     .font(.system(size: AppConstants.bodySize))
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)

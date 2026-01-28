@@ -11,7 +11,8 @@ import SwiftData
 extension WordCraftSchemaV1_0_0 {
     @Model
     final class UserProgress {
-        @Attribute(.unique) var id: UUID
+        // CloudKit doesn't support unique constraints - removed @Attribute(.unique)
+        var id: UUID = UUID()
         var totalPoints: Int = 0
         var totalStars: Int = 0
         var level: Int = 1
@@ -19,8 +20,8 @@ extension WordCraftSchemaV1_0_0 {
         var unlockedAchievements: [String] = [] // Array of AchievementID rawValues
         var totalWordsMastered: Int = 0
         var totalSessionsCompleted: Int = 0
-        var createdAt: Date
-        var lastUpdated: Date
+        var createdAt: Date = Date()
+        var lastUpdated: Date = Date()
         
         init() {
             self.id = UUID()

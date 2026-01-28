@@ -11,10 +11,10 @@ import SwiftData
 extension WordCraftSchemaV1_0_0 {
     @Model
     final class Word {
-        var id: UUID
-        var text: String
-        var createdAt: Date
-        var displayOrder: Int
+        var id: UUID = UUID()
+        var text: String = ""
+        var createdAt: Date = Date()
+        var displayOrder: Int = 0
         
         @Relationship(deleteRule: .nullify, inverse: \SpellingTest.words)
         var test: SpellingTest?

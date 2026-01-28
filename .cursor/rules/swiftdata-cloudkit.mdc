@@ -1,0 +1,203 @@
+---
+description: "SwiftData CloudKit compatibility requirements - all attributes must be optional or have defaults, relationships must be optional, no unique constraints"
+globs: 
+  - "**/*Model*.swift"
+  - "**/Models/**/*.swift"
+alwaysApply: false
+---
+
+# SwiftData CloudKit Compatibility Rules
+
+When using SwiftData with CloudKit integration, **all models must follow strict compatibility requirements**. These rules are enforced at runtime and will cause fatal errors if violated.
+
+## Critical Requirements
+
+### 1. All Attributes Must Be Optional OR Have Default Values
+
+**❌ WRONG:**
+```swift
+@Model
+final class MyModel {
+    var id: UUID  // ❌ No default, not optional
+    var name: String  // ❌ No default, not optional
+    var createdAt: Date  // ❌ No default, not optional
+}
+```
+
+**✅ CORRECT:**
+```swift
+@Model
+final class MyModel {
+    var id: UUID = UUID()  // ✅ Has default value
+    var name: String = ""  // ✅ Has default value
+    var createdAt: Date = Date()  // ✅ Has default value
+    var optionalField: String?  // ✅ Optional is fine
+}
+```
+
+### 2. All Relationships Must Be Optional
+
+**❌ WRONG:**
+```swift
+@Model
+final class Parent {
+    @Relationship(deleteRule: .cascade)
+    var children: [Child] = []  // ❌ Non-optional relationship
+}
+
+@Model
+final class Child {
+    @Relationship(deleteRule: .nullify, inverse: \Parent.children)
+    var parent: Parent  // ❌ Non-optional relationship
+}
+```
+
+**✅ CORRECT:**
+```swift
+@Model
+final class Parent {
+    @Relationship(deleteRule: .cascade)
+    var children: [Child]? = []  // ✅ Optional relationship
+    
+    init() {
+        self.children = []  // Initialize in init if needed
+    }
+}
+
+@Model
+final class Child {
+    @Relationship(deleteRule: .nullify, inverse: \Parent.children)
+    var parent: Parent?  // ✅ Optional relationship
+}
+```
+
+### 3. No Unique Constraints
+
+**❌ WRONG:**
+```swift
+@Model
+final class MyModel {
+    @Attribute(.unique) var id: UUID  // ❌ CloudKit doesn't support unique constraints
+}
+```
+
+**✅ CORRECT:**
+```swift
+@Model
+final class MyModel {
+    var id: UUID = UUID()  // ✅ No unique constraint
+    // CloudKit handles uniqueness differently - use UUIDs and handle duplicates in app logic
+}
+```
+
+## Code Patterns
+
+### Pattern 1: Required Fields with Defaults
+
+```swift
+@Model
+final class SpellingTest {
+    var id: UUID = UUID()
+    var name: String = ""
+    var createdAt: Date = Date()
+    
+    init(name: String) {
+        self.id = UUID()
+        self.name = name
+        self.createdAt = Date()
+    }
+}
+```
+
+### Pattern 2: Optional Relationships
+
+```swift
+@Model
+final class SpellingTest {
+    @Relationship(deleteRule: .cascade)
+    var words: [Word]? = []
+    
+    init() {
+        self.words = []
+    }
+    
+    func addWord(_ word: Word) {
+        if words == nil {
+            words = []
+        }
+        words?.append(word)
+    }
+}
+```
+
+### Pattern 3: Accessing Optional Relationships
+
+```swift
+// ✅ Always use nil coalescing when accessing optional relationships
+let wordCount = (test.words ?? []).count
+let sortedWords = (test.words ?? []).sorted()
+
+// ✅ Initialize before appending
+if test.words == nil {
+    test.words = []
+}
+test.words?.append(newWord)
+```
+
+## Migration Checklist
+
+When creating or modifying SwiftData models for CloudKit:
+
+- [ ] All non-optional properties have default values
+- [ ] All relationships are optional (`?` suffix)
+- [ ] No `@Attribute(.unique)` constraints
+- [ ] All code accessing relationships handles optionality (`?? []` or `if let`)
+- [ ] Relationships are initialized before use (in `init` or before appending)
+
+## Common Errors
+
+### Error: "CloudKit integration requires that all attributes be optional, or have a default value set"
+
+**Solution:** Add default values to all non-optional properties:
+```swift
+// Before
+var id: UUID
+
+// After
+var id: UUID = UUID()
+```
+
+### Error: "CloudKit integration requires that all relationships be optional"
+
+**Solution:** Make relationships optional:
+```swift
+// Before
+var children: [Child] = []
+
+// After
+var children: [Child]? = []
+```
+
+### Error: "CloudKit integration does not support unique constraints"
+
+**Solution:** Remove `@Attribute(.unique)`:
+```swift
+// Before
+@Attribute(.unique) var id: UUID
+
+// After
+var id: UUID = UUID()
+```
+
+## Testing
+
+After making changes, verify:
+1. App builds without errors
+2. ModelContainer initializes successfully
+3. No runtime errors about CloudKit compatibility
+4. Data syncs correctly between devices
+
+## References
+
+- [SwiftData CloudKit Integration](https://developer.apple.com/documentation/swiftdata/cloudkit-integration)
+- See `docs/FEATURE_ICLOUD_SYNC.md` for implementation details

@@ -28,7 +28,7 @@ struct EditTestView: View {
         _testName = State(initialValue: test.name)
         _helpCoins = State(initialValue: test.helpCoins)
         // Sort words by displayOrder, fallback to createdAt for existing words without displayOrder
-        let sortedWords = test.words.sortedAsCreated()
+        let sortedWords = (test.words ?? []).sortedAsCreated()
         _words = State(initialValue: sortedWords)
     }
     
@@ -146,10 +146,15 @@ struct EditTestView: View {
         // Get the highest displayOrder from existing words, or use count as fallback
         let maxDisplayOrder = words.map { $0.displayOrder }.max() ?? (words.count - 1)
         
+        // Ensure words array is initialized
+        if test.words == nil {
+            test.words = []
+        }
+        
         for (offset, wordText) in newWordTexts.enumerated() {
             let word = Word(text: wordText, displayOrder: maxDisplayOrder + 1 + offset)
             word.test = test
-            test.words.append(word)
+            test.words?.append(word)
             words.append(word)
         }
         

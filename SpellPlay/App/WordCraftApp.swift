@@ -11,6 +11,7 @@ import SwiftData
 @main
 struct WordCraftApp: App {
     @State private var appState = AppState()
+    @State private var cloudSyncService = CloudSyncService()
     @State private var showOnboarding = false
     
     var modelContainer: ModelContainer = {
@@ -19,7 +20,7 @@ struct WordCraftApp: App {
         // Create schema from the current versioned schema
         let schema = Schema(CurrentSchema.models)
         
-        let modelConfiguration = ModelConfiguration(
+        let modelConfiguration = CloudSyncService.makeCloudKitConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false
         )
@@ -40,6 +41,7 @@ struct WordCraftApp: App {
             ContentView()
                 .preferredColorScheme(.light) // Force light mode
                 .environment(appState)
+                .environment(cloudSyncService)
                 .modelContainer(modelContainer)
                 .onAppear {
                     // Show onboarding if role is selected and onboarding not completed for that role
