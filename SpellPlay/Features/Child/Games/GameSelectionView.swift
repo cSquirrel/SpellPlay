@@ -43,7 +43,7 @@ struct GameSelectionView: View {
                             gameCard(.balloonPop)
                             gameCard(.fishCatcher, isEnabled: false)
                             gameCard(.wordBuilder, isEnabled: false)
-                            gameCard(.fallingStars, isEnabled: false)
+                            gameCard(.fallingStars)
                             gameCard(.rocketLaunch, isEnabled: false)
                         }
                         .padding(.horizontal, AppConstants.padding)
@@ -68,7 +68,9 @@ struct GameSelectionView: View {
                 switch game {
                 case .balloonPop:
                     BalloonPopView(words: selectedWords)
-                case .fishCatcher, .wordBuilder, .fallingStars, .rocketLaunch:
+                case .fallingStars:
+                    FallingStarsView(words: selectedWords)
+                case .fishCatcher, .wordBuilder, .rocketLaunch:
                     ComingSoonView(gameName: game.title)
                 }
             }
