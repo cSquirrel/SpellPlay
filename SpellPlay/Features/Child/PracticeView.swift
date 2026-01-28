@@ -284,6 +284,8 @@ struct PracticeView: View {
                                         }) {
                                             Text("Continue")
                                                 .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                                .contentShape(Rectangle())
                                         }
                                         .largeButtonStyle(color: AppConstants.primaryColor)
                                         .padding(.top, 8)
@@ -404,6 +406,8 @@ struct PracticeView: View {
             }) {
                 Text("Start Round")
                     .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .contentShape(Rectangle())
             }
             .largeButtonStyle(color: AppConstants.primaryColor)
             .padding(.horizontal, AppConstants.padding)

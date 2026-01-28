@@ -43,3 +43,4 @@ struct SpellingComparisonView: View {
         return result
     }
 }
+
