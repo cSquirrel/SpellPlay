@@ -111,7 +111,7 @@ struct WordReviewView: View {
                 PracticeView(test: test)
             }
             .fullScreenCover(isPresented: $showGameSelection) {
-                GameSelectionView(test: test)
+                WordSelectionView(test: test)
             }
         }
     }

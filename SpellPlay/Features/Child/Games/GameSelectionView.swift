@@ -10,11 +10,7 @@ struct GameSelectionView: View {
     @Environment(\.dismiss) private var dismiss
 
     let test: SpellingTest
-
-    // Words sorted by displayOrder to preserve entry order
-    private var sortedWords: [Word] {
-        test.words.sortedAsCreated()
-    }
+    let selectedWords: [Word]
 
     @State private var selectedGame: GameKind?
 
@@ -32,6 +28,13 @@ struct GameSelectionView: View {
                             .padding(.horizontal, AppConstants.padding)
                             .padding(.top, AppConstants.padding)
                             .accessibilityIdentifier("GameSelection_Title")
+
+                        // Show selected words count
+                        Text("\(selectedWords.count) word\(selectedWords.count == 1 ? "" : "s") selected")
+                            .font(.system(size: AppConstants.captionSize))
+                            .foregroundColor(.secondary)
+                            .padding(.horizontal, AppConstants.padding)
+                            .accessibilityIdentifier("GameSelection_WordCount")
 
                         LazyVGrid(columns: [
                             GridItem(.flexible(), spacing: 12),
@@ -64,17 +67,26 @@ struct GameSelectionView: View {
             .fullScreenCover(item: $selectedGame) { game in
                 switch game {
                 case .balloonPop:
-                    BalloonPopView(words: sortedWords)
+                    BalloonPopView(words: selectedWords)
                 case .fishCatcher, .wordBuilder, .fallingStars, .rocketLaunch:
                     ComingSoonView(gameName: game.title)
                 }
             }
         }
+        .accessibilityIdentifier("GameSelection_Root")
     }
 
     private func gameCard(_ game: GameKind, isEnabled: Bool = true) -> some View {
-        Button {
-            guard isEnabled else { return }
+        let canPlay = isEnabled && !selectedWords.isEmpty
+        let subtitleText: String
+        if !isEnabled {
+            subtitleText = "Coming soon"
+        } else {
+            subtitleText = game.subtitle
+        }
+
+        return Button {
+            guard canPlay else { return }
             selectedGame = game
         } label: {
             VStack(spacing: 10) {
@@ -85,7 +97,7 @@ struct GameSelectionView: View {
                     .font(.system(size: AppConstants.bodySize, weight: .semibold))
                     .foregroundColor(.primary)
 
-                Text(isEnabled ? game.subtitle : "Coming soon")
+                Text(subtitleText)
                     .font(.system(size: AppConstants.captionSize))
                     .foregroundColor(.secondary)
             }
@@ -94,11 +106,12 @@ struct GameSelectionView: View {
             .background(AppConstants.cardColor)
             .cornerRadius(AppConstants.cornerRadius)
             .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
-            .opacity(isEnabled ? 1.0 : 0.5)
+            .opacity(canPlay ? 1.0 : 0.5)
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("GameSelection_Card_\(game.accessibilityId)")
         .accessibilityLabel(game.title)
+        .accessibilityHint(canPlay ? "Double tap to play" : subtitleText)
     }
 }
 
