@@ -1,0 +1,107 @@
+---
+description: Git worktree workflow for feature branch development. ALWAYS apply when creating feature branches or working on new features.
+globs: 
+alwaysApply: true
+---
+# Git Worktree Workflow
+
+**MANDATORY**: Always use git worktree to create and work on feature branches. Never create feature branches directly in the main working directory.
+
+## Why Git Worktree?
+
+- Keeps the main worktree clean and always on the main/develop branch
+- Allows parallel work on multiple features without stashing
+- Prevents accidental commits to the wrong branch
+- Enables easy comparison between branches
+- Supports running tests on one branch while developing on another
+
+## Creating a Feature Branch
+
+### Step 1: Ensure you're in the main worktree
+
+```bash
+cd /Users/ciukes/dev/SpellingBee/SpellingBeeApp
+```
+
+### Step 2: Create a new worktree with a feature branch
+
+```bash
+# Pattern: git worktree add <path> -b <branch-name>
+mkdir -p worktree
+git worktree add worktree/<feature-name> -b feature/<feature-name>
+```
+
+### Example
+
+```bash
+# For a feature called "icloud-sync"
+mkdir -p worktree
+git worktree add worktree/icloud-sync -b feature/icloud-sync
+
+# Navigate to the worktree
+cd worktree/icloud-sync
+```
+
+## Directory Structure
+
+```
+/Users/ciukes/dev/SpellingBee/SpellingBeeApp/
+├── worktree/                          # Feature worktrees directory
+│   ├── icloud-sync/                   # feature/icloud-sync branch
+│   ├── dark-mode/                     # feature/dark-mode branch
+│   └── accessibility/                 # feature/accessibility branch
+└── (main worktree files...)           # Main worktree (main/develop branch)
+```
+
+## Worktree Management Commands
+
+### List all worktrees
+
+```bash
+git worktree list
+```
+
+### Remove a worktree (after merging feature)
+
+```bash
+# First, navigate away from the worktree
+cd /Users/ciukes/dev/SpellingBee/SpellingBeeApp
+
+# Remove the worktree
+git worktree remove worktree/<feature-name>
+
+# Delete the branch if no longer needed
+git branch -d feature/<feature-name>
+```
+
+### Prune stale worktrees
+
+```bash
+git worktree prune
+```
+
+## Feature Development Workflow
+
+1. **Create worktree**: `mkdir -p worktree && git worktree add worktree/<name> -b feature/<name>`
+2. **Navigate to worktree**: `cd worktree/<name>`
+3. **Develop the feature**: Make commits as usual
+4. **Push the branch**: `git push -u origin feature/<name>`
+5. **Create PR**: Open pull request for review
+6. **After merge**: Remove worktree and delete branch
+
+## Important Notes
+
+- **NEVER** create feature branches directly with `git checkout -b` in the main worktree
+- **ALWAYS** use the worktree approach for any feature work
+- Keep the main worktree on `main` or `develop` branch only
+- Each worktree is a fully independent working directory
+- Xcode projects work normally within each worktree
+
+## Quick Reference
+
+| Action | Command |
+|--------|---------|
+| Create feature worktree | `mkdir -p worktree && git worktree add worktree/<name> -b feature/<name>` |
+| List worktrees | `git worktree list` |
+| Remove worktree | `git worktree remove <path>` |
+| Prune stale | `git worktree prune` |
