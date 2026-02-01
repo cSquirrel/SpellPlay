@@ -37,7 +37,7 @@ struct FishCatcherView: View {
     @State private var showResult = false
     @State private var result: GameResult?
 
-    @StateObject private var ttsService = TTSService()
+    @State private var ttsService = TTSService()
     
     @State private var bucketBounce: CGFloat = 1.0
     @State private var waveOffset: CGFloat = 0

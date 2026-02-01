@@ -1,0 +1,102 @@
+---
+description: "Mandatory pre-push verification - always build and run tests before pushing changes to remote. Apply before any git push command."
+globs: 
+alwaysApply: true
+---
+# Pre-Push Verification Rules
+
+**MANDATORY**: Always build and run tests before pushing any changes to remote. No exceptions.
+
+## Core Rule
+
+**NEVER** execute `git push` without first verifying:
+1. The project builds successfully
+2. All tests pass
+
+## Required Workflow Before Push
+
+### Step 1: Build the Project
+
+```bash
+# Using XcodeBuildMCP tools (preferred)
+mcp_XcodeBuildMCP_build_sim
+
+# Or using xcodebuild directly
+xcodebuild -workspace SpellPlay.xcworkspace -scheme SpellPlay -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' build
+```
+
+### Step 2: Run Tests
+
+```bash
+# Using XcodeBuildMCP tools (preferred)
+mcp_XcodeBuildMCP_test_sim
+
+# Or using xcodebuild directly
+xcodebuild -workspace SpellPlay.xcworkspace -scheme SpellPlay -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 16' test
+```
+
+### Step 3: Push Only After Success
+
+Only proceed with `git push` if both build and tests succeed.
+
+## Verification Checklist
+
+Before every `git push` command, verify:
+
+- [ ] `build_sim` completed with exit code 0
+- [ ] `test_sim` completed with all tests passing
+- [ ] No new compiler warnings introduced (optional but recommended)
+
+## When User Requests to Push
+
+If the user requests to push changes:
+
+1. **Check if build was run** - If not, run `build_sim` first
+2. **Check if tests were run** - If not, run `test_sim` first
+3. **Only push after both succeed** - If either fails, fix issues before pushing
+
+## Example Workflow
+
+```bash
+# 1. Build first
+mcp_XcodeBuildMCP_build_sim
+
+# 2. Run tests
+mcp_XcodeBuildMCP_test_sim
+
+# 3. Only then push (if both succeeded)
+git push -u origin feature/<branch-name>
+```
+
+## Exception Handling
+
+The only acceptable exceptions:
+- Documentation-only changes (README, docs/, comments)
+- Configuration file updates that don't affect build (.gitignore, editor configs)
+
+Even for exceptions, prefer running a quick build to verify nothing broke.
+
+## Commands to NEVER Execute Without Verification
+
+- `git push origin <branch>`
+- `git push -u origin <branch>`
+- `git push --force origin <branch>`
+- Any `git push` variant
+
+## Rationale
+
+- Prevents broken code from reaching remote repository
+- Catches regressions early before PR review
+- Maintains CI/CD pipeline health
+- Ensures code quality standards are met
+- Saves reviewer time by catching obvious issues
+
+## Quick Reference
+
+| Step | Command | Must Pass? |
+|------|---------|------------|
+| 1. Build | `mcp_XcodeBuildMCP_build_sim` | ✅ Yes |
+| 2. Test | `mcp_XcodeBuildMCP_test_sim` | ✅ Yes |
+| 3. Push | `git push -u origin <branch>` | After 1 & 2 |
+
+**Remember: No push without green build and tests!**

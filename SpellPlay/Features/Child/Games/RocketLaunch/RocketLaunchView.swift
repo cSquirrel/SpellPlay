@@ -45,7 +45,10 @@ struct RocketLaunchView: View {
     @State private var shakeOffset: CGFloat = 0
     @State private var showWordHint = true
 
-    @StateObject private var ttsService = TTSService()
+    @State private var ttsService = TTSService()
+    
+    /// Used to trigger celebration dismiss via .task(id:)
+    @State private var celebrationDismissID = UUID()
 
     private var currentWord: Word? {
         guard currentWordIndex < words.count else { return nil }
@@ -189,6 +192,14 @@ struct RocketLaunchView: View {
             }
             .task(id: currentWordIndex) {
                 await startWord()
+            }
+            .task(id: celebrationDismissID) {
+                // Auto-hide celebration after delay
+                guard showCelebration else { return }
+                try? await Task.sleep(for: .milliseconds(700))
+                withAnimation(.easeOut(duration: 0.2)) {
+                    showCelebration = false
+                }
             }
             .fullScreenCover(isPresented: $showResult) {
                 if let result {
@@ -443,9 +454,7 @@ struct RocketLaunchView: View {
         result = nil
         phase = .ready
         startGameIfNeeded()
-        Task { @MainActor in
-            await startWord()
-        }
+        // Note: startWord will be called automatically via .task(id: currentWordIndex)
     }
 
     // MARK: - Input Handling
@@ -606,13 +615,9 @@ struct RocketLaunchView: View {
         withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
             showCelebration = true
         }
-
-        Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(700))
-            withAnimation(.easeOut(duration: 0.2)) {
-                showCelebration = false
-            }
-        }
+        
+        // Trigger dismiss via .task(id:)
+        celebrationDismissID = UUID()
     }
 
 }

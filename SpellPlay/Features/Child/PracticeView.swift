@@ -15,7 +15,7 @@ struct PracticeView: View {
     
     let test: SpellingTest
     
-    @State private var viewModel = PracticeViewModel()
+    @State private var practiceSession = PracticeSessionState()
     @State private var showFeedback = false
     @State private var lastAnswerWasCorrect = false
     @State private var showingRoundTransition = false
@@ -34,7 +34,7 @@ struct PracticeView: View {
     @State private var hasStartedPractice = false
     @State private var showCancelConfirmation = false
     
-    @StateObject private var ttsService = TTSService()
+    @State private var ttsService = TTSService()
     
     var body: some View {
         NavigationStack {
@@ -42,25 +42,25 @@ struct PracticeView: View {
                 AppConstants.backgroundColor
                     .ignoresSafeArea()
                 
-                if viewModel.isComplete {
+                if practiceSession.isComplete {
                     PracticeSummaryView(
-                        roundsCompleted: viewModel.currentRound,
-                        streak: viewModel.currentStreak,
-                        sessionPoints: viewModel.sessionPoints,
-                        totalStars: viewModel.totalStarsEarned,
-                        performanceGrade: viewModel.performanceGrade,
-                        newlyUnlockedAchievements: viewModel.newlyUnlockedAchievements,
-                        levelUpOccurred: viewModel.levelUpOccurred,
-                        newLevel: viewModel.newLevel,
-                        currentLevel: viewModel.userProgress?.level ?? 1,
-                        experiencePoints: viewModel.userProgress?.experiencePoints ?? 0,
+                        roundsCompleted: practiceSession.currentRound,
+                        streak: practiceSession.currentStreak,
+                        sessionPoints: practiceSession.sessionPoints,
+                        totalStars: practiceSession.totalStarsEarned,
+                        performanceGrade: practiceSession.performanceGrade,
+                        newlyUnlockedAchievements: practiceSession.newlyUnlockedAchievements,
+                        levelUpOccurred: practiceSession.levelUpOccurred,
+                        newLevel: practiceSession.newLevel,
+                        currentLevel: practiceSession.userProgress?.level ?? 1,
+                        experiencePoints: practiceSession.userProgress?.experiencePoints ?? 0,
                         onPracticeAgain: {
-                            viewModel.reset()
-                            viewModel.setup(test: test, modelContext: modelContext)
+                            practiceSession.reset()
+                            practiceSession.setup(test: test, modelContext: modelContext)
                             hasStartedPractice = true
                             // Auto-play first word after a short delay
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                if let firstWord = viewModel.currentWord {
+                                if let firstWord = practiceSession.currentWord {
                                     ttsService.speak(firstWord.text, rate: 0.3)
                                 }
                             }
@@ -79,7 +79,7 @@ struct PracticeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 // Cancel button - only show when practice has started
-                if hasStartedPractice && !viewModel.isComplete {
+                if hasStartedPractice && !practiceSession.isComplete {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {
                             showCancelConfirmation = true
@@ -106,17 +106,17 @@ struct PracticeView: View {
                 Text("Are you sure you want to cancel? Your progress will not be saved.")
             }
             .onAppear {
-                viewModel.setup(test: test, modelContext: modelContext)
+                practiceSession.setup(test: test, modelContext: modelContext)
                 previousComboCount = 0
                 hasStartedPractice = true
                 // Auto-play first word after a short delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    if let firstWord = viewModel.currentWord {
+                    if let firstWord = practiceSession.currentWord {
                         ttsService.speak(firstWord.text, rate: 0.3)
                     }
                 }
             }
-            .onChange(of: viewModel.newlyUnlockedAchievements) { oldValue, newValue in
+            .onChange(of: practiceSession.newlyUnlockedAchievements) { oldValue, newValue in
                 // Show achievement unlock when new achievements are unlocked
                 if let firstAchievement = newValue.first, !oldValue.contains(firstAchievement) {
                     unlockedAchievement = firstAchievement
@@ -130,13 +130,13 @@ struct PracticeView: View {
                 feedbackTimer?.invalidate()
                 nextWordTimer?.invalidate()
             }
-            .errorAlert(errorMessage: $viewModel.errorMessage)
+            .errorAlert(errorMessage: $practiceSession.errorMessage)
             .overlay {
                 // Combo breakthrough overlay
                 if showComboBreakthrough {
                     CelebrationView(
                         type: .comboBreakthrough,
-                        message: "\(viewModel.comboMultiplier)x Combo!",
+                        message: "\(practiceSession.comboMultiplier)x Combo!",
                         emoji: "⚡"
                     )
                     .transition(.scale.combined(with: .opacity))
@@ -163,12 +163,12 @@ struct PracticeView: View {
         VStack(spacing: 24) {
             // Gamification header
             HStack(spacing: 12) {
-                PointsDisplayView(points: viewModel.sessionPoints)
+                PointsDisplayView(points: practiceSession.sessionPoints)
                 
-                if viewModel.comboCount > 0 {
+                if practiceSession.comboCount > 0 {
                     ComboIndicatorView(
-                        comboCount: viewModel.comboCount,
-                        multiplier: viewModel.comboMultiplier
+                        comboCount: practiceSession.comboCount,
+                        multiplier: practiceSession.comboMultiplier
                     )
                 }
             }
@@ -177,11 +177,11 @@ struct PracticeView: View {
             
             // Progress indicator
             VStack(spacing: 8) {
-                ProgressView(value: viewModel.progress)
+                ProgressView(value: practiceSession.progress)
                     .progressViewStyle(.linear)
                     .tint(AppConstants.primaryColor)
                 
-                Text(viewModel.progressText)
+                Text(practiceSession.progressText)
                     .font(.system(size: AppConstants.captionSize))
                     .foregroundColor(.secondary)
                     .accessibilityIdentifier("Practice_ProgressText")
@@ -192,7 +192,7 @@ struct PracticeView: View {
             
             // Word display and audio
             VStack(spacing: 24) {
-                if let word = viewModel.currentWord {
+                if let word = practiceSession.currentWord {
                     // Audio play buttons - normal and slow speed
                     HStack(spacing: 16) {
                         // Normal speed button
@@ -250,10 +250,10 @@ struct PracticeView: View {
                                         .transition(.scale.combined(with: .opacity))
                                     
                                     // Show stars earned
-                                    if let lastStarCount = viewModel.starsEarned.last, lastStarCount > 0 {
+                                    if let lastStarCount = practiceSession.starsEarned.last, lastStarCount > 0 {
                                         StarCollectionView(
                                             stars: lastStarCount,
-                                            totalStars: viewModel.totalStarsEarned
+                                            totalStars: practiceSession.totalStarsEarned
                                         )
                                     .transition(.scale.combined(with: .opacity))
                                     }
@@ -301,16 +301,16 @@ struct PracticeView: View {
             Spacer()
             
             // Help Coin Button
-            if !viewModel.isRoundComplete && viewModel.currentWord != nil {
-                let isWordComplete = viewModel.currentWord?.text.matches(viewModel.userAnswer) ?? false
+            if !practiceSession.isRoundComplete && practiceSession.currentWord != nil {
+                let isWordComplete = practiceSession.currentWord?.text.matches(practiceSession.userAnswer) ?? false
                 
                 Button(action: {
-                    viewModel.useHelpCoin()
+                    practiceSession.useHelpCoin()
                 }) {
                     HStack(spacing: 8) {
                         Text("🪙")
                             .font(.system(size: 20))
-                        Text("Help (\(viewModel.availableCoins))")
+                        Text("Help (\(practiceSession.availableCoins))")
                             .font(.system(size: AppConstants.bodySize, weight: .semibold))
                     }
                     .padding(.horizontal, 20)
@@ -323,15 +323,15 @@ struct PracticeView: View {
                             .stroke(Color.orange, lineWidth: 1.5)
                     )
                 }
-                .disabled(viewModel.availableCoins <= 0 || isInputDisabled || isWordComplete)
-                .opacity(viewModel.availableCoins <= 0 || isWordComplete ? 0.6 : 1)
+                .disabled(practiceSession.availableCoins <= 0 || isInputDisabled || isWordComplete)
+                .opacity(practiceSession.availableCoins <= 0 || isWordComplete ? 0.6 : 1)
                 .padding(.bottom, 8)
                 .accessibilityIdentifier("Practice_HelpCoinButton")
             }
             
             // Word input
             WordInputView(
-                text: $viewModel.userAnswer,
+                text: $practiceSession.userAnswer,
                 onSubmit: {
                     submitAnswer()
                 },
@@ -361,7 +361,7 @@ struct PracticeView: View {
             // List of misspelled words
             ScrollView {
                 VStack(spacing: 12) {
-                    ForEach(viewModel.misspelledWords, id: \.id) { word in
+                    ForEach(practiceSession.misspelledWords, id: \.id) { word in
                         HStack {
                             Text(word.text)
                                 .font(.system(size: AppConstants.bodySize, weight: .medium))
@@ -393,12 +393,12 @@ struct PracticeView: View {
                 withAnimation {
                     showingRoundTransition = false
                 }
-                viewModel.startNextRound()
+                practiceSession.startNextRound()
                 
                 // Auto-play first word of new round after a short delay
                 Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
                     Task { @MainActor in
-                        if let firstWord = viewModel.currentWord {
+                        if let firstWord = practiceSession.currentWord {
                             ttsService.speak(firstWord.text, rate: 0.3)
                         }
                     }
@@ -417,24 +417,24 @@ struct PracticeView: View {
     }
     
     private func submitAnswer() {
-        guard let word = viewModel.currentWord else { return }
+        guard let word = practiceSession.currentWord else { return }
         
         // Capture answer immediately before any delay
-        let capturedAnswer = viewModel.userAnswer
+        let capturedAnswer = practiceSession.userAnswer
         
         // Check for combo breakthrough before submitting
-        let previousCombo = viewModel.comboCount
-        let previousMultiplier = viewModel.comboMultiplier
+        let previousCombo = practiceSession.comboCount
+        let previousMultiplier = practiceSession.comboMultiplier
         
         // Submit the answer and get points result
-        let pointsResult = viewModel.submitAnswer(with: capturedAnswer)
+        let pointsResult = practiceSession.submitAnswer(with: capturedAnswer)
         
         // Evaluate correctness
         let isCorrect = word.text.matches(capturedAnswer)
         lastAnswerWasCorrect = isCorrect
         
         // Check for combo breakthrough
-        if isCorrect && viewModel.comboMultiplier > previousMultiplier {
+        if isCorrect && practiceSession.comboMultiplier > previousMultiplier {
             showComboBreakthrough = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 showComboBreakthrough = false
@@ -483,20 +483,20 @@ struct PracticeView: View {
         }
         
         // Clear the input field and feedback message
-        viewModel.userAnswer = ""
+        practiceSession.userAnswer = ""
         feedbackMessage = ""
         
         // Re-enable input
         isInputDisabled = false
         
         // Check if round is complete but not all words mastered
-        if viewModel.isRoundComplete && !viewModel.allWordsMastered {
+        if practiceSession.isRoundComplete && !practiceSession.allWordsMastered {
             // Show round transition
-            nextRoundNumber = viewModel.currentRound + 1
+            nextRoundNumber = practiceSession.currentRound + 1
             withAnimation {
                 showingRoundTransition = true
             }
-        } else if !viewModel.isComplete, let nextWord = viewModel.currentWord {
+        } else if !practiceSession.isComplete, let nextWord = practiceSession.currentWord {
             // Auto-play next word after a short delay
             let nextWordText = nextWord.text
             nextWordTimer?.invalidate()

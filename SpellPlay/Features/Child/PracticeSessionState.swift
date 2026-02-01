@@ -1,17 +1,22 @@
 //
-//  PracticeViewModel.swift
+//  PracticeSessionState.swift
 //  WordCraft
 //
-//  Created on [Date]
+//  @Observable model for practice session state and business logic
+//  This follows the MV pattern - it's a model, not a ViewModel
 //
 
 import Foundation
 import SwiftData
 import SwiftUI
 
+/// Practice session state and business logic
+/// This is an @Observable model that encapsulates all practice session state
+/// following the modern SwiftUI MV pattern (Model-View, not MVVM)
+/// Note: Named "State" to avoid conflict with the SwiftData Model `PracticeSession`
 @MainActor
 @Observable
-class PracticeViewModel {
+final class PracticeSessionState {
     private var modelContext: ModelContext?
     private var streakService: StreakService?
     private var achievementService: AchievementService?

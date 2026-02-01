@@ -40,7 +40,7 @@ struct FallingStarsView: View {
     @State private var showResult = false
     @State private var result: GameResult?
 
-    @StateObject private var ttsService = TTSService()
+    @State private var ttsService = TTSService()
 
     private var currentWord: Word? {
         guard currentWordIndex < words.count else { return nil }

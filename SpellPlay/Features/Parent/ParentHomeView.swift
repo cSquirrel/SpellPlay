@@ -2,7 +2,7 @@
 //  ParentHomeView.swift
 //  WordCraft
 //
-//  Created on [Date]
+//  Refactored to follow MV pattern - removed ViewModel, using @Query directly
 //
 
 import SwiftUI
@@ -12,10 +12,10 @@ struct ParentHomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \SpellingTest.createdAt, order: .reverse) private var tests: [SpellingTest]
     
-    @State private var viewModel = TestListViewModel()
     @State private var showingCreateTest = false
     @State private var selectedTest: SpellingTest?
     @State private var showingRoleSwitcher = false
+    @State private var errorMessage: String?
     
     var body: some View {
         NavigationStack {
@@ -24,7 +24,15 @@ struct ParentHomeView: View {
                     .ignoresSafeArea()
                 
                 if tests.isEmpty {
-                    emptyStateView
+                    EmptyStateView(
+                        icon: "book.closed",
+                        title: "No Tests Yet",
+                        message: "Create your first spelling test to get started",
+                        actionTitle: "Create Test"
+                    ) {
+                        showingCreateTest = true
+                    }
+                    .accessibilityIdentifier("ParentHome_EmptyState")
                 } else {
                     testListView
                 }
@@ -65,39 +73,7 @@ struct ParentHomeView: View {
             .sheet(item: $selectedTest) { test in
                 EditTestView(test: test)
             }
-            .onAppear {
-                viewModel.setup(modelContext: modelContext)
-            }
-            .errorAlert(errorMessage: $viewModel.errorMessage)
-        }
-    }
-    
-    private var emptyStateView: some View {
-        VStack(spacing: 24) {
-            Image(systemName: "book.closed")
-                .font(.system(size: 60))
-                .foregroundColor(.secondary)
-            
-            Text("No Tests Yet")
-                .font(.system(size: AppConstants.titleSize, weight: .semibold))
-                .foregroundColor(.primary)
-                .accessibilityIdentifier("ParentHome_EmptyStateText")
-            
-            Text("Create your first spelling test to get started")
-                .font(.system(size: AppConstants.bodySize))
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, AppConstants.padding)
-            
-            Button(action: {
-                showingCreateTest = true
-            }) {
-                Text("Create Test")
-                    .font(.system(size: AppConstants.bodySize, weight: .semibold))
-            }
-            .largeButtonStyle(color: AppConstants.primaryColor)
-            .padding(.horizontal, AppConstants.padding)
-            .accessibilityIdentifier("ParentHome_CreateTestButton")
+            .errorAlert(errorMessage: $errorMessage)
         }
     }
     
@@ -108,11 +84,22 @@ struct ParentHomeView: View {
                     TestCardView(test: test) {
                         selectedTest = test
                     } onDelete: {
-                        viewModel.deleteTest(test)
+                        deleteTest(test)
                     }
                 }
             }
             .padding(AppConstants.padding)
+        }
+    }
+    
+    /// Delete a test directly using model context
+    private func deleteTest(_ test: SpellingTest) {
+        modelContext.delete(test)
+        
+        do {
+            try modelContext.save()
+        } catch {
+            errorMessage = "Failed to delete test: \(error.localizedDescription)"
         }
     }
 }
@@ -122,11 +109,10 @@ struct TestCardView: View {
     let onEdit: () -> Void
     let onDelete: () -> Void
     
+    /// Uses cached DateFormatter for better performance
     private var lastPracticedText: String {
         if let lastDate = test.lastPracticed {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            return formatter.string(from: lastDate)
+            return lastDate.mediumFormatted
         } else {
             return "Never"
         }
@@ -172,4 +158,3 @@ struct TestCardView: View {
         .accessibilityIdentifier("TestCard_\(test.name)")
     }
 }
-

@@ -3,12 +3,14 @@
 //  WordCraft
 //
 //  Points calculation and management service
+//  Static utility - no @MainActor needed for pure calculations
 //
 
 import Foundation
 
-@MainActor
-class PointsService {
+/// Points calculation service - pure static functions for calculating game points
+/// Note: No @MainActor needed since these are pure calculations with no UI state
+enum PointsService {
     // Point values
     static let basePointsPerCorrect = 10
     static let perfectRoundBonus = 50
