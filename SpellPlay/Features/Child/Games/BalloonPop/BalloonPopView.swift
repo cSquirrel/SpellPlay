@@ -37,7 +37,7 @@ struct BalloonPopView: View {
     @State private var showResult = false
     @State private var result: GameResult?
 
-    @StateObject private var ttsService = TTSService()
+    @State private var ttsService = TTSService()
 
     private var currentWord: Word? {
         guard currentWordIndex < words.count else { return nil }
@@ -123,6 +123,14 @@ struct BalloonPopView: View {
             }
             .task(id: currentWordIndex) {
                 await startWord()
+            }
+            .task(id: celebrationDismissID) {
+                // Auto-hide celebration after delay
+                guard showCelebration else { return }
+                try? await Task.sleep(for: .milliseconds(700))
+                withAnimation(.easeOut(duration: 0.2)) {
+                    showCelebration = false
+                }
             }
             .fullScreenCover(isPresented: $showResult) {
                 if let result {
@@ -267,9 +275,7 @@ struct BalloonPopView: View {
         result = nil
         phase = .ready
         startGameIfNeeded()
-        Task { @MainActor in
-            await startWord()
-        }
+        // Note: startWord will be called automatically via .task(id: currentWordIndex)
     }
 
     // MARK: - Timeline tick / spawning
@@ -403,6 +409,10 @@ struct BalloonPopView: View {
         }
     }
 
+    /// Show celebration with auto-hide using state change tracking
+    /// Note: Using @State to track celebration dismiss via onChange is cleaner than Task {}
+    @State private var celebrationDismissID = UUID()
+    
     private func showCelebrationTransient(type: CelebrationType, message: String?, emoji: String?) {
         celebrationType = type
         celebrationMessage = message
@@ -411,13 +421,9 @@ struct BalloonPopView: View {
         withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
             showCelebration = true
         }
-
-        Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(700))
-            withAnimation(.easeOut(duration: 0.2)) {
-                showCelebration = false
-            }
-        }
+        
+        // Trigger dismiss after delay
+        celebrationDismissID = UUID()
     }
 
     // MARK: - Difficulty knobs

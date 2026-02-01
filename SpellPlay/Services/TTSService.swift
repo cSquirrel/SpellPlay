@@ -2,19 +2,26 @@
 //  TTSService.swift
 //  WordCraft
 //
-//  Created on [Date]
+//  Text-to-Speech service using AVSpeechSynthesizer
+//  Refactored to use @Observable macro for modern SwiftUI integration
 //
 
 import Foundation
 import AVFoundation
 
+/// Text-to-Speech service that manages speech synthesis
+/// Uses @Observable for efficient SwiftUI observation
+@Observable
 @MainActor
-class TTSService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
+final class TTSService: NSObject, AVSpeechSynthesizerDelegate {
     private let synthesizer: AVSpeechSynthesizer
     private var currentUtterance: AVSpeechUtterance?
     
-    @Published var isSpeaking = false
-    @Published var isAvailable = true
+    /// Whether speech is currently in progress
+    var isSpeaking = false
+    
+    /// Whether TTS is available on this device
+    var isAvailable = true
     
     override init() {
         let synth = AVSpeechSynthesizer()
@@ -29,6 +36,11 @@ class TTSService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
         isAvailable = true
     }
     
+    /// Speak the given text with optional rate and pitch adjustments
+    /// - Parameters:
+    ///   - text: The text to speak
+    ///   - rate: Speech rate (default is AVSpeechUtteranceDefaultSpeechRate)
+    ///   - pitch: Pitch multiplier (default is 1.0)
     func speak(_ text: String, rate: Float = AVSpeechUtteranceDefaultSpeechRate, pitch: Float = 1.0) {
         guard isAvailable else { return }
         
@@ -48,18 +60,11 @@ class TTSService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
         utterance.volume = 1.0
         
         currentUtterance = utterance
-        synthesizer.speak(utterance)
         isSpeaking = true
-        
-        // Reset speaking state when done (approximate timing)
-        Task {
-            try? await Task.sleep(nanoseconds: UInt64(utterance.speechString.count * 100_000_000))
-            if !synthesizer.isSpeaking {
-                isSpeaking = false
-            }
-        }
+        synthesizer.speak(utterance)
     }
     
+    /// Stop any ongoing speech immediately
     func stopSpeaking() {
         if synthesizer.isSpeaking {
             synthesizer.stopSpeaking(at: .immediate)
@@ -69,18 +74,18 @@ class TTSService: NSObject, ObservableObject, AVSpeechSynthesizerDelegate {
     }
 }
 
-// AVSpeechSynthesizerDelegate methods
+// MARK: - AVSpeechSynthesizerDelegate
+
 extension TTSService {
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         Task { @MainActor in
-            isSpeaking = false
+            self.isSpeaking = false
         }
     }
     
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
         Task { @MainActor in
-            isSpeaking = false
+            self.isSpeaking = false
         }
     }
 }
-

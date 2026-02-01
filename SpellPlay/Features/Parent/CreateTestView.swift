@@ -20,7 +20,7 @@ struct CreateTestView: View {
     @State private var selectedWordForTTS: String?
     @State private var errorMessage: String?
     
-    @StateObject private var ttsService = TTSService()
+    @State private var ttsService = TTSService()
     
     var body: some View {
         NavigationStack {

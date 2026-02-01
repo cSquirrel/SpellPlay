@@ -3,12 +3,14 @@
 //  WordCraft
 //
 //  Level calculation and progression service
+//  Static utility - no @MainActor needed for pure calculations
 //
 
 import Foundation
 
-@MainActor
-class LevelService {
+/// Level calculation service - pure static functions for level progression
+/// Note: No @MainActor needed since these are pure calculations with no UI state
+enum LevelService {
     // Experience points needed per level (exponential growth)
     // Level 1: 0 XP, Level 2: 100 XP, Level 3: 250 XP, etc.
     static func experienceForLevel(_ level: Int) -> Int {

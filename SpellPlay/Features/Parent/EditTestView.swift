@@ -21,7 +21,7 @@ struct EditTestView: View {
     @State private var selectedWordForTTS: Word?
     @State private var errorMessage: String?
     
-    @StateObject private var ttsService = TTSService()
+    @State private var ttsService = TTSService()
     
     init(test: SpellingTest) {
         self.test = test
