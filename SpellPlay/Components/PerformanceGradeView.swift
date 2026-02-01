@@ -1,17 +1,10 @@
-//
-//  PerformanceGradeView.swift
-//  WordCraft
-//
-//  Performance grade display
-//
-
 import SwiftUI
 
 struct PerformanceGradeView: View {
     let grade: PerformanceGrade
     @State private var scale: CGFloat = 0.8
     @State private var opacity: Double = 0
-    
+
     var body: some View {
         VStack(spacing: 12) {
             Text(grade.rawValue)
@@ -19,7 +12,7 @@ struct PerformanceGradeView: View {
                 .foregroundColor(grade.color)
                 .scaleEffect(scale)
                 .opacity(opacity)
-            
+
             Text(gradeMessage)
                 .font(.system(size: AppConstants.bodySize))
                 .foregroundColor(.secondary)
@@ -31,9 +24,7 @@ struct PerformanceGradeView: View {
                 .fill(grade.color.opacity(0.1))
                 .overlay(
                     RoundedRectangle(cornerRadius: AppConstants.cornerRadius)
-                        .stroke(grade.color, lineWidth: 3)
-                )
-        )
+                        .stroke(grade.color, lineWidth: 3)))
         .onAppear {
             withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
                 scale = 1.0
@@ -41,20 +32,19 @@ struct PerformanceGradeView: View {
             }
         }
     }
-    
+
     private var gradeMessage: String {
         switch grade {
         case .perfect:
-            return "Amazing! You got everything right on the first try!"
+            "Amazing! You got everything right on the first try!"
         case .excellent:
-            return "Outstanding work! You're doing great!"
+            "Outstanding work! You're doing great!"
         case .great:
-            return "Well done! Keep up the good work!"
+            "Well done! Keep up the good work!"
         case .good:
-            return "Nice job! Practice makes perfect!"
+            "Nice job! Practice makes perfect!"
         case .keepPracticing:
-            return "Good effort! Keep practicing to improve!"
+            "Good effort! Keep practicing to improve!"
         }
     }
 }
-

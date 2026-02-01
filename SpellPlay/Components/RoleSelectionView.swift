@@ -1,34 +1,27 @@
-//
-//  RoleSelectionView.swift
-//  WordCraft
-//
-//  Created on [Date]
-//
-
 import SwiftUI
 
 struct RoleSelectionView: View {
     @Bindable var appState: AppState
-    
+
     var body: some View {
         VStack(spacing: 32) {
             Spacer()
-            
+
             Text("Welcome to WordCraft!")
                 .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
                 .foregroundColor(AppConstants.primaryColor)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, AppConstants.padding)
                 .accessibilityIdentifier("RoleSelection_WelcomeText")
-            
+
             Text("Choose your role to get started")
                 .font(.system(size: AppConstants.bodySize))
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, AppConstants.padding)
-            
+
             Spacer()
-            
+
             VStack(spacing: 20) {
                 Button(action: {
                     appState.selectedRole = .parent
@@ -42,7 +35,7 @@ struct RoleSelectionView: View {
                 }
                 .largeButtonStyle(color: AppConstants.primaryColor)
                 .accessibilityIdentifier("RoleSelection_ParentButton")
-                
+
                 Button(action: {
                     appState.selectedRole = .child
                 }) {
@@ -57,11 +50,10 @@ struct RoleSelectionView: View {
                 .accessibilityIdentifier("RoleSelection_ChildButton")
             }
             .padding(.horizontal, AppConstants.padding)
-            
+
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(AppConstants.backgroundColor)
     }
 }
-

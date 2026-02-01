@@ -1,10 +1,3 @@
-//
-//  ErrorAlert.swift
-//  WordCraft
-//
-//  Reusable error alert component for user-facing error messages
-//
-
 import SwiftUI
 
 extension View {
@@ -13,11 +6,11 @@ extension View {
     ///   - errorMessage: Binding to optional error message string
     ///   - retryAction: Optional retry action closure
     func errorAlert(errorMessage: Binding<String?>, retryAction: (() -> Void)? = nil) -> some View {
-        self.alert("Error", isPresented: Binding(
+        alert("Error", isPresented: Binding(
             get: { errorMessage.wrappedValue != nil },
-            set: { if !$0 { errorMessage.wrappedValue = nil } }
-        )) {
-            if let retryAction = retryAction {
+            set: { if !$0 { errorMessage.wrappedValue = nil } }))
+        {
+            if let retryAction {
                 Button("Retry", role: .none) {
                     retryAction()
                 }
@@ -36,4 +29,3 @@ extension View {
         }
     }
 }
-

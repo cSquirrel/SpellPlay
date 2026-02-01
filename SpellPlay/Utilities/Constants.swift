@@ -1,10 +1,3 @@
-//
-//  Constants.swift
-//  WordCraft
-//
-//  Created on [Date]
-//
-
 import SwiftUI
 
 enum AppConstants {
@@ -15,19 +8,19 @@ enum AppConstants {
     static let errorColor = Color(red: 0.9, green: 0.2, blue: 0.2)
     static let backgroundColor = Color(red: 0.98, green: 0.98, blue: 0.98)
     static let cardColor = Color.white
-    
+
     // Sizes
     static let minimumTouchTarget: CGFloat = 44
     static let largeButtonHeight: CGFloat = 60
     static let cornerRadius: CGFloat = 12
     static let padding: CGFloat = 16
-    
+
     // Typography
     static let largeTitleSize: CGFloat = 34
     static let titleSize: CGFloat = 28
     static let bodySize: CGFloat = 17
     static let captionSize: CGFloat = 13
-    
+
     // Strings
     static let appName = "SpellPlay"
     static let parentRole = "Parent"
@@ -47,9 +40,9 @@ enum FeedbackMessages {
         "Practice makes perfect",
         "You can do it",
         "Keep learning",
-        "Stay focused"
+        "Stay focused",
     ]
-    
+
     /// Messages for medium similarity (20-80% match)
     static let mediumSimilarityMessages = [
         "Great effort",
@@ -61,9 +54,9 @@ enum FeedbackMessages {
         "You're improving",
         "Nice try",
         "Keep it up",
-        "Making progress"
+        "Making progress",
     ]
-    
+
     /// Messages for high similarity (>80% match)
     static let highSimilarityMessages = [
         "Near perfection",
@@ -75,28 +68,25 @@ enum FeedbackMessages {
         "Very close",
         "Almost got it",
         "Nearly correct",
-        "Almost right"
+        "Almost right",
     ]
-    
+
     /// Returns a random feedback message based on similarity percentage
     /// - Parameter similarity: A value between 0.0 and 1.0 representing similarity percentage
     /// - Returns: A random encouraging message from the appropriate category
     static func getFeedbackMessage(for similarity: Double) -> String {
-        let messages: [String]
-        
-        if similarity < 0.2 {
+        let messages: [String] = if similarity < 0.2 {
             // Low similarity (<20%)
-            messages = lowSimilarityMessages
+            lowSimilarityMessages
         } else if similarity <= 0.8 {
             // Medium similarity (20-80%)
-            messages = mediumSimilarityMessages
+            mediumSimilarityMessages
         } else {
             // High similarity (>80%)
-            messages = highSimilarityMessages
+            highSimilarityMessages
         }
-        
+
         // Return a random message from the selected category
         return messages.randomElement() ?? messages[0]
     }
 }
-

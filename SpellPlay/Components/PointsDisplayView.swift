@@ -1,10 +1,3 @@
-//
-//  PointsDisplayView.swift
-//  WordCraft
-//
-//  Points display with animated counter
-//
-
 import SwiftUI
 
 struct PointsDisplayView: View {
@@ -12,13 +5,13 @@ struct PointsDisplayView: View {
     @State private var displayedPoints: Int = 0
     @State private var showPopup = false
     @State private var popupPoints: Int = 0
-    
+
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "star.fill")
                 .font(.system(size: 20))
                 .foregroundColor(AppConstants.secondaryColor)
-            
+
             Text("\(displayedPoints)")
                 .font(.system(size: AppConstants.titleSize, weight: .bold))
                 .foregroundColor(AppConstants.primaryColor)
@@ -42,8 +35,7 @@ struct PointsDisplayView: View {
                         .transition(.scale.combined(with: .opacity))
                         .animation(.spring(response: 0.4, dampingFraction: 0.6), value: showPopup)
                 }
-            }
-        )
+            })
         .onChange(of: points) { oldValue, newValue in
             let difference = newValue - oldValue
             if difference > 0 {
@@ -51,12 +43,12 @@ struct PointsDisplayView: View {
                 withAnimation {
                     showPopup = true
                 }
-                
+
                 // Animate counter
                 withAnimation(.easeOut(duration: 0.5)) {
                     displayedPoints = newValue
                 }
-                
+
                 // Hide popup after delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                     withAnimation {
@@ -72,4 +64,3 @@ struct PointsDisplayView: View {
         }
     }
 }
-

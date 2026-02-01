@@ -1,10 +1,3 @@
-//
-//  FallingStarsView.swift
-//  SpellPlay
-//
-//  Falling Stars interactive spelling game
-//
-
 import SwiftUI
 
 @MainActor
@@ -64,8 +57,7 @@ struct FallingStarsView: View {
                             wordIndex: currentWordIndex,
                             wordCount: words.count,
                             points: score,
-                            comboMultiplier: comboMultiplier
-                        )
+                            comboMultiplier: comboMultiplier)
 
                         wordDisplay
                             .padding(.horizontal, AppConstants.padding)
@@ -80,7 +72,7 @@ struct FallingStarsView: View {
                             constellationPath
                                 .stroke(Color.yellow.opacity(0.6), lineWidth: 3)
                                 .shadow(color: .yellow.opacity(0.4), radius: 8)
-                            
+
                             // Constellation points
                             ForEach(constellationPoints.indices, id: \.self) { idx in
                                 Circle()
@@ -99,8 +91,7 @@ struct FallingStarsView: View {
                                         }
                                         .position(
                                             x: star.startX,
-                                            y: starY(for: star, size: geo.size, now: context.date)
-                                        )
+                                            y: starY(for: star, size: geo.size, now: context.date))
                                         .opacity(starOpacity(for: star, now: context.date))
                                     }
                                 }
@@ -154,8 +145,7 @@ struct FallingStarsView: View {
                         },
                         onChooseDifferentGame: {
                             dismiss()
-                        }
-                    )
+                        })
                 }
             }
         }
@@ -171,32 +161,30 @@ struct FallingStarsView: View {
                 colors: [
                     Color(red: 0.1, green: 0.05, blue: 0.2),
                     Color(red: 0.15, green: 0.1, blue: 0.3),
-                    Color(red: 0.2, green: 0.15, blue: 0.4)
+                    Color(red: 0.2, green: 0.15, blue: 0.4),
                 ],
                 startPoint: .top,
-                endPoint: .bottom
-            )
+                endPoint: .bottom)
 
             // Twinkling background stars
             TimelineView(.animation) { timelineContext in
                 Canvas { graphicsContext, size in
                     let time = timelineContext.date.timeIntervalSince1970
                     let starCount = 50
-                    
-                    for i in 0..<starCount {
+
+                    for i in 0 ..< starCount {
                         // Use a seed based on index for stable positions
                         var generator = SeededRandomNumberGenerator(seed: UInt64(i))
-                        let x = CGFloat.random(in: 0...size.width, using: &generator)
-                        let y = CGFloat.random(in: 0...size.height, using: &generator)
-                        
+                        let x = CGFloat.random(in: 0 ... size.width, using: &generator)
+                        let y = CGFloat.random(in: 0 ... size.height, using: &generator)
+
                         // Twinkle effect: opacity oscillates
                         let twinklePhase = (time + Double(i) * 0.3).truncatingRemainder(dividingBy: 4.0)
                         let opacity = 0.3 + (sin(twinklePhase) * 0.4)
-                        
+
                         graphicsContext.fill(
                             Path(ellipseIn: CGRect(x: x, y: y, width: 2, height: 2)),
-                            with: .color(.white.opacity(opacity))
-                        )
+                            with: .color(.white.opacity(opacity)))
                     }
                 }
             }
@@ -208,12 +196,12 @@ struct FallingStarsView: View {
     private var constellationPath: Path {
         var path = Path()
         guard constellationPoints.count > 1 else { return path }
-        
+
         path.move(to: constellationPoints[0])
-        for i in 1..<constellationPoints.count {
+        for i in 1 ..< constellationPoints.count {
             path.addLine(to: constellationPoints[i])
         }
-        
+
         return path
     }
 
@@ -237,8 +225,7 @@ struct FallingStarsView: View {
         .cornerRadius(AppConstants.cornerRadius)
         .overlay(
             RoundedRectangle(cornerRadius: AppConstants.cornerRadius)
-                .stroke(Color.yellow.opacity(0.3), lineWidth: 2)
-        )
+                .stroke(Color.yellow.opacity(0.3), lineWidth: 2))
     }
 
     // MARK: - Controls
@@ -349,15 +336,14 @@ struct FallingStarsView: View {
     private func spawnStar(now: Date, size: CGSize) {
         guard let nextLetter = expectedLetter else { return }
 
-        let letterToUse: Character
-        if shouldSpawnDecoy(for: difficulty) {
-            letterToUse = randomDecoyLetter(avoid: nextLetter) ?? nextLetter
+        let letterToUse: Character = if shouldSpawnDecoy(for: difficulty) {
+            randomDecoyLetter(avoid: nextLetter) ?? nextLetter
         } else {
             // Spawn the correct next letter more often
-            letterToUse = nextLetter
+            nextLetter
         }
 
-        let x = CGFloat.random(in: 60...(max(61, size.width - 60)))
+        let x = CGFloat.random(in: 60 ... max(61, size.width - 60))
         let yStart: CGFloat = -60
 
         let star = Star(
@@ -367,8 +353,7 @@ struct FallingStarsView: View {
             startY: yStart,
             fallSpeed: fallSpeed(for: difficulty),
             spawnTime: now,
-            lifetime: starLifetime(for: difficulty)
-        )
+            lifetime: starLifetime(for: difficulty))
 
         activeStars.append(star)
     }
@@ -437,25 +422,22 @@ struct FallingStarsView: View {
             isCorrect: true,
             comboCount: comboCount,
             timeTaken: timeTaken,
-            isFirstTry: mistakesThisWord == 0
-        )
+            isFirstTry: mistakesThisWord == 0)
         score += pointsResult.totalPoints
 
-        let starsEarned: Int
-        if mistakesThisWord == 0, let t = timeTaken, t <= PointsService.speedBonusThreshold {
-            starsEarned = 3
+        let starsEarned = if mistakesThisWord == 0, let t = timeTaken, t <= PointsService.speedBonusThreshold {
+            3
         } else if mistakesThisWord == 0 {
-            starsEarned = 2
+            2
         } else {
-            starsEarned = 1
+            1
         }
         totalStars += starsEarned
 
         showCelebrationTransient(
             type: .sessionComplete,
             message: "Star Collector! +\(pointsResult.totalPoints) pts • \(starsEarned)★",
-            emoji: "⭐"
-        )
+            emoji: "⭐")
 
         advanceToNextWord()
     }
@@ -467,8 +449,7 @@ struct FallingStarsView: View {
                 totalPoints: score,
                 totalStars: totalStars,
                 wordsCompleted: words.count,
-                totalMistakes: totalMistakes
-            )
+                totalMistakes: totalMistakes)
             showResult = true
         } else {
             currentWordIndex += 1
@@ -519,7 +500,7 @@ struct FallingStarsView: View {
     }
 
     private func shouldSpawnDecoy(for difficulty: GameDifficulty) -> Bool {
-        let roll = Double.random(in: 0...1)
+        let roll = Double.random(in: 0 ... 1)
         switch difficulty {
         case .easy: return roll < 0.25
         case .medium: return roll < 0.40
@@ -558,12 +539,11 @@ private struct SeededRandomNumberGenerator: RandomNumberGenerator {
     private var state: UInt64
 
     init(seed: UInt64) {
-        self.state = seed
+        state = seed
     }
 
     mutating func next() -> UInt64 {
-        state = state &* 1103515245 &+ 12345
+        state = state &* 1_103_515_245 &+ 12345
         return state
     }
 }
-

@@ -12,6 +12,7 @@ Before proceeding with any development work, always read these rule files to und
 - `swift-concurrency.mdc` - Swift 6 strict concurrency guidelines
 - `swift-testing.mdc` - Modern Swift Testing framework patterns
 - `xcodebuildmcp-tools.mdc` - XcodeBuildMCP tools for building, testing, and deployment
+- `swiftformat.mdc` - **MANDATORY** SwiftFormat code styling - format before every commit
 - `git-worktree.mdc` - **MANDATORY** git worktree workflow for feature branches
 - `git-protection.mdc` - **MANDATORY** never push directly to main branch
 - `pre-push-checks.mdc` - **MANDATORY** build and run tests before pushing

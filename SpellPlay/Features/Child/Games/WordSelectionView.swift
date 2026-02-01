@@ -1,8 +1,3 @@
-//
-//  WordSelectionView.swift
-//  SpellPlay
-//
-
 import SwiftUI
 
 @MainActor
@@ -11,7 +6,7 @@ struct WordSelectionView: View {
 
     let test: SpellingTest
 
-    // Words sorted by displayOrder to preserve entry order
+    /// Words sorted by displayOrder to preserve entry order
     private var sortedWords: [Word] {
         test.words?.sortedAsCreated() ?? []
     }
@@ -45,7 +40,7 @@ struct WordSelectionView: View {
                                     if selectedWordIds.count == sortedWords.count {
                                         selectedWordIds.removeAll()
                                     } else {
-                                        selectedWordIds = Set(sortedWords.map { $0.id })
+                                        selectedWordIds = Set(sortedWords.map(\.id))
                                     }
                                 } label: {
                                     Text(selectedWordIds.count == sortedWords.count ? "Deselect All" : "Select All")
@@ -105,7 +100,7 @@ struct WordSelectionView: View {
             .onAppear {
                 // Select all words by default
                 if selectedWordIds.isEmpty {
-                    selectedWordIds = Set(sortedWords.map { $0.id })
+                    selectedWordIds = Set(sortedWords.map(\.id))
                 }
             }
             .fullScreenCover(isPresented: $showGameSelection) {
@@ -136,16 +131,15 @@ struct WordSelectionView: View {
             }
             .padding(.horizontal, AppConstants.padding)
             .padding(.vertical, 10)
-            .background(selectedWordIds.contains(word.id) ? AppConstants.primaryColor.opacity(0.1) : AppConstants.cardColor)
+            .background(selectedWordIds.contains(word.id) ? AppConstants.primaryColor.opacity(0.1) : AppConstants
+                .cardColor)
             .cornerRadius(AppConstants.cornerRadius)
             .overlay(
                 RoundedRectangle(cornerRadius: AppConstants.cornerRadius)
-                    .stroke(selectedWordIds.contains(word.id) ? AppConstants.primaryColor : Color.clear, lineWidth: 2)
-            )
+                    .stroke(selectedWordIds.contains(word.id) ? AppConstants.primaryColor : Color.clear, lineWidth: 2))
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("WordSelection_Word_\(word.id.uuidString)")
         .accessibilityLabel("\(word.text), \(selectedWordIds.contains(word.id) ? "selected" : "not selected")")
     }
 }
-

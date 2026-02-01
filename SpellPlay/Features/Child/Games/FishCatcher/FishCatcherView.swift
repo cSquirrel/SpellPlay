@@ -1,8 +1,3 @@
-//
-//  FishCatcherView.swift
-//  SpellPlay
-//
-
 import SwiftUI
 
 @MainActor
@@ -38,7 +33,7 @@ struct FishCatcherView: View {
     @State private var result: GameResult?
 
     @State private var ttsService = TTSService()
-    
+
     @State private var bucketBounce: CGFloat = 1.0
     @State private var waveOffset: CGFloat = 0
 
@@ -64,8 +59,7 @@ struct FishCatcherView: View {
                             wordIndex: currentWordIndex,
                             wordCount: words.count,
                             points: score,
-                            comboMultiplier: comboMultiplier
-                        )
+                            comboMultiplier: comboMultiplier)
 
                         wordDisplay
                             .padding(.horizontal, AppConstants.padding)
@@ -83,8 +77,7 @@ struct FishCatcherView: View {
                                     }
                                     .position(
                                         x: fishX(for: fish, size: geo.size, now: context.date),
-                                        y: fish.yDepth
-                                    )
+                                        y: fish.yDepth)
                                     .accessibilityIdentifier("FishCatcher_Fish_\(fish.id.uuidString)")
                                 }
                             }
@@ -141,8 +134,7 @@ struct FishCatcherView: View {
                         },
                         onChooseDifferentGame: {
                             dismiss()
-                        }
-                    )
+                        })
                 }
             }
         }
@@ -153,23 +145,22 @@ struct FishCatcherView: View {
         LinearGradient(
             colors: [
                 Color(red: 0.4, green: 0.7, blue: 0.95),
-                Color(red: 0.2, green: 0.5, blue: 0.8)
+                Color(red: 0.2, green: 0.5, blue: 0.8),
             ],
             startPoint: .top,
-            endPoint: .bottom
-        )
-        .overlay(alignment: .bottom) {
-            // Water surface effect
-            WaveShape(offset: waveOffset)
-                .fill(Color(red: 0.3, green: 0.6, blue: 0.9).opacity(0.3))
-                .frame(height: 40)
-        }
-        .onAppear {
-            // Animate wave
-            withAnimation(.linear(duration: 3).repeatForever(autoreverses: false)) {
-                waveOffset = 360
+            endPoint: .bottom)
+            .overlay(alignment: .bottom) {
+                // Water surface effect
+                WaveShape(offset: waveOffset)
+                    .fill(Color(red: 0.3, green: 0.6, blue: 0.9).opacity(0.3))
+                    .frame(height: 40)
             }
-        }
+            .onAppear {
+                // Animate wave
+                withAnimation(.linear(duration: 3).repeatForever(autoreverses: false)) {
+                    waveOffset = 360
+                }
+            }
     }
 
     private var wordDisplay: some View {
@@ -190,8 +181,7 @@ struct FishCatcherView: View {
         .cornerRadius(AppConstants.cornerRadius)
         .overlay(
             RoundedRectangle(cornerRadius: AppConstants.cornerRadius)
-                .stroke(Color.white.opacity(0.45), lineWidth: 2)
-        )
+                .stroke(Color.white.opacity(0.45), lineWidth: 2))
     }
 
     private var bucketView: some View {
@@ -202,9 +192,9 @@ struct FishCatcherView: View {
                     Text("Caught:")
                         .font(.system(size: AppConstants.captionSize, weight: .semibold))
                         .foregroundColor(.secondary)
-                    
+
                     HStack(spacing: 4) {
-                        ForEach(0..<nextExpectedIndex, id: \.self) { idx in
+                        ForEach(0 ..< nextExpectedIndex, id: \.self) { idx in
                             Text(String(Array(targetText)[idx]).uppercased())
                                 .font(.system(size: 18, weight: .bold, design: .rounded))
                                 .foregroundColor(.white)
@@ -216,7 +206,7 @@ struct FishCatcherView: View {
                 }
                 .accessibilityIdentifier("FishCatcher_CaughtLetters")
             }
-            
+
             // Bucket/net visual
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
@@ -224,18 +214,16 @@ struct FishCatcherView: View {
                         LinearGradient(
                             colors: [
                                 Color.brown.opacity(0.8),
-                                Color.brown.opacity(0.6)
+                                Color.brown.opacity(0.6),
                             ],
                             startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
+                            endPoint: .bottom))
                     .frame(height: 60)
                     .overlay {
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(Color.brown.opacity(0.9), lineWidth: 3)
                     }
-                
+
                 Text("🪣")
                     .font(.system(size: 32))
             }
@@ -346,25 +334,24 @@ struct FishCatcherView: View {
     private func spawnFish(now: Date, size: CGSize) {
         guard let nextLetter = expectedLetter else { return }
 
-        let letterToUse: Character
-        if shouldSpawnDecoy(for: difficulty) {
-            letterToUse = randomDecoyLetter(avoid: nextLetter) ?? nextLetter
+        let letterToUse: Character = if shouldSpawnDecoy(for: difficulty) {
+            randomDecoyLetter(avoid: nextLetter) ?? nextLetter
         } else {
             // Spawn the correct next letter more often
-            letterToUse = nextLetter
+            nextLetter
         }
 
         // Spawn from left side
         let startX: CGFloat = -50
-        
+
         // Random depth (y position) in the middle portion of the screen
         // Leave room for top UI (~250) and bottom UI (~250)
         let topMargin: CGFloat = 250
         let bottomMargin: CGFloat = 250
         let availableHeight = size.height - topMargin - bottomMargin
         let middleStart = topMargin + (availableHeight * 0.2) // Start 20% into available space
-        let middleEnd = topMargin + (availableHeight * 0.8)   // End 80% into available space
-        let yDepth = CGFloat.random(in: middleStart...middleEnd)
+        let middleEnd = topMargin + (availableHeight * 0.8) // End 80% into available space
+        let yDepth = CGFloat.random(in: middleStart ... middleEnd)
 
         let fish = Fish(
             id: UUID(),
@@ -373,8 +360,7 @@ struct FishCatcherView: View {
             yDepth: yDepth,
             speed: fishSpeed(for: difficulty),
             color: fishColor(),
-            spawnedAt: now
-        )
+            spawnedAt: now)
 
         activeFish.append(fish)
     }
@@ -403,7 +389,7 @@ struct FishCatcherView: View {
 
         if fish.letter.lowercased() == expectedLetter.lowercased() {
             nextExpectedIndex += 1
-            
+
             // Animate bucket bounce
             withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
                 bucketBounce = 1.2
@@ -411,7 +397,7 @@ struct FishCatcherView: View {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.5).delay(0.1)) {
                 bucketBounce = 1.0
             }
-            
+
             showCelebrationTransient(type: .wordCorrect, message: nil, emoji: "🐟")
 
             if nextExpectedIndex >= targetText.count {
@@ -439,25 +425,22 @@ struct FishCatcherView: View {
             isCorrect: true,
             comboCount: comboCount,
             timeTaken: timeTaken,
-            isFirstTry: mistakesThisWord == 0
-        )
+            isFirstTry: mistakesThisWord == 0)
         score += pointsResult.totalPoints
 
-        let starsEarned: Int
-        if mistakesThisWord == 0, let t = timeTaken, t <= PointsService.speedBonusThreshold {
-            starsEarned = 3
+        let starsEarned = if mistakesThisWord == 0, let t = timeTaken, t <= PointsService.speedBonusThreshold {
+            3
         } else if mistakesThisWord == 0 {
-            starsEarned = 2
+            2
         } else {
-            starsEarned = 1
+            1
         }
         totalStars += starsEarned
 
         showCelebrationTransient(
             type: .sessionComplete,
             message: "+\(pointsResult.totalPoints) pts • \(starsEarned)★",
-            emoji: "🌊"
-        )
+            emoji: "🌊")
 
         advanceToNextWord()
     }
@@ -469,8 +452,7 @@ struct FishCatcherView: View {
                 totalPoints: score,
                 totalStars: totalStars,
                 wordsCompleted: words.count,
-                totalMistakes: totalMistakes
-            )
+                totalMistakes: totalMistakes)
             showResult = true
         } else {
             currentWordIndex += 1
@@ -513,7 +495,7 @@ struct FishCatcherView: View {
     }
 
     private func shouldSpawnDecoy(for difficulty: GameDifficulty) -> Bool {
-        let roll = Double.random(in: 0...1)
+        let roll = Double.random(in: 0 ... 1)
         switch difficulty {
         case .easy: return roll < 0.25
         case .medium: return roll < 0.40
@@ -535,7 +517,7 @@ struct FishCatcherView: View {
 
     private func fishColor() -> Color {
         [
-            Color.orange, Color.pink, Color.yellow, Color.green, Color.cyan, Color.purple
+            Color.orange, Color.pink, Color.yellow, Color.green, Color.cyan, Color.purple,
         ].randomElement() ?? Color.blue
     }
 }
@@ -550,29 +532,28 @@ private struct Fish: Identifiable {
     let spawnedAt: Date
 }
 
-// Simple wave shape for water surface effect
+/// Simple wave shape for water surface effect
 private struct WaveShape: Shape {
     var offset: CGFloat = 0
-    
+
     var animatableData: CGFloat {
         get { offset }
         set { offset = newValue }
     }
-    
+
     func path(in rect: CGRect) -> Path {
         var path = Path()
         let waveHeight: CGFloat = 8
         let waveLength: CGFloat = rect.width / 2
-        
+
         path.move(to: CGPoint(x: 0, y: rect.midY))
-        
+
         for x in stride(from: 0, through: rect.width, by: 1) {
             let angle = (x / waveLength) * .pi * 2 + (offset * .pi / 180)
             let y = rect.midY + sin(angle) * waveHeight
             path.addLine(to: CGPoint(x: x, y: y))
         }
-        
+
         return path
     }
 }
-

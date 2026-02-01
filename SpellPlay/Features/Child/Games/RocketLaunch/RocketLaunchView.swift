@@ -1,10 +1,3 @@
-//
-//  RocketLaunchView.swift
-//  SpellPlay
-//
-//  Rocket Launch game - Type letters to fuel and launch a rocket
-//
-
 import SwiftUI
 
 @MainActor
@@ -46,7 +39,7 @@ struct RocketLaunchView: View {
     @State private var showWordHint = true
 
     @State private var ttsService = TTSService()
-    
+
     /// Used to trigger celebration dismiss via .task(id:)
     @State private var celebrationDismissID = UUID()
 
@@ -61,7 +54,7 @@ struct RocketLaunchView: View {
 
     var body: some View {
         NavigationStack {
-            GeometryReader { geo in
+            GeometryReader { _ in
                 ZStack {
                     background
                         .ignoresSafeArea()
@@ -72,8 +65,7 @@ struct RocketLaunchView: View {
                             wordIndex: currentWordIndex,
                             wordCount: words.count,
                             points: score,
-                            comboMultiplier: comboMultiplier
-                        )
+                            comboMultiplier: comboMultiplier)
 
                         missionObjective
                             .padding(.horizontal, AppConstants.padding)
@@ -92,10 +84,9 @@ struct RocketLaunchView: View {
                                 RocketView(
                                     fuelLevel: fuelLevel,
                                     isLaunching: isLaunching,
-                                    verticalOffset: rocketOffset
-                                )
-                                .offset(x: shakeOffset)
-                                .accessibilityIdentifier("RocketLaunch_Rocket")
+                                    verticalOffset: rocketOffset)
+                                    .offset(x: shakeOffset)
+                                    .accessibilityIdentifier("RocketLaunch_Rocket")
                             }
                             .frame(height: 200)
 
@@ -211,8 +202,7 @@ struct RocketLaunchView: View {
                         },
                         onChooseDifferentGame: {
                             dismiss()
-                        }
-                    )
+                        })
                 }
             }
         }
@@ -226,11 +216,10 @@ struct RocketLaunchView: View {
             colors: [
                 Color(red: 0.1, green: 0.1, blue: 0.3),
                 Color(red: 0.2, green: 0.3, blue: 0.5),
-                Color(red: 0.4, green: 0.5, blue: 0.7)
+                Color(red: 0.4, green: 0.5, blue: 0.7),
             ],
             startPoint: .top,
-            endPoint: .bottom
-        )
+            endPoint: .bottom)
     }
 
     private var launchPadBackground: some View {
@@ -242,17 +231,15 @@ struct RocketLaunchView: View {
                     LinearGradient(
                         colors: [
                             Color(red: 0.3, green: 0.3, blue: 0.3),
-                            Color(red: 0.2, green: 0.2, blue: 0.2)
+                            Color(red: 0.2, green: 0.2, blue: 0.2),
                         ],
                         startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
+                        endPoint: .bottom))
                 .frame(height: 60)
                 .overlay(alignment: .top) {
                     // Launch pad grid pattern
                     HStack(spacing: 8) {
-                        ForEach(0..<8, id: \.self) { _ in
+                        ForEach(0 ..< 8, id: \.self) { _ in
                             Rectangle()
                                 .fill(Color.white.opacity(0.1))
                                 .frame(width: 4, height: 4)
@@ -301,11 +288,11 @@ struct RocketLaunchView: View {
     private func shouldShowLetter(at index: Int) -> Bool {
         switch difficulty {
         case .easy:
-            return true // Always show full word
+            true // Always show full word
         case .medium:
-            return showWordHint || index < typedText.count // Show briefly, then hide
+            showWordHint || index < typedText.count // Show briefly, then hide
         case .hard:
-            return index < typedText.count // Only show typed letters
+            index < typedText.count // Only show typed letters
         }
     }
 
@@ -336,12 +323,10 @@ struct RocketLaunchView: View {
                                 colors: [
                                     Color.orange,
                                     Color.yellow,
-                                    Color.green
+                                    Color.green,
                                 ],
                                 startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
+                                endPoint: .trailing))
                         .frame(width: geo.size.width * fuelLevel)
                         .animation(.spring(response: 0.3, dampingFraction: 0.8), value: fuelLevel)
                 }
@@ -358,7 +343,7 @@ struct RocketLaunchView: View {
             let rows = [
                 ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
                 ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
-                ["Z", "X", "C", "V", "B", "N", "M"]
+                ["Z", "X", "C", "V", "B", "N", "M"],
             ]
 
             ForEach(rows.indices, id: \.self) { rowIndex in
@@ -533,7 +518,7 @@ struct RocketLaunchView: View {
 
         // Countdown
         Task { @MainActor in
-            for i in (1...3).reversed() {
+            for i in (1 ... 3).reversed() {
                 countdownValue = i
                 try? await Task.sleep(for: .milliseconds(600))
             }
@@ -565,25 +550,22 @@ struct RocketLaunchView: View {
             isCorrect: true,
             comboCount: comboCount,
             timeTaken: timeTaken,
-            isFirstTry: mistakesThisWord == 0
-        )
+            isFirstTry: mistakesThisWord == 0)
         score += pointsResult.totalPoints
 
-        let starsEarned: Int
-        if mistakesThisWord == 0, let t = timeTaken, t <= PointsService.speedBonusThreshold {
-            starsEarned = 3
+        let starsEarned = if mistakesThisWord == 0, let t = timeTaken, t <= PointsService.speedBonusThreshold {
+            3
         } else if mistakesThisWord == 0 {
-            starsEarned = 2
+            2
         } else {
-            starsEarned = 1
+            1
         }
         totalStars += starsEarned
 
         showCelebrationTransient(
             type: .sessionComplete,
             message: "+\(pointsResult.totalPoints) pts • \(starsEarned)★",
-            emoji: "🚀"
-        )
+            emoji: "🚀")
 
         // Reset rocket position and advance
         rocketOffset = 0
@@ -599,8 +581,7 @@ struct RocketLaunchView: View {
                 totalPoints: score,
                 totalStars: totalStars,
                 wordsCompleted: words.count,
-                totalMistakes: totalMistakes
-            )
+                totalMistakes: totalMistakes)
             showResult = true
         } else {
             currentWordIndex += 1
@@ -615,10 +596,8 @@ struct RocketLaunchView: View {
         withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
             showCelebration = true
         }
-        
+
         // Trigger dismiss via .task(id:)
         celebrationDismissID = UUID()
     }
-
 }
-

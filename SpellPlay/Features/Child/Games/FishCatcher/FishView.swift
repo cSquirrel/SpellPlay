@@ -1,10 +1,3 @@
-//
-//  FishView.swift
-//  SpellPlay
-//
-//  Fish component for Fish Catcher game
-//
-
 import SwiftUI
 
 @MainActor
@@ -13,9 +6,9 @@ struct FishView: View {
     let id: UUID
     let color: Color
     let onTap: () -> Void
-    
+
     @State private var tailWiggle: Double = 0
-    
+
     var body: some View {
         ZStack {
             // Fish body
@@ -24,19 +17,17 @@ struct FishView: View {
                     LinearGradient(
                         colors: [
                             color.opacity(0.95),
-                            color.opacity(0.75)
+                            color.opacity(0.75),
                         ],
                         startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
+                        endPoint: .trailing))
                 .overlay {
                     FishShape()
                         .stroke(Color.white.opacity(0.3), lineWidth: 2)
                 }
                 .frame(width: 80, height: 50)
                 .rotationEffect(.degrees(tailWiggle))
-            
+
             // Letter overlay
             Text(String(letter).uppercased())
                 .font(.system(size: 28, weight: .bold, design: .rounded))
@@ -56,27 +47,26 @@ struct FishView: View {
     }
 }
 
-// Custom fish shape (ellipse body + triangular tail)
+/// Custom fish shape (ellipse body + triangular tail)
 private struct FishShape: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        
+
         // Body (ellipse)
         let bodyRect = CGRect(
             x: rect.minX + rect.width * 0.15,
             y: rect.minY + rect.height * 0.2,
             width: rect.width * 0.7,
-            height: rect.height * 0.6
-        )
+            height: rect.height * 0.6)
         path.addEllipse(in: bodyRect)
-        
+
         // Tail (triangle on the left)
         let tailSize = rect.width * 0.25
         path.move(to: CGPoint(x: rect.minX + tailSize, y: rect.midY))
         path.addLine(to: CGPoint(x: rect.minX, y: rect.midY - tailSize * 0.5))
         path.addLine(to: CGPoint(x: rect.minX, y: rect.midY + tailSize * 0.5))
         path.closeSubpath()
-        
+
         // Eye
         let eyeSize: CGFloat = 6
         let eyeX = rect.minX + rect.width * 0.4
@@ -85,10 +75,8 @@ private struct FishShape: Shape {
             x: eyeX - eyeSize / 2,
             y: eyeY - eyeSize / 2,
             width: eyeSize,
-            height: eyeSize
-        ))
-        
+            height: eyeSize))
+
         return path
     }
 }
-

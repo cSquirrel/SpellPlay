@@ -1,8 +1,3 @@
-//
-//  BalloonPopView.swift
-//  SpellPlay
-//
-
 import SwiftUI
 
 @MainActor
@@ -61,8 +56,7 @@ struct BalloonPopView: View {
                             wordIndex: currentWordIndex,
                             wordCount: words.count,
                             points: score,
-                            comboMultiplier: comboMultiplier
-                        )
+                            comboMultiplier: comboMultiplier)
 
                         wordDisplay
                             .padding(.horizontal, AppConstants.padding)
@@ -80,8 +74,7 @@ struct BalloonPopView: View {
                                     }
                                     .position(
                                         x: balloon.x,
-                                        y: balloonY(for: balloon, size: geo.size, now: context.date)
-                                    )
+                                        y: balloonY(for: balloon, size: geo.size, now: context.date))
                                     .accessibilityIdentifier("BalloonPop_Balloon_\(balloon.id.uuidString)")
                                 }
                             }
@@ -142,8 +135,7 @@ struct BalloonPopView: View {
                         },
                         onChooseDifferentGame: {
                             dismiss()
-                        }
-                    )
+                        })
                 }
             }
         }
@@ -154,17 +146,16 @@ struct BalloonPopView: View {
         LinearGradient(
             colors: [
                 Color(red: 0.55, green: 0.80, blue: 0.98),
-                Color(red: 0.90, green: 0.97, blue: 1.00)
+                Color(red: 0.90, green: 0.97, blue: 1.00),
             ],
             startPoint: .top,
-            endPoint: .bottom
-        )
-        .overlay(alignment: .topLeading) {
-            cloud(offsetX: 40, offsetY: 40)
-        }
-        .overlay(alignment: .topTrailing) {
-            cloud(offsetX: -30, offsetY: 90)
-        }
+            endPoint: .bottom)
+            .overlay(alignment: .topLeading) {
+                cloud(offsetX: 40, offsetY: 40)
+            }
+            .overlay(alignment: .topTrailing) {
+                cloud(offsetX: -30, offsetY: 90)
+            }
     }
 
     private func cloud(offsetX: CGFloat, offsetY: CGFloat) -> some View {
@@ -194,8 +185,7 @@ struct BalloonPopView: View {
         .cornerRadius(AppConstants.cornerRadius)
         .overlay(
             RoundedRectangle(cornerRadius: AppConstants.cornerRadius)
-                .stroke(Color.white.opacity(0.45), lineWidth: 2)
-        )
+                .stroke(Color.white.opacity(0.45), lineWidth: 2))
     }
 
     private var controls: some View {
@@ -299,15 +289,14 @@ struct BalloonPopView: View {
     private func spawnBalloon(now: Date, size: CGSize) {
         guard let nextLetter = expectedLetter else { return }
 
-        let letterToUse: Character
-        if shouldSpawnDecoy(for: difficulty) {
-            letterToUse = randomDecoyLetter(avoid: nextLetter) ?? nextLetter
+        let letterToUse: Character = if shouldSpawnDecoy(for: difficulty) {
+            randomDecoyLetter(avoid: nextLetter) ?? nextLetter
         } else {
             // Spawn the correct next letter more often
-            letterToUse = nextLetter
+            nextLetter
         }
 
-        let x = CGFloat.random(in: 40...(max(41, size.width - 40)))
+        let x = CGFloat.random(in: 40 ... max(41, size.width - 40))
         let yStart = size.height + 140
 
         let balloon = Balloon(
@@ -317,8 +306,7 @@ struct BalloonPopView: View {
             yStart: yStart,
             speed: balloonSpeed(for: difficulty),
             color: balloonColor(),
-            spawnedAt: now
-        )
+            spawnedAt: now)
 
         activeBalloons.append(balloon)
     }
@@ -371,25 +359,22 @@ struct BalloonPopView: View {
             isCorrect: true,
             comboCount: comboCount,
             timeTaken: timeTaken,
-            isFirstTry: mistakesThisWord == 0
-        )
+            isFirstTry: mistakesThisWord == 0)
         score += pointsResult.totalPoints
 
-        let starsEarned: Int
-        if mistakesThisWord == 0, let t = timeTaken, t <= PointsService.speedBonusThreshold {
-            starsEarned = 3
+        let starsEarned = if mistakesThisWord == 0, let t = timeTaken, t <= PointsService.speedBonusThreshold {
+            3
         } else if mistakesThisWord == 0 {
-            starsEarned = 2
+            2
         } else {
-            starsEarned = 1
+            1
         }
         totalStars += starsEarned
 
         showCelebrationTransient(
             type: .sessionComplete,
             message: "+\(pointsResult.totalPoints) pts • \(starsEarned)★",
-            emoji: "🎉"
-        )
+            emoji: "🎉")
 
         advanceToNextWord()
     }
@@ -401,8 +386,7 @@ struct BalloonPopView: View {
                 totalPoints: score,
                 totalStars: totalStars,
                 wordsCompleted: words.count,
-                totalMistakes: totalMistakes
-            )
+                totalMistakes: totalMistakes)
             showResult = true
         } else {
             currentWordIndex += 1
@@ -412,7 +396,7 @@ struct BalloonPopView: View {
     /// Show celebration with auto-hide using state change tracking
     /// Note: Using @State to track celebration dismiss via onChange is cleaner than Task {}
     @State private var celebrationDismissID = UUID()
-    
+
     private func showCelebrationTransient(type: CelebrationType, message: String?, emoji: String?) {
         celebrationType = type
         celebrationMessage = message
@@ -421,7 +405,7 @@ struct BalloonPopView: View {
         withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
             showCelebration = true
         }
-        
+
         // Trigger dismiss after delay
         celebrationDismissID = UUID()
     }
@@ -445,7 +429,7 @@ struct BalloonPopView: View {
     }
 
     private func shouldSpawnDecoy(for difficulty: GameDifficulty) -> Bool {
-        let roll = Double.random(in: 0...1)
+        let roll = Double.random(in: 0 ... 1)
         switch difficulty {
         case .easy: return roll < 0.25
         case .medium: return roll < 0.40
@@ -467,7 +451,7 @@ struct BalloonPopView: View {
 
     private func balloonColor() -> Color {
         [
-            Color.red, Color.blue, Color.green, Color.purple, Color.orange, Color.pink, Color.teal
+            Color.red, Color.blue, Color.green, Color.purple, Color.orange, Color.pink, Color.teal,
         ].randomElement() ?? Color.blue
     }
 }
@@ -481,5 +465,3 @@ private struct Balloon: Identifiable {
     let color: Color
     let spawnedAt: Date
 }
-
-

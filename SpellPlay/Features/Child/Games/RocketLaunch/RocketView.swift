@@ -1,10 +1,3 @@
-//
-//  RocketView.swift
-//  SpellPlay
-//
-//  Rocket visualization with animated flame based on fuel level
-//
-
 import SwiftUI
 
 struct RocketView: View {
@@ -43,17 +36,14 @@ struct RocketView: View {
                     LinearGradient(
                         colors: [
                             Color(red: 0.7, green: 0.7, blue: 0.75),
-                            Color(red: 0.5, green: 0.5, blue: 0.55)
+                            Color(red: 0.5, green: 0.5, blue: 0.55),
                         ],
                         startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
+                        endPoint: .trailing))
                 .frame(width: 40, height: 100)
                 .overlay(
                     Capsule()
-                        .stroke(Color.white.opacity(0.3), lineWidth: 2)
-                )
+                        .stroke(Color.white.opacity(0.3), lineWidth: 2))
 
             // Nose cone
             Path { path in
@@ -66,12 +56,10 @@ struct RocketView: View {
                 LinearGradient(
                     colors: [
                         Color(red: 0.9, green: 0.3, blue: 0.3),
-                        Color(red: 0.7, green: 0.2, blue: 0.2)
+                        Color(red: 0.7, green: 0.2, blue: 0.2),
                     ],
                     startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
+                    endPoint: .bottom))
 
             // Window
             Circle()
@@ -80,8 +68,7 @@ struct RocketView: View {
                 .offset(y: -20)
                 .overlay(
                     Circle()
-                        .stroke(Color.white.opacity(0.5), lineWidth: 1)
-                )
+                        .stroke(Color.white.opacity(0.5), lineWidth: 1))
 
             // Fins
             VStack {
@@ -114,16 +101,15 @@ struct RocketView: View {
     }
 
     private var flameView: some View {
-        TimelineView(.animation) { context in
+        TimelineView(.animation) { _ in
             ZStack {
                 // Outer flame (orange/yellow)
-                ForEach(0..<3, id: \.self) { i in
+                ForEach(0 ..< 3, id: \.self) { i in
                     flameShape(
                         width: baseFlameWidth * (1.0 + Double(i) * 0.3),
                         height: baseFlameHeight * (1.0 + Double(i) * 0.2),
                         color: i == 0 ? Color.orange : (i == 1 ? Color.yellow : Color.red),
-                        offset: Double(i) * 2
-                    )
+                        offset: Double(i) * 2)
                 }
             }
         }
@@ -135,16 +121,14 @@ struct RocketView: View {
             let w = width * (0.8 + 0.4 * sin(phase * 2))
             let h = height * (0.9 + 0.2 * sin(phase * 1.5))
 
-            path.move(to: CGPoint(x: 20 - w/2, y: 0))
+            path.move(to: CGPoint(x: 20 - w / 2, y: 0))
             path.addQuadCurve(
-                to: CGPoint(x: 20 + w/2, y: 0),
-                control: CGPoint(x: 20, y: -h * 0.3)
-            )
-            path.addLine(to: CGPoint(x: 20 + w/3, y: -h))
+                to: CGPoint(x: 20 + w / 2, y: 0),
+                control: CGPoint(x: 20, y: -h * 0.3))
+            path.addLine(to: CGPoint(x: 20 + w / 3, y: -h))
             path.addQuadCurve(
-                to: CGPoint(x: 20 - w/3, y: -h),
-                control: CGPoint(x: 20, y: -h * 1.2)
-            )
+                to: CGPoint(x: 20 - w / 3, y: -h),
+                control: CGPoint(x: 20, y: -h * 1.2))
             path.closeSubpath()
         }
         .fill(
@@ -152,13 +136,11 @@ struct RocketView: View {
                 colors: [
                     color.opacity(0.9),
                     color.opacity(0.6),
-                    color.opacity(0.0)
+                    color.opacity(0.0),
                 ],
                 center: .top,
                 startRadius: 5,
-                endRadius: height * 0.8
-            )
-        )
+                endRadius: height * 0.8))
     }
 
     private var baseFlameWidth: Double {
@@ -182,5 +164,3 @@ struct RocketView: View {
         }
     }
 }
-
-

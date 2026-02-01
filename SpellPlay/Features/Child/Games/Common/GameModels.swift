@@ -1,8 +1,3 @@
-//
-//  GameModels.swift
-//  SpellPlay
-//
-
 import Foundation
 
 enum GameDifficulty: String, CaseIterable, Identifiable {
@@ -34,5 +29,3 @@ struct GameResult: Equatable {
     let wordsCompleted: Int
     let totalMistakes: Int
 }
-
-

@@ -1,40 +1,36 @@
-//
-//  EditTestPage.swift
-//  WordCraftUITests
-//
-//  Created on [Date]
-//
-
 import XCTest
 
 class EditTestPage: BasePage {
     // MARK: - Properties
+
     var testNameField: XCUIElement {
         app.textFields["EditTest_TestNameField"]
     }
-    
+
     var wordTextEditor: XCUIElement {
         app.textViews["EditTest_WordTextEditor"]
     }
-    
+
     var addWordsButton: XCUIElement {
         app.buttons["EditTest_AddWordsButton"]
     }
-    
+
     var saveButton: XCUIElement {
         app.buttons["EditTest_SaveButton"]
     }
-    
+
     var cancelButton: XCUIElement {
         app.buttons["EditTest_CancelButton"]
     }
-    
+
     // MARK: - Initializer
+
     override init(app: XCUIApplication) {
         super.init(app: app)
     }
-    
+
     // MARK: - Action Methods
+
     func updateTestName(_ name: String) -> Self {
         waitForElement(testNameField)
         testNameField.tap()
@@ -42,7 +38,7 @@ class EditTestPage: BasePage {
         testNameField.typeText(name)
         return self
     }
-    
+
     func addWords(_ words: String) -> Self {
         waitForElement(wordTextEditor)
         wordTextEditor.tap()
@@ -51,13 +47,13 @@ class EditTestPage: BasePage {
         tapAddWords()
         return self
     }
-    
+
     func tapAddWords() -> Self {
         waitForElement(addWordsButton)
         addWordsButton.tap()
         return self
     }
-    
+
     func removeWord(_ word: String) -> Self {
         let wordElement = app.staticTexts["EditTest_Word_\(word)"]
         if wordElement.exists {
@@ -69,7 +65,7 @@ class EditTestPage: BasePage {
         }
         return self
     }
-    
+
     func tapTTSButton(for word: String) -> Self {
         let wordElement = app.staticTexts["EditTest_Word_\(word)"]
         if wordElement.exists {
@@ -81,29 +77,29 @@ class EditTestPage: BasePage {
         }
         return self
     }
-    
+
     func tapSave() -> ParentHomePage {
         waitForElement(saveButton)
         saveButton.tap()
         sleep(1) // Wait for navigation
         return ParentHomePage(app: app)
     }
-    
+
     func tapCancel() -> ParentHomePage {
         waitForElement(cancelButton)
         cancelButton.tap()
         sleep(1) // Wait for navigation
         return ParentHomePage(app: app)
     }
-    
+
     // MARK: - Verification Methods
+
     func verifyTestName(_ name: String) -> Bool {
-        return testNameField.value as? String == name
+        testNameField.value as? String == name
     }
-    
+
     func verifyWordExists(_ word: String) -> Bool {
         let wordElement = app.staticTexts["EditTest_Word_\(word)"]
         return waitForElement(wordElement)
     }
 }
-
