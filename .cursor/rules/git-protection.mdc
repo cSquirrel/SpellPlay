@@ -1,0 +1,54 @@
+---
+description: Git branch protection rules - NEVER push directly to main branch. ALWAYS use feature branches and pull requests.
+globs: 
+alwaysApply: true
+---
+# Git Branch Protection Rules
+
+**MANDATORY**: Never push directly to the `main` branch. All changes must go through feature branches and pull requests.
+
+## Core Rule
+
+**NEVER** execute `git push origin main` or any command that would push directly to the main branch.
+
+## Required Workflow
+
+1. **Work on feature branches only**: Use git worktree to create feature branches (see `git-worktree.mdc`)
+2. **Push feature branches**: `git push -u origin feature/<branch-name>`
+3. **Create pull requests**: All changes to main must go through GitHub pull requests
+4. **Merge via PR**: Only merge to main through approved pull requests
+
+## When User Requests to Push to Main
+
+If the user requests to push directly to main:
+
+1. **Refuse the request** and explain why
+2. **Suggest the correct workflow**:
+   - If changes are in main worktree: Create a feature branch and move changes there
+   - If changes are already in a feature branch: Push the feature branch and create a PR
+   - If it's a hotfix: Create a `hotfix/` branch, push it, and create a PR
+
+## Exception Handling
+
+The only acceptable exception is if the user explicitly states they understand the risk and need to bypass this rule for a specific emergency situation. Even then, warn them about the risks and suggest the PR workflow first.
+
+## Commands to NEVER Execute
+
+- `git push origin main`
+- `git push main`
+- `git push --force origin main`
+- Any command that would push commits directly to the main branch
+
+## Commands to ALWAYS Use Instead
+
+- `git push -u origin feature/<branch-name>` - Push feature branch
+- `gh pr create` - Create pull request after pushing feature branch
+- Use git worktree workflow for all feature development
+
+## Rationale
+
+- Maintains code quality through peer review
+- Preserves git history and enables rollback
+- Follows industry best practices
+- Prevents accidental breaking changes
+- Enables CI/CD pipeline validation before merge
