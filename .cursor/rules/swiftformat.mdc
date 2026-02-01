@@ -1,0 +1,135 @@
+---
+description: "SwiftFormat code styling rules - MANDATORY for all Swift files. No changes should be committed without formatting."
+globs: ["**/*.swift"]
+alwaysApply: true
+---
+
+# SwiftFormat Code Styling Rules
+
+**MANDATORY**: All Swift files MUST be formatted with SwiftFormat before committing. No exceptions.
+
+## Core Rule
+
+**NEVER** commit Swift code changes without running SwiftFormat first. Unformatted code is not acceptable.
+
+## Before Every Commit
+
+Run SwiftFormat on changed files:
+
+```bash
+# Format all Swift files
+make format
+
+# Or format specific files
+swiftformat <file.swift> --config .swiftformat
+
+# Or format entire project
+swiftformat SpellPlay SpellPlayUITests --config .swiftformat
+```
+
+## Formatting Workflow
+
+### When Creating New Files
+
+1. Write your Swift code
+2. Run `swiftformat <newfile.swift> --config .swiftformat`
+3. Verify formatting looks correct
+4. Stage and commit
+
+### When Modifying Existing Files
+
+1. Make your changes
+2. Run `swiftformat <modified-files> --config .swiftformat`
+3. Review the formatting changes
+4. Stage and commit
+
+### Before Pushing a Branch
+
+```bash
+# Format all files to ensure consistency
+make format
+
+# Or use lint mode to check without changing
+make lint
+```
+
+## Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `make format` | Format all Swift files in SpellPlay and SpellPlayUITests |
+| `make lint` | Check formatting without making changes |
+| `make format-check` | Dry-run to preview what would change |
+
+## Key Formatting Rules
+
+The `.swiftformat` configuration enforces:
+
+- **No file headers** - Files start directly with `import` statements
+- **Sorted imports** - Alphabetically ordered
+- **4-space indentation** - Consistent indentation
+- **120 character line width** - Long lines are wrapped
+- **Trailing whitespace removed** - Clean line endings
+- **Unused parameters renamed to `_`** - Clear intent
+- **Redundant code removed** - No unnecessary `return`, `self`, etc.
+
+## What Gets Formatted
+
+- All `.swift` files in `SpellPlay/`
+- All `.swift` files in `SpellPlayUITests/`
+
+## What Is Excluded
+
+- `Pods/` directory
+- `.build/` directory
+- `DerivedData/`
+- Generated files (`*.generated.swift`)
+- `Package.swift` files
+- `worktree/` directories (each worktree has its own formatting)
+
+## Pre-commit Hook (Optional)
+
+To automatically format staged files before commit, install the pre-commit hook:
+
+```bash
+cp scripts/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+## CI/CD Enforcement
+
+Pull requests should fail if code is not properly formatted. Use lint mode in CI:
+
+```bash
+swiftformat SpellPlay SpellPlayUITests --config .swiftformat --lint
+```
+
+## When Reviewing Code
+
+If you see unformatted code in a PR:
+
+1. Request the author to run SwiftFormat
+2. Do not approve PRs with formatting violations
+3. Formatting issues block merge
+
+## Rationale
+
+- **Consistency**: All code looks the same regardless of author
+- **Reduced diffs**: No formatting-only changes in PRs
+- **Faster reviews**: Focus on logic, not style
+- **Automated**: No manual style debates
+
+## Quick Reference
+
+```bash
+# Must run before ANY commit
+make format
+
+# Check if formatting is needed
+make lint
+
+# Format single file
+swiftformat MyFile.swift --config .swiftformat
+```
+
+**Remember: Unformatted code = Unacceptable code**

@@ -10,8 +10,8 @@
 # =============================================================================
 # File Header
 # =============================================================================
-# Use a consistent file header format
---header "//\n//  {file}\n//  SpellPlay\n//"
+# Remove file header comments (no boilerplate at top of files)
+--header strip
 
 # =============================================================================
 # Indentation & Formatting
