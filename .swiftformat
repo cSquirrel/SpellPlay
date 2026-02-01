@@ -1,0 +1,207 @@
+# SwiftFormat Configuration for SpellPlay iOS App
+# Swift 6.1+ / iOS 18+ / SwiftUI / Swift Concurrency
+# Version: 1.0.0
+
+# =============================================================================
+# Swift Version
+# =============================================================================
+--swiftversion 6.0
+
+# =============================================================================
+# File Header
+# =============================================================================
+# Use a consistent file header format
+--header "//\n//  {file}\n//  SpellPlay\n//"
+
+# =============================================================================
+# Indentation & Formatting
+# =============================================================================
+--indent 4
+--tabwidth 4
+--indentcase false
+--ifdef indent
+--xcodeindentation enabled
+--linebreaks lf
+--maxwidth 120
+
+# =============================================================================
+# Braces & Spacing
+# =============================================================================
+--allman false
+--elseposition same-line
+--guardelse auto
+--emptybraces no-space
+
+# =============================================================================
+# Wrapping
+# =============================================================================
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--wrapconditions before-first
+--closingparen balanced
+--callsiteparen same-line
+--wrapreturntype if-multiline
+--wrapeffects if-multiline
+--wrapternary default
+
+# =============================================================================
+# Self & Redundant Code
+# =============================================================================
+--self remove
+--selfrequired 
+--redundanttype infer-locals-only
+--stripunusedargs closure-only
+
+# =============================================================================
+# Optionals & Types
+# =============================================================================
+--shortoptionals except-properties
+--voidtype void
+--someany true
+
+# =============================================================================
+# Imports
+# =============================================================================
+--importgrouping alpha
+
+# =============================================================================
+# Trailing Commas & Semicolons
+# =============================================================================
+--commas always
+--semicolons inline
+
+# =============================================================================
+# Comments
+# =============================================================================
+--trimwhitespace always
+
+# =============================================================================
+# Number Formatting
+# =============================================================================
+--decimalgrouping 3,6
+--binarygrouping 4,8
+--octalgrouping 4,8
+--hexgrouping 4,8
+--hexliteralcase uppercase
+--exponentcase lowercase
+
+# =============================================================================
+# Pattern Matching
+# =============================================================================
+--patternlet hoist
+
+# =============================================================================
+# Operators
+# =============================================================================
+--operatorfunc spaced
+--ranges spaced
+--nospaceoperators
+
+# =============================================================================
+# Attributes
+# =============================================================================
+--funcattributes prev-line
+--typeattributes prev-line
+--varattributes prev-line
+--storedvarattrs same-line
+--computedvarattrs same-line
+--complexattributes prev-line
+
+# =============================================================================
+# Modifier Order (Swift 6 compatible)
+# =============================================================================
+--modifierorder nonisolated,open,public,package,internal,fileprivate,private,final,required,convenience,override,mutating,nonmutating,static,class,optional,lazy,dynamic,weak,unowned
+
+# =============================================================================
+# Enabled Rules (explicitly enable some disabled-by-default rules)
+# =============================================================================
+--enable blankLineAfterImports
+--enable docComments
+
+# =============================================================================
+# Disabled Rules
+# =============================================================================
+# These rules are disabled for project-specific reasons:
+
+# Don't auto-add MARK comments - we prefer manual organization
+--disable markTypes
+
+# Don't reorganize declarations automatically - we have specific organization patterns
+--disable organizeDeclarations
+
+# Don't wrap enum cases - SwiftUI State enums are often short
+--disable wrapEnumCases
+
+# Don't wrap switch cases - prefer compact switch statements
+--disable wrapSwitchCases
+
+# Don't enforce blank lines between imports - keep imports compact
+--disable blankLinesBetweenImports
+
+# Don't convert block comments - preserve documentation style
+--disable blockComments
+
+# Don't force blank line after switch case - context dependent
+--disable blankLineAfterSwitchCase
+
+# Don't convert to property wrappers automatically
+--disable privateStateVariables
+
+# Don't change property types automatically
+--disable propertyTypes
+
+# Don't add redundant equatable - we use it sparingly
+--disable redundantEquatable
+
+# Don't remove explicit memberwise inits - sometimes needed for clarity
+--disable redundantMemberwiseInit
+
+# Don't force single property per line in all cases
+--disable singlePropertyPerLine
+
+# Don't sort switch cases alphabetically - order matters semantically
+--disable sortSwitchCases
+
+# Don't wrap conditional bodies - prefer readable single-line when short
+--disable wrapConditionalBodies
+
+# Don't wrap multiline function chains aggressively
+--disable wrapMultilineFunctionChains
+
+# Don't wrap multiline conditional assignment
+--disable wrapMultilineConditionalAssignment
+
+# Prefer explicit forEach for SwiftUI - don't auto-convert
+--disable preferForLoop
+
+# Keep acronyms as-is (ID, URL, UUID) - disabled by default but confirm
+--disable acronyms
+
+# Don't add empty extensions - keep them for organization
+--disable emptyExtensions
+
+# =============================================================================
+# Exclusions
+# =============================================================================
+--exclude Pods
+--exclude .build
+--exclude DerivedData
+--exclude **/*.generated.swift
+--exclude **/Package.swift
+--exclude worktree
+
+# =============================================================================
+# SwiftUI / Modern Swift Preferences
+# =============================================================================
+# Use modern async/await patterns - hoist await for readability
+--asynccapturing 
+
+# Trailing closures for common SwiftUI modifiers
+--trailingclosures
+
+# =============================================================================
+# Acronyms (for types/properties with standard acronyms)
+# =============================================================================
+--acronyms ID,URL,UUID,HTTP,HTTPS,HTML,JSON,XML,API,UI,TTS
+
