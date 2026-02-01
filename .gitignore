@@ -116,3 +116,6 @@ DerivedData/
 *.xcresult
 *.xcresult/
 test_output/
+
+# Git worktrees
+worktree/
