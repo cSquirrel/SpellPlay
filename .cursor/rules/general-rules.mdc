@@ -14,5 +14,6 @@ Before proceeding with any development work, always read these rule files to und
 - `xcodebuildmcp-tools.mdc` - XcodeBuildMCP tools for building, testing, and deployment
 - `git-worktree.mdc` - **MANDATORY** git worktree workflow for feature branches
 - `git-protection.mdc` - **MANDATORY** never push directly to main branch
+- `pre-push-checks.mdc` - **MANDATORY** build and run tests before pushing
 
 Use the `fetch_rules` tool to access any relevant rule files based on the development task at hand. 
