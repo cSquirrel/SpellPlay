@@ -1,20 +1,13 @@
-//
-//  PracticeView.swift
-//  WordCraft
-//
-//  Created on [Date]
-//
-
-import SwiftUI
-import SwiftData
 import AVFoundation
+import SwiftData
+import SwiftUI
 
 struct PracticeView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
+
     let test: SpellingTest
-    
+
     @State private var practiceSession = PracticeSessionState()
     @State private var showFeedback = false
     @State private var lastAnswerWasCorrect = false
@@ -33,15 +26,15 @@ struct PracticeView: View {
     @State private var showComboBreakthrough = false
     @State private var hasStartedPractice = false
     @State private var showCancelConfirmation = false
-    
+
     @State private var ttsService = TTSService()
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
                 AppConstants.backgroundColor
                     .ignoresSafeArea()
-                
+
                 if practiceSession.isComplete {
                     PracticeSummaryView(
                         roundsCompleted: practiceSession.currentRound,
@@ -67,8 +60,7 @@ struct PracticeView: View {
                         },
                         onBack: {
                             dismiss()
-                        }
-                    )
+                        })
                 } else if showingRoundTransition {
                     roundTransitionView
                 } else {
@@ -79,7 +71,7 @@ struct PracticeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 // Cancel button - only show when practice has started
-                if hasStartedPractice && !practiceSession.isComplete {
+                if hasStartedPractice, !practiceSession.isComplete {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button(action: {
                             showCancelConfirmation = true
@@ -137,14 +129,15 @@ struct PracticeView: View {
                     CelebrationView(
                         type: .comboBreakthrough,
                         message: "\(practiceSession.comboMultiplier)x Combo!",
-                        emoji: "⚡"
-                    )
-                    .transition(.scale.combined(with: .opacity))
+                        emoji: "⚡")
+                        .transition(.scale.combined(with: .opacity))
                 }
-                
+
                 // Achievement unlock overlay
-                if showAchievementUnlock, let achievementId = unlockedAchievement,
-                   let achievement = Achievement.achievement(for: achievementId) {
+                if
+                    showAchievementUnlock, let achievementId = unlockedAchievement,
+                    let achievement = Achievement.achievement(for: achievementId)
+                {
                     AchievementUnlockView(achievement: achievement)
                         .transition(.scale.combined(with: .opacity))
                         .onAppear {
@@ -158,38 +151,37 @@ struct PracticeView: View {
             }
         }
     }
-    
+
     private var practiceContentView: some View {
         VStack(spacing: 24) {
             // Gamification header
             HStack(spacing: 12) {
                 PointsDisplayView(points: practiceSession.sessionPoints)
-                
+
                 if practiceSession.comboCount > 0 {
                     ComboIndicatorView(
                         comboCount: practiceSession.comboCount,
-                        multiplier: practiceSession.comboMultiplier
-                    )
+                        multiplier: practiceSession.comboMultiplier)
                 }
             }
             .padding(.horizontal, AppConstants.padding)
             .padding(.top, AppConstants.padding)
-            
+
             // Progress indicator
             VStack(spacing: 8) {
                 ProgressView(value: practiceSession.progress)
                     .progressViewStyle(.linear)
                     .tint(AppConstants.primaryColor)
-                
+
                 Text(practiceSession.progressText)
                     .font(.system(size: AppConstants.captionSize))
                     .foregroundColor(.secondary)
                     .accessibilityIdentifier("Practice_ProgressText")
             }
             .padding(.horizontal, AppConstants.padding)
-            
+
             Spacer()
-            
+
             // Word display and audio
             VStack(spacing: 24) {
                 if let word = practiceSession.currentWord {
@@ -203,7 +195,7 @@ struct PracticeView: View {
                                 Image(systemName: ttsService.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
                                     .font(.system(size: 40))
                                     .foregroundColor(.white)
-                                
+
                                 Text("Normal")
                                     .font(.system(size: AppConstants.captionSize, weight: .medium))
                                     .foregroundColor(.white)
@@ -215,7 +207,7 @@ struct PracticeView: View {
                             .shadow(color: AppConstants.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         .disabled(ttsService.isSpeaking)
-                        
+
                         // Slow speed button (20% speed)
                         Button(action: {
                             // Use a slower rate for 20% speed
@@ -226,7 +218,7 @@ struct PracticeView: View {
                                 Image(systemName: ttsService.isSpeaking ? "speaker.wave.3.fill" : "speaker.wave.2.fill")
                                     .font(.system(size: 40))
                                     .foregroundColor(.white)
-                                
+
                                 Text("Slow")
                                     .font(.system(size: AppConstants.captionSize, weight: .medium))
                                     .foregroundColor(.white)
@@ -240,7 +232,7 @@ struct PracticeView: View {
                         .disabled(ttsService.isSpeaking)
                     }
                     .padding(.horizontal, AppConstants.padding)
-                    
+
                     // Feedback
                     if showFeedback {
                         VStack(spacing: 16) {
@@ -248,14 +240,13 @@ struct PracticeView: View {
                                 VStack(spacing: 12) {
                                     CelebrationView(type: .wordCorrect)
                                         .transition(.scale.combined(with: .opacity))
-                                    
+
                                     // Show stars earned
                                     if let lastStarCount = practiceSession.starsEarned.last, lastStarCount > 0 {
                                         StarCollectionView(
                                             stars: lastStarCount,
-                                            totalStars: practiceSession.totalStarsEarned
-                                        )
-                                    .transition(.scale.combined(with: .opacity))
+                                            totalStars: practiceSession.totalStarsEarned)
+                                            .transition(.scale.combined(with: .opacity))
                                     }
                                 }
                             } else {
@@ -264,20 +255,19 @@ struct PracticeView: View {
                                     Text(feedbackMessage.isEmpty ? "Incorrect" : feedbackMessage)
                                         .font(.system(size: AppConstants.titleSize, weight: .bold))
                                         .foregroundColor(AppConstants.errorColor)
-                                    
+
                                     // Letter-by-letter comparison
                                     VStack(spacing: 8) {
                                         SpellingComparisonView(
                                             userAnswer: incorrectAnswer,
-                                            correctWord: correctWord
-                                        )
-                                        
+                                            correctWord: correctWord)
+
                                         // Show correct word below for reference
                                         Text(correctWord)
                                             .font(.system(size: AppConstants.bodySize, weight: .medium))
                                             .foregroundColor(.secondary)
                                     }
-                                    
+
                                     if showContinueButton {
                                         Button(action: {
                                             continueToNext()
@@ -297,13 +287,13 @@ struct PracticeView: View {
                     }
                 }
             }
-            
+
             Spacer()
-            
+
             // Help Coin Button
-            if !practiceSession.isRoundComplete && practiceSession.currentWord != nil {
+            if !practiceSession.isRoundComplete, practiceSession.currentWord != nil {
                 let isWordComplete = practiceSession.currentWord?.text.matches(practiceSession.userAnswer) ?? false
-                
+
                 Button(action: {
                     practiceSession.useHelpCoin()
                 }) {
@@ -320,15 +310,14 @@ struct PracticeView: View {
                     .clipShape(Capsule())
                     .overlay(
                         Capsule()
-                            .stroke(Color.orange, lineWidth: 1.5)
-                    )
+                            .stroke(Color.orange, lineWidth: 1.5))
                 }
                 .disabled(practiceSession.availableCoins <= 0 || isInputDisabled || isWordComplete)
                 .opacity(practiceSession.availableCoins <= 0 || isWordComplete ? 0.6 : 1)
                 .padding(.bottom, 8)
                 .accessibilityIdentifier("Practice_HelpCoinButton")
             }
-            
+
             // Word input
             WordInputView(
                 text: $practiceSession.userAnswer,
@@ -336,13 +325,12 @@ struct PracticeView: View {
                     submitAnswer()
                 },
                 placeholder: "Type the word here",
-                isDisabled: isInputDisabled
-            )
-            .padding(.horizontal, AppConstants.padding)
-            .padding(.bottom, AppConstants.padding)
+                isDisabled: isInputDisabled)
+                .padding(.horizontal, AppConstants.padding)
+                .padding(.bottom, AppConstants.padding)
         }
     }
-    
+
     private var roundTransitionView: some View {
         VStack(spacing: 24) {
             VStack(spacing: 16) {
@@ -350,14 +338,14 @@ struct PracticeView: View {
                     .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
                     .foregroundColor(AppConstants.primaryColor)
                     .accessibilityIdentifier("RoundTransition_RoundTitle")
-                
+
                 Text("Misspelled Words")
                     .font(.system(size: AppConstants.titleSize, weight: .semibold))
                     .foregroundColor(.secondary)
                     .accessibilityIdentifier("RoundTransition_Subtitle")
             }
             .padding(.top, AppConstants.padding * 2)
-            
+
             // List of misspelled words
             ScrollView {
                 VStack(spacing: 12) {
@@ -367,9 +355,9 @@ struct PracticeView: View {
                                 .font(.system(size: AppConstants.bodySize, weight: .medium))
                                 .foregroundColor(.primary)
                                 .accessibilityIdentifier("RoundTransition_Word_\(word.text)")
-                            
+
                             Spacer()
-                            
+
                             Button(action: {
                                 ttsService.speak(word.text, rate: 0.3)
                             }) {
@@ -388,13 +376,13 @@ struct PracticeView: View {
                 }
                 .padding(.horizontal, AppConstants.padding)
             }
-            
+
             Button(action: {
                 withAnimation {
                     showingRoundTransition = false
                 }
                 practiceSession.startNextRound()
-                
+
                 // Auto-play first word of new round after a short delay
                 Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
                     Task { @MainActor in
@@ -415,45 +403,45 @@ struct PracticeView: View {
             .accessibilityIdentifier("RoundTransition_StartRoundButton")
         }
     }
-    
+
     private func submitAnswer() {
         guard let word = practiceSession.currentWord else { return }
-        
+
         // Capture answer immediately before any delay
         let capturedAnswer = practiceSession.userAnswer
-        
+
         // Check for combo breakthrough before submitting
         let previousCombo = practiceSession.comboCount
         let previousMultiplier = practiceSession.comboMultiplier
-        
+
         // Submit the answer and get points result
         let pointsResult = practiceSession.submitAnswer(with: capturedAnswer)
-        
+
         // Evaluate correctness
         let isCorrect = word.text.matches(capturedAnswer)
         lastAnswerWasCorrect = isCorrect
-        
+
         // Check for combo breakthrough
-        if isCorrect && practiceSession.comboMultiplier > previousMultiplier {
+        if isCorrect, practiceSession.comboMultiplier > previousMultiplier {
             showComboBreakthrough = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 showComboBreakthrough = false
             }
         }
-        
+
         // Disable input during feedback
         isInputDisabled = true
-        
+
         if isCorrect {
             // For correct answers, show feedback and auto-advance
             withAnimation {
                 showFeedback = true
                 showContinueButton = false
             }
-            
+
             // Cancel any existing timer
             feedbackTimer?.invalidate()
-            
+
             // Wait to hide feedback and move to next word
             feedbackTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { _ in
                 Task { @MainActor in
@@ -464,33 +452,33 @@ struct PracticeView: View {
             // For incorrect answers, calculate similarity and show detailed feedback with continue button
             incorrectAnswer = capturedAnswer
             correctWord = word.text
-            
+
             // Calculate similarity percentage and get appropriate feedback message
             let similarity = word.text.similarityPercentage(to: capturedAnswer)
             feedbackMessage = FeedbackMessages.getFeedbackMessage(for: similarity)
-            
+
             withAnimation {
                 showFeedback = true
                 showContinueButton = true
             }
         }
     }
-    
+
     private func continueToNext() {
         withAnimation {
             showFeedback = false
             showContinueButton = false
         }
-        
+
         // Clear the input field and feedback message
         practiceSession.userAnswer = ""
         feedbackMessage = ""
-        
+
         // Re-enable input
         isInputDisabled = false
-        
+
         // Check if round is complete but not all words mastered
-        if practiceSession.isRoundComplete && !practiceSession.allWordsMastered {
+        if practiceSession.isRoundComplete, !practiceSession.allWordsMastered {
             // Show round transition
             nextRoundNumber = practiceSession.currentRound + 1
             withAnimation {
@@ -508,4 +496,3 @@ struct PracticeView: View {
         }
     }
 }
-

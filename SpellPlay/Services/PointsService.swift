@@ -1,11 +1,3 @@
-//
-//  PointsService.swift
-//  WordCraft
-//
-//  Points calculation and management service
-//  Static utility - no @MainActor needed for pure calculations
-//
-
 import Foundation
 
 /// Points calculation service - pure static functions for calculating game points
@@ -16,75 +8,73 @@ enum PointsService {
     static let perfectRoundBonus = 50
     static let speedBonusThreshold: TimeInterval = 5.0 // seconds for speed bonus
     static let speedBonusPoints = 5
-    
+
     // Combo multipliers
     static let maxComboMultiplier = 4
     static let comboThresholds = [2, 5, 10] // Combo counts for 2x, 3x, 4x
-    
+
     struct PointsResult {
         let basePoints: Int
         let comboMultiplier: Int
         let speedBonus: Int
         let totalPoints: Int
     }
-    
+
     /// Calculate points for a correct answer
     static func calculatePoints(
         isCorrect: Bool,
         comboCount: Int,
         timeTaken: TimeInterval? = nil,
         isFirstTry: Bool = false
-    ) -> PointsResult {
+    )
+    -> PointsResult {
         guard isCorrect else {
             return PointsResult(basePoints: 0, comboMultiplier: 1, speedBonus: 0, totalPoints: 0)
         }
-        
+
         var basePoints = basePointsPerCorrect
-        
+
         // Calculate combo multiplier
-        let multiplier: Int
-        if comboCount >= comboThresholds[2] {
-            multiplier = maxComboMultiplier
+        let multiplier: Int = if comboCount >= comboThresholds[2] {
+            maxComboMultiplier
         } else if comboCount >= comboThresholds[1] {
-            multiplier = 3
+            3
         } else if comboCount >= comboThresholds[0] {
-            multiplier = 2
+            2
         } else {
-            multiplier = 1
+            1
         }
-        
+
         // Speed bonus
         var speedBonus = 0
         if let time = timeTaken, time <= speedBonusThreshold {
             speedBonus = speedBonusPoints
         }
-        
+
         let totalPoints = (basePoints + speedBonus) * multiplier
-        
+
         return PointsResult(
             basePoints: basePoints,
             comboMultiplier: multiplier,
             speedBonus: speedBonus,
-            totalPoints: totalPoints
-        )
+            totalPoints: totalPoints)
     }
-    
+
     /// Calculate combo multiplier for a given combo count
     static func getComboMultiplier(for comboCount: Int) -> Int {
         if comboCount >= comboThresholds[2] {
-            return maxComboMultiplier
+            maxComboMultiplier
         } else if comboCount >= comboThresholds[1] {
-            return 3
+            3
         } else if comboCount >= comboThresholds[0] {
-            return 2
+            2
         } else {
-            return 1
+            1
         }
     }
-    
+
     /// Calculate perfect round bonus
     static func getPerfectRoundBonus() -> Int {
-        return perfectRoundBonus
+        perfectRoundBonus
     }
 }
-

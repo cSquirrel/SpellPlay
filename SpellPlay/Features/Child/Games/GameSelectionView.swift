@@ -1,8 +1,3 @@
-//
-//  GameSelectionView.swift
-//  SpellPlay
-//
-
 import SwiftUI
 
 @MainActor
@@ -38,7 +33,7 @@ struct GameSelectionView: View {
 
                         LazyVGrid(columns: [
                             GridItem(.flexible(), spacing: 12),
-                            GridItem(.flexible(), spacing: 12)
+                            GridItem(.flexible(), spacing: 12),
                         ], spacing: 12) {
                             gameCard(.balloonPop)
                             gameCard(.fishCatcher)
@@ -84,11 +79,10 @@ struct GameSelectionView: View {
 
     private func gameCard(_ game: GameKind, isEnabled: Bool = true) -> some View {
         let canPlay = isEnabled && !selectedWords.isEmpty
-        let subtitleText: String
-        if !isEnabled {
-            subtitleText = "Coming soon"
+        let subtitleText: String = if !isEnabled {
+            "Coming soon"
         } else {
-            subtitleText = game.subtitle
+            game.subtitle
         }
 
         return Button {
@@ -204,5 +198,3 @@ private struct ComingSoonView: View {
         }
     }
 }
-
-

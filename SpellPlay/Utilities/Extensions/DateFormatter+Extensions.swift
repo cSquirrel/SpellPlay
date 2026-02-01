@@ -1,10 +1,3 @@
-//
-//  DateFormatter+Extensions.swift
-//  SpellPlay
-//
-//  Cached DateFormatter instances for performance
-//
-
 import Foundation
 
 extension DateFormatter {
@@ -16,7 +9,7 @@ extension DateFormatter {
         formatter.timeStyle = .none
         return formatter
     }()
-    
+
     /// Cached short date formatter
     /// Example output: "1/15/25"
     static let shortDate: DateFormatter = {
@@ -25,7 +18,7 @@ extension DateFormatter {
         formatter.timeStyle = .none
         return formatter
     }()
-    
+
     /// Cached relative date formatter for "Today", "Yesterday", etc.
     static let relativeDate: DateFormatter = {
         let formatter = DateFormatter()
@@ -41,15 +34,14 @@ extension Date {
     var mediumFormatted: String {
         DateFormatter.mediumDate.string(from: self)
     }
-    
+
     /// Format date using cached short formatter
     var shortFormatted: String {
         DateFormatter.shortDate.string(from: self)
     }
-    
+
     /// Format date using relative formatter ("Today", "Yesterday", etc.)
     var relativeFormatted: String {
         DateFormatter.relativeDate.string(from: self)
     }
 }
-

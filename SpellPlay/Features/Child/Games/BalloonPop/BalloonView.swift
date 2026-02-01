@@ -1,8 +1,3 @@
-//
-//  BalloonView.swift
-//  SpellPlay
-//
-
 import SwiftUI
 
 @MainActor
@@ -21,9 +16,7 @@ struct BalloonView: View {
                         LinearGradient(
                             colors: [color.opacity(0.95), color.opacity(0.65)],
                             startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                            endPoint: .bottomTrailing))
                     .overlay {
                         Ellipse()
                             .stroke(Color.white.opacity(0.25), lineWidth: 2)
@@ -48,8 +41,7 @@ struct BalloonView: View {
                 path.addCurve(
                     to: CGPoint(x: 0, y: 40),
                     control1: CGPoint(x: -8, y: 12),
-                    control2: CGPoint(x: 8, y: 28)
-                )
+                    control2: CGPoint(x: 8, y: 28))
             }
             .stroke(Color.gray.opacity(0.7), lineWidth: 2)
             .frame(width: 2, height: 40)
@@ -76,5 +68,3 @@ private struct Triangle: Shape {
         return p
     }
 }
-
-

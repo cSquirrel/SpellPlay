@@ -1,8 +1,3 @@
-//
-//  GameResultView.swift
-//  SpellPlay
-//
-
 import SwiftUI
 
 @MainActor
@@ -104,5 +99,3 @@ struct GameResultView: View {
         .cornerRadius(AppConstants.cornerRadius)
     }
 }
-
-

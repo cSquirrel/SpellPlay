@@ -1,41 +1,32 @@
-//
-//  WordCraftApp.swift
-//  WordCraft
-//
-//  Created on [Date]
-//
-
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct WordCraftApp: App {
     @State private var appState = AppState()
     @State private var cloudSyncService = CloudSyncService()
     @State private var showOnboarding = false
-    
+
     var modelContainer: ModelContainer = {
         let migrationPlan = WordCraftMigrationPlan.self
-        
+
         // Create schema from the current versioned schema
         let schema = Schema(CurrentSchema.models)
-        
+
         let modelConfiguration = CloudSyncService.makeCloudKitConfiguration(
             schema: schema,
-            isStoredInMemoryOnly: false
-        )
-        
+            isStoredInMemoryOnly: false)
+
         do {
             return try ModelContainer(
                 for: schema,
                 migrationPlan: migrationPlan,
-                configurations: [modelConfiguration]
-            )
+                configurations: [modelConfiguration])
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-    
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -49,7 +40,7 @@ struct WordCraftApp: App {
                         showOnboarding = true
                     }
                 }
-                .onChange(of: appState.selectedRole) { oldValue, newValue in
+                .onChange(of: appState.selectedRole) { _, newValue in
                     // Show onboarding when a role is selected for the first time
                     if let role = newValue, !appState.hasCompletedOnboarding(for: role) {
                         showOnboarding = true
@@ -72,7 +63,7 @@ struct WordCraftApp: App {
 struct ContentView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.modelContext) private var modelContext
-    
+
     var body: some View {
         Group {
             if let role = appState.currentRole {
@@ -88,4 +79,3 @@ struct ContentView: View {
         }
     }
 }
-

@@ -1,10 +1,3 @@
-//
-//  PracticeSession.swift
-//  WordCraft
-//
-//  Created on [Date]
-//
-
 import Foundation
 import SwiftData
 
@@ -18,11 +11,11 @@ extension WordCraftSchemaV1_0_0 {
         var wordsAttempted: Int = 0
         var wordsCorrect: Int = 0
         var streak: Int = 0
-        
+
         init(testId: UUID, wordsAttempted: Int, wordsCorrect: Int, streak: Int) {
-            self.id = UUID()
+            id = UUID()
             self.testId = testId
-            self.date = Date()
+            date = Date()
             self.wordsAttempted = wordsAttempted
             self.wordsCorrect = wordsCorrect
             self.streak = streak

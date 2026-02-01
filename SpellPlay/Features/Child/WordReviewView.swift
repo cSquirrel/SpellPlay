@@ -1,33 +1,26 @@
-//
-//  WordReviewView.swift
-//  WordCraft
-//
-//  Created on [Date]
-//
-
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @MainActor
 struct WordReviewView: View {
     @Environment(\.dismiss) private var dismiss
-    
+
     let test: SpellingTest
-    
+
     @State private var showPractice = false
     @State private var showGameSelection = false
-    
-    // Words sorted by displayOrder to preserve entry order
+
+    /// Words sorted by displayOrder to preserve entry order
     private var sortedWords: [Word] {
         (test.words ?? []).sortedAsCreated()
     }
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
                 AppConstants.backgroundColor
                     .ignoresSafeArea()
-                
+
                 VStack(spacing: 0) {
                     // Words list
                     ScrollView {
@@ -40,7 +33,7 @@ struct WordReviewView: View {
                                 .padding(.horizontal, AppConstants.padding)
                                 .padding(.top, AppConstants.padding)
                                 .accessibilityIdentifier("WordReview_Title")
-                            
+
                             // Words
                             LazyVStack(spacing: 12) {
                                 ForEach(sortedWords) { word in
@@ -48,7 +41,7 @@ struct WordReviewView: View {
                                         Text(word.text)
                                             .font(.system(size: AppConstants.bodySize, weight: .medium))
                                             .foregroundColor(.primary)
-                                        
+
                                         Spacer()
                                     }
                                     .padding(AppConstants.padding)
@@ -60,7 +53,7 @@ struct WordReviewView: View {
                             .padding(.horizontal, AppConstants.padding)
                         }
                     }
-                    
+
                     // Start button
                     VStack(spacing: 12) {
                         Button(action: {
@@ -73,7 +66,7 @@ struct WordReviewView: View {
                         }
                         .largeButtonStyle(color: AppConstants.primaryColor)
                         .accessibilityIdentifier("WordReview_StartButton")
-                        
+
                         Button(action: {
                             showGameSelection = true
                         }) {
@@ -116,4 +109,3 @@ struct WordReviewView: View {
         }
     }
 }
-

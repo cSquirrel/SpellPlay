@@ -1,10 +1,3 @@
-//
-//  WordBuilderView.swift
-//  SpellPlay
-//
-//  Word Builder interactive spelling game - drag and drop letters
-//
-
 import SwiftUI
 
 @MainActor
@@ -53,7 +46,7 @@ struct WordBuilderView: View {
 
     var body: some View {
         NavigationStack {
-            GeometryReader { geo in
+            GeometryReader { _ in
                 ZStack {
                     AppConstants.backgroundColor
                         .ignoresSafeArea()
@@ -64,8 +57,7 @@ struct WordBuilderView: View {
                             wordIndex: currentWordIndex,
                             wordCount: words.count,
                             points: score,
-                            comboMultiplier: comboMultiplier
-                        )
+                            comboMultiplier: comboMultiplier)
 
                         // Word slots at top
                         wordSlots
@@ -140,8 +132,7 @@ struct WordBuilderView: View {
                         },
                         onChooseDifferentGame: {
                             dismiss()
-                        }
-                    )
+                        })
                 }
             }
         }
@@ -164,17 +155,19 @@ struct WordBuilderView: View {
                             RoundedRectangle(cornerRadius: 12)
                                 .stroke(
                                     isLocked ? AppConstants.successColor : Color.gray.opacity(0.3),
-                                    lineWidth: isLocked ? 3 : 2
-                                )
-                        )
-                        .shadow(color: isLocked ? AppConstants.successColor.opacity(0.3) : Color.black.opacity(0.1), radius: isLocked ? 8 : 2, x: 0, y: 2)
+                                    lineWidth: isLocked ? 3 : 2))
+                        .shadow(
+                            color: isLocked ? AppConstants.successColor.opacity(0.3) : Color.black.opacity(0.1),
+                            radius: isLocked ? 8 : 2,
+                            x: 0,
+                            y: 2)
                         .rotationEffect(.degrees(wiggleSlotIndex == index ? -3 : 0))
 
-                    if let placedLetter = placedLetter {
+                    if let placedLetter {
                         Text(String(placedLetter).uppercased())
                             .font(.system(size: 32, weight: .bold, design: .rounded))
                             .foregroundColor(isLocked ? AppConstants.successColor : .primary)
-                    } else if difficulty == .easy && index == 0 {
+                    } else if difficulty == .easy, index == 0 {
                         // Hint: show first letter on easy difficulty
                         Text(String(expectedLetter).uppercased())
                             .font(.system(size: 32, weight: .bold, design: .rounded))
@@ -183,8 +176,9 @@ struct WordBuilderView: View {
                 }
                 .dropDestination(for: String.self) { droppedStrings, _ in
                     guard !isLocked else { return false }
-                    guard let droppedString = droppedStrings.first,
-                          let droppedLetter = droppedString.first else { return false }
+                    guard
+                        let droppedString = droppedStrings.first,
+                        let droppedLetter = droppedString.first else { return false }
 
                     if droppedLetter.lowercased() == expectedLetter.lowercased() {
                         // Correct placement
@@ -194,12 +188,15 @@ struct WordBuilderView: View {
                         }
 
                         // Mark tile as placed
-                        if let tileIndex = scrambledLetters.firstIndex(where: { $0.letter.lowercased() == droppedLetter.lowercased() && !$0.isPlaced }) {
+                        if
+                            let tileIndex = scrambledLetters
+                                .firstIndex(where: { $0.letter.lowercased() == droppedLetter.lowercased() && !$0.isPlaced
+                                })
+                        {
                             scrambledLetters[tileIndex] = LetterTile(
                                 id: scrambledLetters[tileIndex].id,
                                 letter: scrambledLetters[tileIndex].letter,
-                                isPlaced: true
-                            )
+                                isPlaced: true)
                         }
 
                         // Check if word is complete
@@ -225,7 +222,9 @@ struct WordBuilderView: View {
                     }
                 }
                 .accessibilityIdentifier("WordBuilder_Slot_\(index)")
-                .accessibilityLabel(isLocked ? "Slot \(index + 1), locked, letter \(String(placedLetter ?? expectedLetter).uppercased())" : "Slot \(index + 1), empty")
+                .accessibilityLabel(isLocked ?
+                    "Slot \(index + 1), locked, letter \(String(placedLetter ?? expectedLetter).uppercased())" :
+                    "Slot \(index + 1), empty")
             }
         }
         .frame(maxWidth: .infinity)
@@ -306,9 +305,11 @@ struct WordBuilderView: View {
         if difficulty == .hard {
             let decoyCount = min(3, targetLetters.count)
             let alphabet = Array("abcdefghijklmnopqrstuvwxyz")
-            for _ in 0..<decoyCount {
-                if let randomLetter = alphabet.randomElement(),
-                   !targetLetters.contains(randomLetter) {
+            for _ in 0 ..< decoyCount {
+                if
+                    let randomLetter = alphabet.randomElement(),
+                    !targetLetters.contains(randomLetter)
+                {
                     tiles.append(LetterTile(id: UUID(), letter: randomLetter, isPlaced: false))
                 }
             }
@@ -325,7 +326,7 @@ struct WordBuilderView: View {
     }
 
     private func completeWord() {
-        guard let wordStartTime = wordStartTime else { return }
+        guard let wordStartTime else { return }
         let timeTaken = Date().timeIntervalSince(wordStartTime)
 
         // Combo is based on mistake-free word completion
@@ -340,25 +341,22 @@ struct WordBuilderView: View {
             isCorrect: true,
             comboCount: comboCount,
             timeTaken: timeTaken,
-            isFirstTry: mistakesThisWord == 0
-        )
+            isFirstTry: mistakesThisWord == 0)
         score += pointsResult.totalPoints
 
-        let starsEarned: Int
-        if mistakesThisWord == 0, timeTaken <= PointsService.speedBonusThreshold {
-            starsEarned = 3
+        let starsEarned = if mistakesThisWord == 0, timeTaken <= PointsService.speedBonusThreshold {
+            3
         } else if mistakesThisWord == 0 {
-            starsEarned = 2
+            2
         } else {
-            starsEarned = 1
+            1
         }
         totalStars += starsEarned
 
         showCelebrationTransient(
             type: .sessionComplete,
             message: "Word Architect! +\(pointsResult.totalPoints) pts • \(starsEarned)★",
-            emoji: "🏗️"
-        )
+            emoji: "🏗️")
 
         advanceToNextWord()
     }
@@ -370,8 +368,7 @@ struct WordBuilderView: View {
                 totalPoints: score,
                 totalStars: totalStars,
                 wordsCompleted: words.count,
-                totalMistakes: totalMistakes
-            )
+                totalMistakes: totalMistakes)
             showResult = true
         } else {
             currentWordIndex += 1
@@ -413,4 +410,3 @@ private struct LetterTile: Identifiable {
     let letter: Character
     var isPlaced: Bool
 }
-

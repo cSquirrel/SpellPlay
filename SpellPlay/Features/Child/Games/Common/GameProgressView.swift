@@ -1,8 +1,3 @@
-//
-//  GameProgressView.swift
-//  SpellPlay
-//
-
 import SwiftUI
 
 @MainActor
@@ -50,5 +45,3 @@ struct GameProgressView: View {
         .padding(.top, AppConstants.padding)
     }
 }
-
-

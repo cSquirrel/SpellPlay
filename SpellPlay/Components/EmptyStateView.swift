@@ -1,10 +1,3 @@
-//
-//  EmptyStateView.swift
-//  SpellPlay
-//
-//  Reusable empty state component
-//
-
 import SwiftUI
 
 /// Reusable empty state view for displaying when content is not available
@@ -14,7 +7,7 @@ struct EmptyStateView: View {
     let message: String
     let actionTitle: String?
     let action: (() -> Void)?
-    
+
     init(
         icon: String,
         title: String,
@@ -28,24 +21,24 @@ struct EmptyStateView: View {
         self.actionTitle = actionTitle
         self.action = action
     }
-    
+
     var body: some View {
         VStack(spacing: 24) {
             Image(systemName: icon)
                 .font(.system(size: 60))
                 .foregroundColor(.secondary)
-            
+
             Text(title)
                 .font(.system(size: AppConstants.titleSize, weight: .semibold))
                 .foregroundColor(.primary)
-            
+
             Text(message)
                 .font(.system(size: AppConstants.bodySize))
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, AppConstants.padding)
-            
-            if let actionTitle = actionTitle, let action = action {
+
+            if let actionTitle, let action {
                 Button(action: action) {
                     Text(actionTitle)
                         .font(.system(size: AppConstants.bodySize, weight: .semibold))
@@ -63,15 +56,12 @@ struct EmptyStateView: View {
         title: "No Tests Yet",
         message: "Create your first spelling test to get started",
         actionTitle: "Create Test",
-        action: { print("Create test tapped") }
-    )
+        action: { print("Create test tapped") })
 }
 
 #Preview("Without Action") {
     EmptyStateView(
         icon: "book.closed",
         title: "No Tests Available",
-        message: "Ask a parent to create a spelling test for you!"
-    )
+        message: "Ask a parent to create a spelling test for you!")
 }
-

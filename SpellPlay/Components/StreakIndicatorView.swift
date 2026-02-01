@@ -1,16 +1,9 @@
-//
-//  StreakIndicatorView.swift
-//  WordCraft
-//
-//  Created on [Date]
-//
-
 import SwiftUI
 
 struct StreakIndicatorView: View {
     let streak: Int
     @State private var isAnimating = false
-    
+
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "flame.fill")
@@ -18,11 +11,11 @@ struct StreakIndicatorView: View {
                 .foregroundColor(AppConstants.secondaryColor)
                 .scaleEffect(isAnimating ? 1.2 : 1.0)
                 .animation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true), value: isAnimating)
-            
+
             Text("\(streak)")
                 .font(.system(size: AppConstants.titleSize, weight: .bold))
                 .foregroundColor(AppConstants.secondaryColor)
-            
+
             Text("day streak")
                 .font(.system(size: AppConstants.bodySize))
                 .foregroundColor(.secondary)
@@ -38,4 +31,3 @@ struct StreakIndicatorView: View {
         }
     }
 }
-

@@ -1,16 +1,9 @@
-//
-//  RoleSwitcherView.swift
-//  WordCraft
-//
-//  Created on [Date]
-//
-
 import SwiftUI
 
 struct RoleSwitcherView: View {
     @Environment(AppState.self) private var appState
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         NavigationStack {
             Form {
@@ -18,7 +11,7 @@ struct RoleSwitcherView: View {
                     Text("Change between Parent and Kid mode")
                         .font(.system(size: AppConstants.bodySize))
                         .foregroundColor(.secondary)
-                    
+
                     Button(action: {
                         appState.selectedRole = .parent
                         dismiss()
@@ -36,7 +29,7 @@ struct RoleSwitcherView: View {
                             }
                         }
                     }
-                    
+
                     Button(action: {
                         appState.selectedRole = .child
                         dismiss()
@@ -55,7 +48,7 @@ struct RoleSwitcherView: View {
                         }
                     }
                 }
-                
+
                 Section("Current Role") {
                     HStack {
                         Text("You are currently in:")
@@ -63,7 +56,8 @@ struct RoleSwitcherView: View {
                         Spacer()
                         Text(appState.currentRole == .parent ? "Parent Mode" : "Kid Mode")
                             .fontWeight(.semibold)
-                            .foregroundColor(appState.currentRole == .parent ? AppConstants.primaryColor : AppConstants.secondaryColor)
+                            .foregroundColor(appState.currentRole == .parent ? AppConstants.primaryColor : AppConstants
+                                .secondaryColor)
                     }
                 }
             }
@@ -79,4 +73,3 @@ struct RoleSwitcherView: View {
         }
     }
 }
-

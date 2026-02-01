@@ -1,10 +1,3 @@
-//
-//  WordInputView.swift
-//  WordCraft
-//
-//  Created on [Date]
-//
-
 import SwiftUI
 
 struct WordInputView: View {
@@ -12,9 +5,9 @@ struct WordInputView: View {
     let onSubmit: () -> Void
     let placeholder: String
     var isDisabled: Bool = false
-    
+
     @FocusState private var isFocused: Bool
-    
+
     var body: some View {
         VStack(spacing: 16) {
             TextField(placeholder, text: $text)
@@ -34,7 +27,7 @@ struct WordInputView: View {
                         onSubmit()
                     }
                 }
-            
+
             ZStack {
                 // Invisible tap area covering entire button - must fill entire ZStack
                 Color.clear
@@ -44,7 +37,7 @@ struct WordInputView: View {
                             onSubmit()
                         }
                     }
-                
+
                 // Visible button content
                 Text("Submit")
                     .font(.system(size: AppConstants.bodySize, weight: .semibold))
@@ -72,7 +65,7 @@ struct WordInputView: View {
         }
         .onChange(of: text) { oldValue, newValue in
             // Refocus when text is cleared (moving to next word)
-            if oldValue.isEmpty == false && newValue.isEmpty {
+            if oldValue.isEmpty == false, newValue.isEmpty {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                     if !isDisabled {
                         isFocused = true
@@ -82,7 +75,7 @@ struct WordInputView: View {
         }
         .onChange(of: isDisabled) { oldValue, newValue in
             // Refocus when field becomes enabled again
-            if oldValue == true && newValue == false {
+            if oldValue == true, newValue == false {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     isFocused = true
                 }
@@ -90,4 +83,3 @@ struct WordInputView: View {
         }
     }
 }
-

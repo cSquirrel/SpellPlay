@@ -1,17 +1,10 @@
-//
-//  SyncStatusView.swift
-//  WordCraft
-//
-//  Compact indicator for iCloud sync status.
-//
-
 import SwiftUI
 import UIKit
 
 struct SyncStatusView: View {
     @Environment(CloudSyncService.self) private var syncService
     @State private var showingDetails = false
-    
+
     var body: some View {
         Button {
             showingDetails = true
@@ -21,7 +14,7 @@ struct SyncStatusView: View {
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(iconColor)
                     .symbolEffect(.pulse, isActive: syncService.syncStatus == .syncing)
-                
+
                 if syncService.syncStatus == .syncing {
                     ProgressView()
                         .scaleEffect(0.7)
@@ -38,17 +31,17 @@ struct SyncStatusView: View {
             SyncStatusDetailView()
         }
     }
-    
+
     private var iconColor: Color {
         switch syncService.syncStatus {
         case .idle, .synced:
-            return .green
+            .green
         case .syncing:
-            return .blue
+            .blue
         case .error:
-            return .red
+            .red
         case .noAccount, .restricted, .disabled:
-            return .orange
+            .orange
         }
     }
 }
@@ -56,7 +49,7 @@ struct SyncStatusView: View {
 struct SyncStatusDetailView: View {
     @Environment(CloudSyncService.self) private var syncService
     @Environment(\.dismiss) private var dismiss
-    
+
     var body: some View {
         NavigationStack {
             List {
@@ -68,7 +61,7 @@ struct SyncStatusDetailView: View {
                             .frame(width: 44, height: 44)
                             .background(statusColor.opacity(0.15))
                             .clipShape(Circle())
-                        
+
                         VStack(alignment: .leading, spacing: 4) {
                             Text(statusTitle)
                                 .font(.headline)
@@ -79,7 +72,7 @@ struct SyncStatusDetailView: View {
                     }
                     .padding(.vertical, 8)
                 }
-                
+
                 if let lastSync = syncService.lastSyncDate {
                     Section {
                         HStack {
@@ -90,7 +83,7 @@ struct SyncStatusDetailView: View {
                         }
                     }
                 }
-                
+
                 Section {
                     Button {
                         Task { await syncService.refreshSync() }
@@ -99,9 +92,10 @@ struct SyncStatusDetailView: View {
                     }
                     .disabled(syncService.syncStatus == .syncing)
                 } footer: {
-                    Text("Your spelling tests and progress sync automatically across devices signed in to the same iCloud account.")
+                    Text(
+                        "Your spelling tests and progress sync automatically across devices signed in to the same iCloud account.")
                 }
-                
+
                 if !syncService.isCloudAvailable {
                     Section {
                         Button {
@@ -123,37 +117,37 @@ struct SyncStatusDetailView: View {
             }
         }
     }
-    
+
     private var statusTitle: String {
         switch syncService.syncStatus {
         case .idle, .synced:
-            return "Synced"
+            "Synced"
         case .syncing:
-            return "Syncing"
+            "Syncing"
         case .error:
-            return "Error"
+            "Error"
         case .noAccount:
-            return "Not Signed In"
+            "Not Signed In"
         case .restricted:
-            return "Restricted"
+            "Restricted"
         case .disabled:
-            return "Disabled"
+            "Disabled"
         }
     }
-    
+
     private var statusColor: Color {
         switch syncService.syncStatus {
         case .idle, .synced:
-            return .green
+            .green
         case .syncing:
-            return .blue
+            .blue
         case .error:
-            return .red
+            .red
         case .noAccount, .restricted, .disabled:
-            return .orange
+            .orange
         }
     }
-    
+
     private func openSettings() {
         guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
         UIApplication.shared.open(url)
@@ -169,5 +163,3 @@ struct SyncStatusDetailView: View {
     SyncStatusDetailView()
         .environment(CloudSyncService())
 }
-
-
