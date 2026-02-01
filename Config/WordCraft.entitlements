@@ -12,11 +12,5 @@
 	<array>
 		<string>CloudKit</string>
 	</array>
-	
-	<!-- App group for sharing data between extensions (future-proofing) -->
-	<key>com.apple.security.application-groups</key>
-	<array>
-		<string>group.com.wordcraft.app</string>
-	</array>
 </dict>
 </plist>
