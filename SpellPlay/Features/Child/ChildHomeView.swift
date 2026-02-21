@@ -103,51 +103,13 @@ struct ChildHomeView: View {
                 // Test cards
                 LazyVStack(spacing: 16) {
                     ForEach(tests) { test in
-                        ChildTestCardView(test: test) {
+                        TestCardView(test: test, mode: .child(onStart: {
                             selectedTest = test
-                        }
+                        }))
                     }
                 }
                 .padding(.horizontal, AppConstants.padding)
             }
         }
-    }
-}
-
-struct ChildTestCardView: View {
-    let test: SpellingTest
-    let onStart: () -> Void
-
-    var body: some View {
-        Button(action: onStart) {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Image(systemName: "book.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(AppConstants.secondaryColor)
-
-                    Spacer()
-
-                    Image(systemName: "play.circle.fill")
-                        .font(.system(size: 32))
-                        .foregroundColor(AppConstants.primaryColor)
-                }
-
-                Text(test.name)
-                    .font(.system(size: AppConstants.titleSize, weight: .bold))
-                    .foregroundColor(.primary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .accessibilityIdentifier("ChildTestCard_Name_\(test.name)")
-
-                Text("\((test.words ?? []).count) words")
-                    .font(.system(size: AppConstants.bodySize))
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .padding(AppConstants.padding)
-            .cardStyle()
-        }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier("ChildTestCard_\(test.name)")
     }
 }
