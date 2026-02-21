@@ -21,6 +21,7 @@ struct GameProgressView: View {
                 Text("\(wordIndex + 1)/\(max(wordCount, 1))")
                     .font(.system(size: AppConstants.captionSize, weight: .semibold))
                     .foregroundColor(.secondary)
+                    .accessibilityLabel("Word \(wordIndex + 1) of \(max(wordCount, 1))")
                     .accessibilityIdentifier("Game_ProgressText")
             }
 

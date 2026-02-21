@@ -30,80 +30,13 @@ struct FishCatcherView: View {
     var body: some View {
         @Bindable var gameState = gameState
 
-        NavigationStack {
-            GeometryReader { geo in
-                ZStack {
-                    background
-                        .ignoresSafeArea()
-
-                    VStack(spacing: 0) {
-                        GameProgressView(
-                            title: "Fish Catcher",
-                            wordIndex: gameState.currentWordIndex,
-                            wordCount: words.count,
-                            points: gameState.score,
-                            comboMultiplier: gameState.comboMultiplier)
-
-                        wordDisplay
-                            .padding(.horizontal, AppConstants.padding)
-                            .padding(.top, 10)
-                            .accessibilityIdentifier("FishCatcher_WordDisplay")
-
-                        Spacer()
-
-                        // Fish playfield
-                        TimelineView(.animation) { context in
-                            ZStack {
-                                ForEach(visibleFish(in: geo.size, now: context.date)) { fish in
-                                    FishView(letter: fish.letter, id: fish.id, color: fish.color) {
-                                        handleTap(fish: fish, now: context.date)
-                                    }
-                                    .position(
-                                        x: fishX(for: fish, size: geo.size, now: context.date),
-                                        y: fish.yDepth)
-                                    .accessibilityIdentifier("FishCatcher_Fish_\(fish.id.uuidString)")
-                                }
-                            }
-                            .onChange(of: context.date) { _, newDate in
-                                tick(now: newDate, size: geo.size)
-                            }
-                        }
-                        .accessibilityIdentifier("FishCatcher_Playfield")
-
-                        // Bucket at bottom
-                        bucketView
-                            .padding(.horizontal, AppConstants.padding)
-                            .padding(.bottom, AppConstants.padding)
-                            .accessibilityIdentifier("FishCatcher_Bucket")
-
-                        controls
-                            .padding(.horizontal, AppConstants.padding)
-                            .padding(.bottom, AppConstants.padding)
-                    }
-
-                    if gameState.showCelebration {
-                        CelebrationView(
-                            type: gameState.celebrationType,
-                            message: gameState.celebrationMessage,
-                            emoji: gameState.celebrationEmoji)
-                            .transition(.scale.combined(with: .opacity))
-                            .accessibilityIdentifier("FishCatcher_Celebration")
-                    }
-                }
-            }
-            .navigationTitle("Fish Catcher")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.secondary)
-                    }
-                    .accessibilityLabel("Close")
-                    .accessibilityIdentifier("FishCatcher_CloseButton")
-                }
-            }
+        gameContent
+            .gameViewChrome(
+                title: "Fish Catcher",
+                wordCount: words.count,
+                gameState: gameState,
+                onClose: { dismiss() },
+                closeAccessibilityIdentifier: "FishCatcher_CloseButton")
             .task {
                 gameState.setup(words: words)
                 startGameIfNeeded()
@@ -131,8 +64,61 @@ struct FishCatcherView: View {
                         })
                 }
             }
+            .accessibilityIdentifier("FishCatcher_Root")
+    }
+
+    private var gameContent: some View {
+        GeometryReader { geo in
+            ZStack {
+                background
+                    .ignoresSafeArea()
+
+                VStack(spacing: 0) {
+                    wordDisplay
+                        .padding(.horizontal, AppConstants.padding)
+                        .padding(.top, 10)
+                        .accessibilityIdentifier("FishCatcher_WordDisplay")
+
+                    Spacer()
+
+                    TimelineView(.animation) { context in
+                        ZStack {
+                            ForEach(visibleFish(in: geo.size, now: context.date)) { fish in
+                                FishView(letter: fish.letter, id: fish.id, color: fish.color) {
+                                    handleTap(fish: fish, now: context.date)
+                                }
+                                .position(
+                                    x: fishX(for: fish, size: geo.size, now: context.date),
+                                    y: fish.yDepth)
+                                .accessibilityIdentifier("FishCatcher_Fish_\(fish.id.uuidString)")
+                            }
+                        }
+                        .onChange(of: context.date) { _, newDate in
+                            tick(now: newDate, size: geo.size)
+                        }
+                    }
+                    .accessibilityIdentifier("FishCatcher_Playfield")
+
+                    bucketView
+                        .padding(.horizontal, AppConstants.padding)
+                        .padding(.bottom, AppConstants.padding)
+                        .accessibilityIdentifier("FishCatcher_Bucket")
+
+                    controls
+                        .padding(.horizontal, AppConstants.padding)
+                        .padding(.bottom, AppConstants.padding)
+                }
+
+                if gameState.showCelebration {
+                    CelebrationView(
+                        type: gameState.celebrationType,
+                        message: gameState.celebrationMessage,
+                        emoji: gameState.celebrationEmoji)
+                        .transition(.scale.combined(with: .opacity))
+                        .accessibilityIdentifier("FishCatcher_Celebration")
+                }
+            }
         }
-        .accessibilityIdentifier("FishCatcher_Root")
     }
 
     private var background: some View {

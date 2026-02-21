@@ -33,134 +33,13 @@ struct RocketLaunchView: View {
     var body: some View {
         @Bindable var gameState = gameState
 
-        NavigationStack {
-            GeometryReader { _ in
-                ZStack {
-                    background
-                        .ignoresSafeArea()
-
-                    VStack(spacing: 0) {
-                        GameProgressView(
-                            title: "Rocket Launch",
-                            wordIndex: gameState.currentWordIndex,
-                            wordCount: words.count,
-                            points: gameState.score,
-                            comboMultiplier: gameState.comboMultiplier)
-
-                        missionObjective
-                            .padding(.horizontal, AppConstants.padding)
-                            .padding(.top, 10)
-                            .accessibilityIdentifier("RocketLaunch_WordDisplay")
-
-                        Spacer()
-
-                        // Rocket and fuel gauge area
-                        VStack(spacing: 20) {
-                            ZStack {
-                                // Launch pad background
-                                launchPadBackground
-
-                                // Rocket view
-                                RocketView(
-                                    fuelLevel: fuelLevel,
-                                    isLaunching: isLaunching,
-                                    verticalOffset: rocketOffset)
-                                    .offset(x: shakeOffset)
-                                    .accessibilityIdentifier("RocketLaunch_Rocket")
-                            }
-                            .frame(height: 200)
-
-                            // Fuel gauge
-                            fuelGauge
-                                .accessibilityIdentifier("RocketLaunch_FuelGauge")
-                        }
-                        .padding(.horizontal, AppConstants.padding)
-
-                        Spacer()
-
-                        // Countdown overlay
-                        if let countdown = countdownValue {
-                            Text("\(countdown)")
-                                .font(.system(size: 80, weight: .bold, design: .rounded))
-                                .foregroundColor(.white)
-                                .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
-                                .transition(.scale.combined(with: .opacity))
-                                .accessibilityIdentifier("RocketLaunch_Countdown")
-                        }
-
-                        // Controls above keyboard
-                        HStack(spacing: 12) {
-                            Button {
-                                if let currentWord {
-                                    ttsService.speak(currentWord.text, rate: 0.3)
-                                }
-                            } label: {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "speaker.wave.2.fill")
-                                    Text("Hear Word")
-                                        .font(.system(size: AppConstants.captionSize, weight: .semibold))
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .tint(AppConstants.primaryColor)
-                            .disabled(ttsService.isSpeaking || currentWord == nil)
-                            .accessibilityIdentifier("RocketLaunch_SpeakWordButton")
-
-                            Menu {
-                                Picker("Difficulty", selection: $gameState.difficulty) {
-                                    ForEach(GameDifficulty.allCases) { d in
-                                        Text(d.displayName).tag(d)
-                                    }
-                                }
-                            } label: {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "slider.horizontal.3")
-                                    Text(gameState.difficulty.displayName)
-                                        .font(.system(size: AppConstants.captionSize, weight: .semibold))
-                                }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                            }
-                            .buttonStyle(.bordered)
-                            .tint(AppConstants.secondaryColor)
-                            .accessibilityIdentifier("RocketLaunch_DifficultyMenu")
-
-                            Spacer()
-                        }
-                        .padding(.horizontal, AppConstants.padding)
-                        .padding(.bottom, 8)
-
-                        // On-screen keyboard
-                        onScreenKeyboard
-                            .padding(.horizontal, AppConstants.padding)
-                            .padding(.bottom, AppConstants.padding)
-                    }
-
-                    if gameState.showCelebration {
-                        CelebrationView(
-                            type: gameState.celebrationType,
-                            message: gameState.celebrationMessage,
-                            emoji: gameState.celebrationEmoji)
-                            .transition(.scale.combined(with: .opacity))
-                            .accessibilityIdentifier("RocketLaunch_Celebration")
-                    }
-                }
-            }
-            .navigationTitle("Rocket Launch")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.secondary)
-                    }
-                    .accessibilityLabel("Close")
-                    .accessibilityIdentifier("RocketLaunch_CloseButton")
-                }
-            }
+        gameContent
+            .gameViewChrome(
+                title: "Rocket Launch",
+                wordCount: words.count,
+                gameState: gameState,
+                onClose: { dismiss() },
+                closeAccessibilityIdentifier: "RocketLaunch_CloseButton")
             .task {
                 gameState.setup(words: words)
                 startGameIfNeeded()
@@ -169,7 +48,6 @@ struct RocketLaunchView: View {
                 await startWord()
             }
             .task(id: celebrationDismissID) {
-                // Auto-hide celebration after delay
                 guard gameState.showCelebration else { return }
                 try? await Task.sleep(for: .milliseconds(700))
                 withAnimation(.easeOut(duration: 0.2)) {
@@ -189,8 +67,117 @@ struct RocketLaunchView: View {
                         })
                 }
             }
+            .accessibilityIdentifier("RocketLaunch_Root")
+    }
+
+    private var gameContent: some View {
+        GeometryReader { _ in
+            ZStack {
+                background
+                    .ignoresSafeArea()
+
+                VStack(spacing: 0) {
+                    missionObjective
+                        .padding(.horizontal, AppConstants.padding)
+                        .padding(.top, 10)
+                        .accessibilityIdentifier("RocketLaunch_WordDisplay")
+
+                    Spacer()
+
+                    // Rocket and fuel gauge area
+                    VStack(spacing: 20) {
+                        ZStack {
+                            // Launch pad background
+                            launchPadBackground
+
+                            // Rocket view
+                            RocketView(
+                                fuelLevel: fuelLevel,
+                                isLaunching: isLaunching,
+                                verticalOffset: rocketOffset)
+                                .offset(x: shakeOffset)
+                                .accessibilityIdentifier("RocketLaunch_Rocket")
+                        }
+                        .frame(height: 200)
+
+                        // Fuel gauge
+                        fuelGauge
+                            .accessibilityIdentifier("RocketLaunch_FuelGauge")
+                    }
+                    .padding(.horizontal, AppConstants.padding)
+
+                    Spacer()
+
+                    // Countdown overlay
+                    if let countdown = countdownValue {
+                        Text("\(countdown)")
+                            .font(.system(size: 80, weight: .bold, design: .rounded))
+                            .foregroundColor(.white)
+                            .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
+                            .transition(.scale.combined(with: .opacity))
+                            .accessibilityIdentifier("RocketLaunch_Countdown")
+                    }
+
+                    // Controls above keyboard
+                    HStack(spacing: 12) {
+                        Button {
+                            if let currentWord {
+                                ttsService.speak(currentWord.text, rate: 0.3)
+                            }
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "speaker.wave.2.fill")
+                                Text("Hear Word")
+                                    .font(.system(size: AppConstants.captionSize, weight: .semibold))
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(AppConstants.primaryColor)
+                        .disabled(ttsService.isSpeaking || currentWord == nil)
+                        .accessibilityIdentifier("RocketLaunch_SpeakWordButton")
+
+                        Menu {
+                            Picker("Difficulty", selection: $gameState.difficulty) {
+                                ForEach(GameDifficulty.allCases) { d in
+                                    Text(d.displayName).tag(d)
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "slider.horizontal.3")
+                                Text(gameState.difficulty.displayName)
+                                    .font(.system(size: AppConstants.captionSize, weight: .semibold))
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(AppConstants.secondaryColor)
+                        .accessibilityIdentifier("RocketLaunch_DifficultyMenu")
+
+                        Spacer()
+                    }
+                    .padding(.horizontal, AppConstants.padding)
+                    .padding(.bottom, 8)
+
+                    // On-screen keyboard
+                    onScreenKeyboard
+                        .padding(.horizontal, AppConstants.padding)
+                        .padding(.bottom, AppConstants.padding)
+                }
+
+                if gameState.showCelebration {
+                    CelebrationView(
+                        type: gameState.celebrationType,
+                        message: gameState.celebrationMessage,
+                        emoji: gameState.celebrationEmoji)
+                        .transition(.scale.combined(with: .opacity))
+                        .accessibilityIdentifier("RocketLaunch_Celebration")
+                }
+            }
         }
-        .accessibilityIdentifier("RocketLaunch_Root")
     }
 
     // MARK: - Background
