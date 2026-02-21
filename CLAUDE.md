@@ -768,6 +768,10 @@ struct TaskListView: View {
 }
 ```
 
+### ModelContext access
+
+Views own `ModelContext` via `@Environment(\.modelContext)` and pass it into services that need it (e.g. `AchievementService`, `StreakService`). Services receive context in their initializer; the only documented exception is `PracticeSessionState`, which receives context in `setup(test:modelContext:)` and creates services there. See **docs/ARCHITECTURE.md** (ModelContext Access) for the full pattern, call sites, and testing (in-memory `ModelContainer` for tests).
+
 **Important:** Never use CoreData for new projects. SwiftData provides a modern, type-safe API that's easier to work with and integrates seamlessly with SwiftUI.
 
 ---
