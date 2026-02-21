@@ -1,7 +1,12 @@
 import SwiftUI
 
-/// Observable game state manager that centralizes common game state and logic
-/// Used by all game views (BalloonPop, FallingStars, FishCatcher, WordBuilder, RocketLaunch)
+/// Observable game state manager that centralizes common game state and logic.
+/// Single source of truth for: score, combo, stars, mistakes, celebration, result.
+/// Used by all game views (BalloonPop, FallingStars, FishCatcher, WordBuilder, RocketLaunch).
+///
+/// Combo/star rules: combo multiplier from `PointsService.getComboMultiplier(for:)`;
+/// stars: 3 = no mistakes + fast (≤ PointsService.speedBonusThreshold), 2 = no mistakes, 1 = with mistakes.
+/// One manager instance per game session; call `reset()` or `setup(words:)` when starting a new game.
 @Observable
 @MainActor
 final class GameStateManager {
@@ -92,7 +97,11 @@ final class GameStateManager {
 
     // MARK: - Initialization
 
-    init() {}
+    private let resultService: GameResultServiceProtocol
+
+    init(resultService: GameResultServiceProtocol) {
+        self.resultService = resultService
+    }
 
     /// Initialize game with words
     func setup(words: [Word]) {
@@ -191,20 +200,15 @@ final class GameStateManager {
 
     // MARK: - Result
 
-    /// Calculate and show final result
-    func calculateResult() -> GameResult {
-        let gameResult = GameResult(
-            totalPoints: score,
+    /// Finish the game: obtain result from GameResultService and show result screen.
+    /// Does not build GameResult inline; result ownership is with the service.
+    func finishGame() {
+        let gameResult = resultService.calculateResult(
+            score: score,
             totalStars: totalStars,
             wordsCompleted: currentWordIndex,
             totalMistakes: totalMistakes)
         result = gameResult
-        return gameResult
-    }
-
-    /// Show result screen with current result
-    func showResultScreen() {
-        _ = calculateResult()
         showResult = true
     }
 
