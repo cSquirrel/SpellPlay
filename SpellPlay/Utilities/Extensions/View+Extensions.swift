@@ -1,6 +1,16 @@
 import SwiftUI
 
 extension View {
+    /// Applies `accessibilityIdentifier` only when `id` is non-nil (for UI testing).
+    @ViewBuilder
+    func accessibilityIdentifier(when id: String?) -> some View {
+        if let id {
+            accessibilityIdentifier(id)
+        } else {
+            self
+        }
+    }
+
     /// Applies a large button style for kid-friendly UI
     func largeButtonStyle(color: Color = AppConstants.primaryColor) -> some View {
         frame(height: AppConstants.largeButtonHeight)
