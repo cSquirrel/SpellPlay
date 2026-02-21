@@ -13,7 +13,7 @@ struct CreateTestView: View {
     @State private var selectedWordForTTS: String?
     @State private var errorMessage: String?
 
-    @State private var ttsService = TTSService()
+    @Environment(TTSService.self) private var ttsService
 
     var body: some View {
         NavigationStack {

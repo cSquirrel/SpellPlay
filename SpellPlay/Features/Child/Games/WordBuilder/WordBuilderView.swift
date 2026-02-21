@@ -33,7 +33,7 @@ struct WordBuilderView: View {
     @State private var result: GameResult?
     @State private var wiggleSlotIndex: Int? = nil
 
-    @State private var ttsService = TTSService()
+    @Environment(TTSService.self) private var ttsService
 
     private var currentWord: Word? {
         guard currentWordIndex < words.count else { return nil }
