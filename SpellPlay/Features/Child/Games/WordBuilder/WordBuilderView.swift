@@ -27,63 +27,14 @@ struct WordBuilderView: View {
     var body: some View {
         @Bindable var gameState = gameState
 
-        NavigationStack {
-            GeometryReader { _ in
-                ZStack {
-                    AppConstants.backgroundColor
-                        .ignoresSafeArea()
-
-                    VStack(spacing: 0) {
-                        GameProgressView(
-                            title: "Word Builder",
-                            wordIndex: gameState.currentWordIndex,
-                            wordCount: words.count,
-                            points: gameState.score,
-                            comboMultiplier: gameState.comboMultiplier)
-
-                        wordSlots
-                            .padding(.horizontal, AppConstants.padding)
-                            .padding(.top, 20)
-                            .accessibilityIdentifier("WordBuilder_WordSlots")
-
-                        Spacer()
-
-                        speakerButton
-                            .padding(.horizontal, AppConstants.padding)
-                            .padding(.vertical, 12)
-                            .accessibilityIdentifier("WordBuilder_SpeakWordButton")
-
-                        Spacer()
-
-                        letterTilesTray
-                            .padding(.horizontal, AppConstants.padding)
-                            .padding(.bottom, AppConstants.padding)
-                            .accessibilityIdentifier("WordBuilder_TilesTray")
-                    }
-
-                    if gameState.showCelebration {
-                        CelebrationView(
-                            type: gameState.celebrationType,
-                            message: gameState.celebrationMessage,
-                            emoji: gameState.celebrationEmoji)
-                            .transition(.scale.combined(with: .opacity))
-                            .accessibilityIdentifier("WordBuilder_Celebration")
-                    }
-                }
-            }
-            .navigationTitle("Word Builder")
-            .navigationBarTitleDisplayMode(.inline)
+        gameContent
+            .gameViewChrome(
+                title: "Word Builder",
+                wordCount: words.count,
+                gameState: gameState,
+                onClose: { dismiss() },
+                closeAccessibilityIdentifier: "WordBuilder_CloseButton")
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.secondary)
-                    }
-                    .accessibilityLabel("Close")
-                    .accessibilityIdentifier("WordBuilder_CloseButton")
-                }
-
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
                         Picker("Difficulty", selection: $gameState.difficulty) {
@@ -125,8 +76,46 @@ struct WordBuilderView: View {
                         })
                 }
             }
+            .accessibilityIdentifier("WordBuilder_Root")
+    }
+
+    private var gameContent: some View {
+        GeometryReader { _ in
+            ZStack {
+                AppConstants.backgroundColor
+                    .ignoresSafeArea()
+
+                VStack(spacing: 0) {
+                    wordSlots
+                        .padding(.horizontal, AppConstants.padding)
+                        .padding(.top, 20)
+                        .accessibilityIdentifier("WordBuilder_WordSlots")
+
+                    Spacer()
+
+                    speakerButton
+                        .padding(.horizontal, AppConstants.padding)
+                        .padding(.vertical, 12)
+                        .accessibilityIdentifier("WordBuilder_SpeakWordButton")
+
+                    Spacer()
+
+                    letterTilesTray
+                        .padding(.horizontal, AppConstants.padding)
+                        .padding(.bottom, AppConstants.padding)
+                        .accessibilityIdentifier("WordBuilder_TilesTray")
+                }
+
+                if gameState.showCelebration {
+                    CelebrationView(
+                        type: gameState.celebrationType,
+                        message: gameState.celebrationMessage,
+                        emoji: gameState.celebrationEmoji)
+                        .transition(.scale.combined(with: .opacity))
+                        .accessibilityIdentifier("WordBuilder_Celebration")
+                }
+            }
         }
-        .accessibilityIdentifier("WordBuilder_Root")
     }
 
     // MARK: - Word Slots

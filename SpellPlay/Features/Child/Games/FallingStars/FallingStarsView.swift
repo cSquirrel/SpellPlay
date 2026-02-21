@@ -28,89 +28,13 @@ struct FallingStarsView: View {
     var body: some View {
         @Bindable var gameState = gameState
 
-        NavigationStack {
-            GeometryReader { geo in
-                ZStack {
-                    nightSkyBackground
-                        .ignoresSafeArea()
-
-                    VStack(spacing: 0) {
-                        GameProgressView(
-                            title: "Falling Stars",
-                            wordIndex: gameState.currentWordIndex,
-                            wordCount: words.count,
-                            points: gameState.score,
-                            comboMultiplier: gameState.comboMultiplier)
-
-                        wordDisplay
-                            .padding(.horizontal, AppConstants.padding)
-                            .padding(.top, 10)
-                            .accessibilityIdentifier("FallingStars_WordDisplay")
-
-                        Spacer()
-
-                        ZStack {
-                            constellationPath
-                                .stroke(Color.yellow.opacity(0.6), lineWidth: 3)
-                                .shadow(color: .yellow.opacity(0.4), radius: 8)
-
-                            ForEach(constellationPoints.indices, id: \.self) { idx in
-                                Circle()
-                                    .fill(Color.yellow)
-                                    .frame(width: 8, height: 8)
-                                    .position(constellationPoints[idx])
-                                    .shadow(color: .yellow.opacity(0.6), radius: 6)
-                            }
-
-                            TimelineView(.animation) { context in
-                                ZStack {
-                                    ForEach(visibleStars(in: geo.size, now: context.date)) { star in
-                                        StarView(letter: star.letter, id: star.id) {
-                                            handleTap(star: star, now: context.date, size: geo.size)
-                                        }
-                                        .position(
-                                            x: star.startX,
-                                            y: starY(for: star, size: geo.size, now: context.date))
-                                        .opacity(starOpacity(for: star, now: context.date))
-                                    }
-                                }
-                                .onChange(of: context.date) { _, newDate in
-                                    tick(now: newDate, size: geo.size)
-                                }
-                            }
-                        }
-                        .accessibilityIdentifier("FallingStars_Playfield")
-
-                        Spacer()
-
-                        controls
-                            .padding(.horizontal, AppConstants.padding)
-                            .padding(.bottom, AppConstants.padding)
-                    }
-
-                    if gameState.showCelebration {
-                        CelebrationView(
-                            type: gameState.celebrationType,
-                            message: gameState.celebrationMessage,
-                            emoji: gameState.celebrationEmoji)
-                            .transition(.scale.combined(with: .opacity))
-                            .accessibilityIdentifier("FallingStars_Celebration")
-                    }
-                }
-            }
-            .navigationTitle("Falling Stars")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.secondary)
-                    }
-                    .accessibilityLabel("Close")
-                    .accessibilityIdentifier("FallingStars_CloseButton")
-                }
-            }
+        gameContent
+            .gameViewChrome(
+                title: "Falling Stars",
+                wordCount: words.count,
+                gameState: gameState,
+                onClose: { dismiss() },
+                closeAccessibilityIdentifier: "FallingStars_CloseButton")
             .task {
                 gameState.setup(words: words)
                 startGameIfNeeded()
@@ -138,8 +62,72 @@ struct FallingStarsView: View {
                         })
                 }
             }
+            .accessibilityIdentifier("FallingStars_Root")
+    }
+
+    private var gameContent: some View {
+        GeometryReader { geo in
+            ZStack {
+                nightSkyBackground
+                    .ignoresSafeArea()
+
+                VStack(spacing: 0) {
+                    wordDisplay
+                        .padding(.horizontal, AppConstants.padding)
+                        .padding(.top, 10)
+                        .accessibilityIdentifier("FallingStars_WordDisplay")
+
+                    Spacer()
+
+                    ZStack {
+                        constellationPath
+                            .stroke(Color.yellow.opacity(0.6), lineWidth: 3)
+                            .shadow(color: .yellow.opacity(0.4), radius: 8)
+
+                        ForEach(constellationPoints.indices, id: \.self) { idx in
+                            Circle()
+                                .fill(Color.yellow)
+                                .frame(width: 8, height: 8)
+                                .position(constellationPoints[idx])
+                                .shadow(color: .yellow.opacity(0.6), radius: 6)
+                        }
+
+                        TimelineView(.animation) { context in
+                            ZStack {
+                                ForEach(visibleStars(in: geo.size, now: context.date)) { star in
+                                    StarView(letter: star.letter, id: star.id) {
+                                        handleTap(star: star, now: context.date, size: geo.size)
+                                    }
+                                    .position(
+                                        x: star.startX,
+                                        y: starY(for: star, size: geo.size, now: context.date))
+                                    .opacity(starOpacity(for: star, now: context.date))
+                                }
+                            }
+                            .onChange(of: context.date) { _, newDate in
+                                tick(now: newDate, size: geo.size)
+                            }
+                        }
+                    }
+                    .accessibilityIdentifier("FallingStars_Playfield")
+
+                    Spacer()
+
+                    controls
+                        .padding(.horizontal, AppConstants.padding)
+                        .padding(.bottom, AppConstants.padding)
+                }
+
+                if gameState.showCelebration {
+                    CelebrationView(
+                        type: gameState.celebrationType,
+                        message: gameState.celebrationMessage,
+                        emoji: gameState.celebrationEmoji)
+                        .transition(.scale.combined(with: .opacity))
+                        .accessibilityIdentifier("FallingStars_Celebration")
+                }
+            }
         }
-        .accessibilityIdentifier("FallingStars_Root")
     }
 
     // MARK: - Background
