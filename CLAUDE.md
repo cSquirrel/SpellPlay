@@ -402,6 +402,48 @@ func invalidLogin() async throws {
 - Test both happy paths and edge cases
 - Add tests for bug fixes to prevent regression
 
+## Running Unit Tests and UI Tests
+
+This project has two test targets:
+
+- **SpellPlayTests** — Unit tests (Swift Testing framework), in `SpellPlayTests/`
+- **SpellPlayUITests** — UI tests (XCTest/XCUITest), in `SpellPlayUITests/`
+
+### In Xcode
+
+- **Run all tests**: `Product → Test` (⌘U). The scheme runs both unit and UI tests; the active test plan (`SpellPlay.xctestplan`) may enable or skip specific targets.
+- **Run one target**: In the Test navigator (⌘6), click the diamond next to `SpellPlayTests` or `SpellPlayUITests`, or right‑click a target and choose **Run "SpellPlayTests"** or **Run "SpellPlayUITests"**.
+- **Run one test**: Click the diamond next to the test method or suite.
+
+### Command line (xcodebuild)
+
+From the project root:
+
+```bash
+# Run all tests (unit + UI) on the default simulator
+xcodebuild -project SpellPlay.xcodeproj -scheme SpellPlay -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone 16' test
+
+# Run only unit tests (SpellPlayTests)
+xcodebuild -project SpellPlay.xcodeproj -scheme SpellPlay -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:SpellPlayTests
+
+# Run only UI tests (SpellPlayUITests)
+xcodebuild -project SpellPlay.xcodeproj -scheme SpellPlay -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone 16' test -only-testing:SpellPlayUITests
+```
+
+Replace `iPhone 16` with another simulator name if needed (e.g. `iPhone 15`). Use `xcodebuild -destination 'generic/platform=iOS Simulator'` to let Xcode pick a simulator.
+
+### XcodeBuildMCP tools
+
+When using XcodeBuildMCP, the **test_sim** (or **test_sim_name_ws**) action runs the scheme's test action, which includes both SpellPlayTests and SpellPlayUITests unless the test plan disables them:
+
+- **Run all tests**: `test_sim_name_ws` with `workspacePath` (or project path), `scheme: "SpellPlay"`, and `simulatorName: "iPhone 16"`.
+- To run only unit or only UI tests, use `xcodebuild` with `-only-testing:SpellPlayTests` or `-only-testing:SpellPlayUITests` as above, or configure a separate scheme/test plan in Xcode that includes only the desired target.
+
+**Pre-push**: Run the full test suite (e.g. `mcp_XcodeBuildMCP_test_sim` or the xcodebuild commands above) before pushing; see `pre-push-checks.mdc`.
+
 # Entitlements Management
 
 This template includes a **declarative entitlements system** that AI agents can safely modify without touching Xcode project files.
