@@ -3,48 +3,30 @@ import SwiftUI
 @MainActor
 struct WordBuilderView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(TTSService.self) private var ttsService
 
     let words: [Word]
 
-    @State private var difficulty: GameDifficulty = .easy
-
-    @State private var phase: GamePhase = .ready
-    @State private var currentWordIndex = 0
+    @State private var gameState = GameStateManager()
 
     @State private var scrambledLetters: [LetterTile] = []
     @State private var placedLetters: [Character?] = []
     @State private var lockedSlotIndices: Set<Int> = []
-
-    @State private var score = 0
-    @State private var totalStars = 0
-    @State private var comboCount = 0
-    @State private var comboMultiplier = 1
-    @State private var totalMistakes = 0
-    @State private var mistakesThisWord = 0
-
-    @State private var wordStartTime: Date?
-
-    @State private var showCelebration = false
-    @State private var celebrationType: CelebrationType = .wordCorrect
-    @State private var celebrationMessage: String? = nil
-    @State private var celebrationEmoji: String? = nil
-
-    @State private var showResult = false
-    @State private var result: GameResult?
     @State private var wiggleSlotIndex: Int? = nil
 
-    @State private var ttsService = TTSService()
+    @State private var celebrationDismissID = UUID()
 
     private var currentWord: Word? {
-        guard currentWordIndex < words.count else { return nil }
-        return words[currentWordIndex]
+        gameState.currentWord
     }
 
     private var targetText: String {
-        currentWord?.text ?? ""
+        gameState.targetText
     }
 
     var body: some View {
+        @Bindable var gameState = gameState
+
         NavigationStack {
             GeometryReader { _ in
                 ZStack {
@@ -54,12 +36,11 @@ struct WordBuilderView: View {
                     VStack(spacing: 0) {
                         GameProgressView(
                             title: "Word Builder",
-                            wordIndex: currentWordIndex,
+                            wordIndex: gameState.currentWordIndex,
                             wordCount: words.count,
-                            points: score,
-                            comboMultiplier: comboMultiplier)
+                            points: gameState.score,
+                            comboMultiplier: gameState.comboMultiplier)
 
-                        // Word slots at top
                         wordSlots
                             .padding(.horizontal, AppConstants.padding)
                             .padding(.top, 20)
@@ -67,7 +48,6 @@ struct WordBuilderView: View {
 
                         Spacer()
 
-                        // Speaker button
                         speakerButton
                             .padding(.horizontal, AppConstants.padding)
                             .padding(.vertical, 12)
@@ -75,15 +55,17 @@ struct WordBuilderView: View {
 
                         Spacer()
 
-                        // Letter tiles tray at bottom
                         letterTilesTray
                             .padding(.horizontal, AppConstants.padding)
                             .padding(.bottom, AppConstants.padding)
                             .accessibilityIdentifier("WordBuilder_TilesTray")
                     }
 
-                    if showCelebration {
-                        CelebrationView(type: celebrationType, message: celebrationMessage, emoji: celebrationEmoji)
+                    if gameState.showCelebration {
+                        CelebrationView(
+                            type: gameState.celebrationType,
+                            message: gameState.celebrationMessage,
+                            emoji: gameState.celebrationEmoji)
                             .transition(.scale.combined(with: .opacity))
                             .accessibilityIdentifier("WordBuilder_Celebration")
                     }
@@ -104,7 +86,7 @@ struct WordBuilderView: View {
 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
-                        Picker("Difficulty", selection: $difficulty) {
+                        Picker("Difficulty", selection: $gameState.difficulty) {
                             ForEach(GameDifficulty.allCases) { d in
                                 Text(d.displayName).tag(d)
                             }
@@ -117,13 +99,21 @@ struct WordBuilderView: View {
                 }
             }
             .task {
+                gameState.setup(words: words)
                 startGameIfNeeded()
             }
-            .task(id: currentWordIndex) {
+            .task(id: gameState.currentWordIndex) {
                 await startWord()
             }
-            .fullScreenCover(isPresented: $showResult) {
-                if let result {
+            .task(id: celebrationDismissID) {
+                guard gameState.showCelebration else { return }
+                try? await Task.sleep(for: .milliseconds(700))
+                withAnimation(.easeOut(duration: 0.2)) {
+                    gameState.hideCelebration()
+                }
+            }
+            .fullScreenCover(isPresented: $gameState.showResult) {
+                if let result = gameState.result {
                     GameResultView(
                         title: "Word Builder",
                         result: result,
@@ -167,8 +157,7 @@ struct WordBuilderView: View {
                         Text(String(placedLetter).uppercased())
                             .font(.system(size: 32, weight: .bold, design: .rounded))
                             .foregroundColor(isLocked ? AppConstants.successColor : .primary)
-                    } else if difficulty == .easy, index == 0 {
-                        // Hint: show first letter on easy difficulty
+                    } else if gameState.difficulty == .easy, index == 0 {
                         Text(String(expectedLetter).uppercased())
                             .font(.system(size: 32, weight: .bold, design: .rounded))
                             .foregroundColor(.gray.opacity(0.5))
@@ -178,20 +167,18 @@ struct WordBuilderView: View {
                     guard !isLocked else { return false }
                     guard
                         let droppedString = droppedStrings.first,
-                        let droppedLetter = droppedString.first else { return false }
+                        let droppedLetter = droppedString.first
+                    else { return false }
 
                     if droppedLetter.lowercased() == expectedLetter.lowercased() {
-                        // Correct placement
                         withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                             placedLetters[index] = droppedLetter
                             lockedSlotIndices.insert(index)
                         }
 
-                        // Mark tile as placed
                         if
                             let tileIndex = scrambledLetters
-                                .firstIndex(where: { $0.letter.lowercased() == droppedLetter.lowercased() && !$0.isPlaced
-                                })
+                                .firstIndex(where: { $0.letter.lowercased() == droppedLetter.lowercased() && !$0.isPlaced })
                         {
                             scrambledLetters[tileIndex] = LetterTile(
                                 id: scrambledLetters[tileIndex].id,
@@ -199,25 +186,24 @@ struct WordBuilderView: View {
                                 isPlaced: true)
                         }
 
-                        // Check if word is complete
                         if lockedSlotIndices.count == targetText.count {
                             completeWord()
                         } else {
-                            showCelebrationTransient(type: .wordCorrect, message: nil, emoji: "✨")
+                            gameState.showCelebration(type: .wordCorrect, message: nil, emoji: "✨")
+                            celebrationDismissID = UUID()
                         }
                         return true
                     } else {
-                        // Incorrect placement - wiggle animation
-                        mistakesThisWord += 1
-                        totalMistakes += 1
+                        gameState.handleIncorrectAnswer()
                         withAnimation(.spring(response: 0.2, dampingFraction: 0.3).repeatCount(3, autoreverses: true)) {
                             wiggleSlotIndex = index
                         }
-                        Task { @MainActor in
+                        Task {
                             try? await Task.sleep(for: .milliseconds(600))
                             wiggleSlotIndex = nil
                         }
-                        showCelebrationTransient(type: .comboBreakthrough, message: "Try again", emoji: "💭")
+                        gameState.showCelebration(type: .comboBreakthrough, message: "Try again", emoji: "💭")
+                        celebrationDismissID = UUID()
                         return false
                     }
                 }
@@ -274,51 +260,35 @@ struct WordBuilderView: View {
     // MARK: - Game Lifecycle
 
     private func startGameIfNeeded() {
-        guard phase == .ready else { return }
-        phase = .playing
-        currentWordIndex = 0
-        score = 0
-        totalStars = 0
-        comboCount = 0
-        comboMultiplier = 1
-        totalMistakes = 0
-        mistakesThisWord = 0
+        guard gameState.phase == .ready else { return }
+        gameState.phase = .playing
     }
 
     private func startWord() async {
-        guard phase == .playing else { return }
+        guard gameState.phase == .playing else { return }
         guard currentWord != nil else { return }
 
-        // Reset per-word state
-        mistakesThisWord = 0
-        wordStartTime = Date()
+        gameState.startWordTimer()
         lockedSlotIndices.removeAll()
         placedLetters = Array(repeating: nil, count: targetText.count)
 
-        // Scramble letters and add decoys based on difficulty
         let targetLetters = Array(targetText.lowercased())
         var tiles: [LetterTile] = targetLetters.map { letter in
             LetterTile(id: UUID(), letter: letter, isPlaced: false)
         }
 
-        // Add decoy letters for harder difficulties
-        if difficulty == .hard {
+        if gameState.difficulty == .hard {
             let decoyCount = min(3, targetLetters.count)
             let alphabet = Array("abcdefghijklmnopqrstuvwxyz")
             for _ in 0 ..< decoyCount {
-                if
-                    let randomLetter = alphabet.randomElement(),
-                    !targetLetters.contains(randomLetter)
-                {
+                if let randomLetter = alphabet.randomElement(), !targetLetters.contains(randomLetter) {
                     tiles.append(LetterTile(id: UUID(), letter: randomLetter, isPlaced: false))
                 }
             }
         }
 
-        // Shuffle tiles
         scrambledLetters = tiles.shuffled()
 
-        // Small delay to let UI settle, then speak
         try? await Task.sleep(for: .milliseconds(250))
         if let currentWord {
             ttsService.speak(currentWord.text, rate: 0.3)
@@ -326,80 +296,32 @@ struct WordBuilderView: View {
     }
 
     private func completeWord() {
-        guard let wordStartTime else { return }
-        let timeTaken = Date().timeIntervalSince(wordStartTime)
+        gameState.handleCorrectAnswer()
 
-        // Combo is based on mistake-free word completion
-        if mistakesThisWord == 0 {
-            comboCount += 1
-        } else {
-            comboCount = 0
-        }
-        comboMultiplier = PointsService.getComboMultiplier(for: comboCount)
-
+        let timeTaken = gameState.wordStartTime.map { Date().timeIntervalSince($0) }
         let pointsResult = PointsService.calculatePoints(
             isCorrect: true,
-            comboCount: comboCount,
+            comboCount: gameState.comboCount,
             timeTaken: timeTaken,
-            isFirstTry: mistakesThisWord == 0)
-        score += pointsResult.totalPoints
-
-        let starsEarned = if mistakesThisWord == 0, timeTaken <= PointsService.speedBonusThreshold {
-            3
-        } else if mistakesThisWord == 0 {
-            2
-        } else {
-            1
-        }
-        totalStars += starsEarned
-
-        showCelebrationTransient(
+            isFirstTry: gameState.mistakesThisWord == 0)
+        let starsEarned = timeTaken != nil && gameState.mistakesThisWord == 0
+            ? (timeTaken! <= PointsService.speedBonusThreshold ? 3 : 2)
+            : 1
+        gameState.showCelebration(
             type: .sessionComplete,
             message: "Word Architect! +\(pointsResult.totalPoints) pts • \(starsEarned)★",
             emoji: "🏗️")
+        celebrationDismissID = UUID()
 
-        advanceToNextWord()
-    }
-
-    private func advanceToNextWord() {
-        if currentWordIndex >= words.count - 1 {
-            phase = .gameComplete
-            result = GameResult(
-                totalPoints: score,
-                totalStars: totalStars,
-                wordsCompleted: words.count,
-                totalMistakes: totalMistakes)
-            showResult = true
-        } else {
-            currentWordIndex += 1
+        gameState.advanceToNextWord()
+        if gameState.isComplete {
+            gameState.showResultScreen()
         }
     }
 
     private func resetAll() {
-        showResult = false
-        result = nil
-        phase = .ready
-        startGameIfNeeded()
-        Task { @MainActor in
-            await startWord()
-        }
-    }
-
-    private func showCelebrationTransient(type: CelebrationType, message: String?, emoji: String?) {
-        celebrationType = type
-        celebrationMessage = message
-        celebrationEmoji = emoji
-
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-            showCelebration = true
-        }
-
-        Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(700))
-            withAnimation(.easeOut(duration: 0.2)) {
-                showCelebration = false
-            }
-        }
+        gameState.reset()
+        gameState.phase = .playing
     }
 }
 

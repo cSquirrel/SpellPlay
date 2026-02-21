@@ -3,13 +3,12 @@ import SwiftUI
 @MainActor
 struct RocketLaunchView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(TTSService.self) private var ttsService
 
     let words: [Word]
 
-    @State private var difficulty: GameDifficulty = .easy
+    @State private var gameState = GameStateManager()
 
-    @State private var phase: GamePhase = .ready
-    @State private var currentWordIndex = 0
     @State private var typedText: String = ""
 
     @State private var fuelLevel: Double = 0.0
@@ -17,42 +16,23 @@ struct RocketLaunchView: View {
     @State private var rocketOffset: CGFloat = 0
     @State private var countdownValue: Int? = nil
 
-    @State private var mistakesThisWord: Int = 0
-    @State private var totalMistakes: Int = 0
-
-    @State private var score = 0
-    @State private var comboCount = 0
-    @State private var comboMultiplier = 1
-    @State private var totalStars = 0
-
-    @State private var wordStartTime: Date?
-
-    @State private var showCelebration = false
-    @State private var celebrationType: CelebrationType = .wordCorrect
-    @State private var celebrationMessage: String? = nil
-    @State private var celebrationEmoji: String? = nil
-
-    @State private var showResult = false
-    @State private var result: GameResult?
-
     @State private var shakeOffset: CGFloat = 0
     @State private var showWordHint = true
-
-    @State private var ttsService = TTSService()
 
     /// Used to trigger celebration dismiss via .task(id:)
     @State private var celebrationDismissID = UUID()
 
     private var currentWord: Word? {
-        guard currentWordIndex < words.count else { return nil }
-        return words[currentWordIndex]
+        gameState.currentWord
     }
 
     private var targetText: String {
-        currentWord?.text ?? ""
+        gameState.targetText
     }
 
     var body: some View {
+        @Bindable var gameState = gameState
+
         NavigationStack {
             GeometryReader { _ in
                 ZStack {
@@ -62,10 +42,10 @@ struct RocketLaunchView: View {
                     VStack(spacing: 0) {
                         GameProgressView(
                             title: "Rocket Launch",
-                            wordIndex: currentWordIndex,
+                            wordIndex: gameState.currentWordIndex,
                             wordCount: words.count,
-                            points: score,
-                            comboMultiplier: comboMultiplier)
+                            points: gameState.score,
+                            comboMultiplier: gameState.comboMultiplier)
 
                         missionObjective
                             .padding(.horizontal, AppConstants.padding)
@@ -129,7 +109,7 @@ struct RocketLaunchView: View {
                             .accessibilityIdentifier("RocketLaunch_SpeakWordButton")
 
                             Menu {
-                                Picker("Difficulty", selection: $difficulty) {
+                                Picker("Difficulty", selection: $gameState.difficulty) {
                                     ForEach(GameDifficulty.allCases) { d in
                                         Text(d.displayName).tag(d)
                                     }
@@ -137,7 +117,7 @@ struct RocketLaunchView: View {
                             } label: {
                                 HStack(spacing: 6) {
                                     Image(systemName: "slider.horizontal.3")
-                                    Text(difficulty.displayName)
+                                    Text(gameState.difficulty.displayName)
                                         .font(.system(size: AppConstants.captionSize, weight: .semibold))
                                 }
                                 .padding(.horizontal, 12)
@@ -158,8 +138,11 @@ struct RocketLaunchView: View {
                             .padding(.bottom, AppConstants.padding)
                     }
 
-                    if showCelebration {
-                        CelebrationView(type: celebrationType, message: celebrationMessage, emoji: celebrationEmoji)
+                    if gameState.showCelebration {
+                        CelebrationView(
+                            type: gameState.celebrationType,
+                            message: gameState.celebrationMessage,
+                            emoji: gameState.celebrationEmoji)
                             .transition(.scale.combined(with: .opacity))
                             .accessibilityIdentifier("RocketLaunch_Celebration")
                     }
@@ -179,21 +162,22 @@ struct RocketLaunchView: View {
                 }
             }
             .task {
+                gameState.setup(words: words)
                 startGameIfNeeded()
             }
-            .task(id: currentWordIndex) {
+            .task(id: gameState.currentWordIndex) {
                 await startWord()
             }
             .task(id: celebrationDismissID) {
                 // Auto-hide celebration after delay
-                guard showCelebration else { return }
+                guard gameState.showCelebration else { return }
                 try? await Task.sleep(for: .milliseconds(700))
                 withAnimation(.easeOut(duration: 0.2)) {
-                    showCelebration = false
+                    gameState.hideCelebration()
                 }
             }
-            .fullScreenCover(isPresented: $showResult) {
-                if let result {
+            .fullScreenCover(isPresented: $gameState.showResult) {
+                if let result = gameState.result {
                     GameResultView(
                         title: "Rocket Launch",
                         result: result,
@@ -286,7 +270,7 @@ struct RocketLaunchView: View {
     }
 
     private func shouldShowLetter(at index: Int) -> Bool {
-        switch difficulty {
+        switch gameState.difficulty {
         case .easy:
             true // Always show full word
         case .medium:
@@ -390,29 +374,21 @@ struct RocketLaunchView: View {
     // MARK: - Game Lifecycle
 
     private func startGameIfNeeded() {
-        guard phase == .ready else { return }
-        phase = .playing
-        currentWordIndex = 0
+        guard gameState.phase == .ready else { return }
+        gameState.phase = .playing
         typedText = ""
         fuelLevel = 0.0
-        score = 0
-        totalStars = 0
-        comboCount = 0
-        comboMultiplier = 1
-        totalMistakes = 0
-        mistakesThisWord = 0
         showWordHint = true
     }
 
     private func startWord() async {
-        guard phase == .playing else { return }
+        guard gameState.phase == .playing else { return }
         guard currentWord != nil else { return }
 
         // Reset per-word state
         typedText = ""
         fuelLevel = 0.0
-        mistakesThisWord = 0
-        wordStartTime = Date()
+        gameState.startWordTimer()
         isLaunching = false
         rocketOffset = 0
         countdownValue = nil
@@ -426,7 +402,7 @@ struct RocketLaunchView: View {
         }
 
         // Hide word hint after delay (for medium/hard difficulty)
-        if difficulty != .easy {
+        if gameState.difficulty != .easy {
             try? await Task.sleep(for: .seconds(2))
             withAnimation {
                 showWordHint = false
@@ -435,17 +411,15 @@ struct RocketLaunchView: View {
     }
 
     private func resetAll() {
-        showResult = false
-        result = nil
-        phase = .ready
-        startGameIfNeeded()
-        // Note: startWord will be called automatically via .task(id: currentWordIndex)
+        gameState.reset()
+        gameState.phase = .playing
+        // startWord will be called automatically via .task(id: currentWordIndex)
     }
 
     // MARK: - Input Handling
 
     private func handleKeyTap(letter: Character) {
-        guard phase == .playing else { return }
+        guard gameState.phase == .playing else { return }
         guard !isLaunching else { return }
         guard typedText.count < targetText.count else { return }
 
@@ -471,7 +445,8 @@ struct RocketLaunchView: View {
                 }
             }
 
-            showCelebrationTransient(type: .wordCorrect, message: nil, emoji: "✨")
+            gameState.showCelebration(type: .wordCorrect, message: nil, emoji: "✨")
+            celebrationDismissID = UUID()
 
             // Check if word is complete
             if typedText.count >= targetText.count {
@@ -479,8 +454,7 @@ struct RocketLaunchView: View {
             }
         } else {
             // Wrong letter
-            mistakesThisWord += 1
-            totalMistakes += 1
+            gameState.handleIncorrectAnswer()
 
             // Shake animation
             withAnimation(.spring(response: 0.1, dampingFraction: 0.2)) {
@@ -497,12 +471,13 @@ struct RocketLaunchView: View {
                 }
             }
 
-            showCelebrationTransient(type: .comboBreakthrough, message: "Try again", emoji: "💭")
+            gameState.showCelebration(type: .comboBreakthrough, message: "Try again", emoji: "💭")
+            celebrationDismissID = UUID()
         }
     }
 
     private func handleBackspace() {
-        guard phase == .playing else { return }
+        guard gameState.phase == .playing else { return }
         guard !isLaunching else { return }
         guard !typedText.isEmpty else { return }
 
@@ -516,88 +491,54 @@ struct RocketLaunchView: View {
         guard !isLaunching else { return }
         isLaunching = true
 
-        // Countdown
-        Task { @MainActor in
-            for i in (1 ... 3).reversed() {
-                countdownValue = i
-                try? await Task.sleep(for: .milliseconds(600))
-            }
-            countdownValue = nil
-
-            // Launch animation
-            withAnimation(.easeIn(duration: 2.0)) {
-                rocketOffset = -UIScreen.main.bounds.height - 200
-            }
-
-            // Complete word after animation
-            try? await Task.sleep(for: .milliseconds(2100))
-            completeWord()
+        Task {
+            await runLaunchSequence()
         }
     }
 
-    private func completeWord() {
-        let timeTaken = wordStartTime.map { Date().timeIntervalSince($0) }
-
-        // Combo is based on mistake-free word completion
-        if mistakesThisWord == 0 {
-            comboCount += 1
-        } else {
-            comboCount = 0
+    private func runLaunchSequence() async {
+        for i in (1 ... 3).reversed() {
+            countdownValue = i
+            try? await Task.sleep(for: .milliseconds(600))
         }
-        comboMultiplier = PointsService.getComboMultiplier(for: comboCount)
+        countdownValue = nil
 
+        // Launch animation
+        withAnimation(.easeIn(duration: 2.0)) {
+            rocketOffset = -UIScreen.main.bounds.height - 200
+        }
+
+        // Complete word after animation
+        try? await Task.sleep(for: .milliseconds(2100))
+        completeWord()
+    }
+
+    private func completeWord() {
+        gameState.handleCorrectAnswer()
+
+        // Celebration message: points/stars for this word (already applied in handleCorrectAnswer)
+        let timeTaken = gameState.wordStartTime.map { Date().timeIntervalSince($0) }
         let pointsResult = PointsService.calculatePoints(
             isCorrect: true,
-            comboCount: comboCount,
+            comboCount: gameState.comboCount,
             timeTaken: timeTaken,
-            isFirstTry: mistakesThisWord == 0)
-        score += pointsResult.totalPoints
-
-        let starsEarned = if mistakesThisWord == 0, let t = timeTaken, t <= PointsService.speedBonusThreshold {
-            3
-        } else if mistakesThisWord == 0 {
-            2
-        } else {
-            1
-        }
-        totalStars += starsEarned
-
-        showCelebrationTransient(
+            isFirstTry: gameState.mistakesThisWord == 0)
+        let starsEarned = timeTaken != nil && gameState.mistakesThisWord == 0
+            ? (timeTaken! <= PointsService.speedBonusThreshold ? 3 : 2)
+            : 1
+        gameState.showCelebration(
             type: .sessionComplete,
             message: "+\(pointsResult.totalPoints) pts • \(starsEarned)★",
             emoji: "🚀")
+        celebrationDismissID = UUID()
 
         // Reset rocket position and advance
         rocketOffset = 0
         isLaunching = false
 
-        advanceToNextWord()
-    }
-
-    private func advanceToNextWord() {
-        if currentWordIndex >= words.count - 1 {
-            phase = .gameComplete
-            result = GameResult(
-                totalPoints: score,
-                totalStars: totalStars,
-                wordsCompleted: words.count,
-                totalMistakes: totalMistakes)
-            showResult = true
-        } else {
-            currentWordIndex += 1
+        gameState.advanceToNextWord()
+        if gameState.isComplete {
+            gameState.showResultScreen()
         }
-    }
-
-    private func showCelebrationTransient(type: CelebrationType, message: String?, emoji: String?) {
-        celebrationType = type
-        celebrationMessage = message
-        celebrationEmoji = emoji
-
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-            showCelebration = true
-        }
-
-        // Trigger dismiss via .task(id:)
-        celebrationDismissID = UUID()
     }
 }
