@@ -21,6 +21,20 @@
                ReferencedContainer = "container:SpellPlay.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3218244D2F49D8E000B7576D"
+               BuildableName = "SpellPlayTests.xctest"
+               BlueprintName = "SpellPlayTests"
+               ReferencedContainer = "container:SpellPlay.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -38,6 +52,16 @@
          </TestPlanReference>
       </TestPlans>
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3218244D2F49D8E000B7576D"
+               BuildableName = "SpellPlayTests.xctest"
+               BlueprintName = "SpellPlayTests"
+               ReferencedContainer = "container:SpellPlay.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
          <TestableReference
             skipped = "NO">
             <BuildableReference
