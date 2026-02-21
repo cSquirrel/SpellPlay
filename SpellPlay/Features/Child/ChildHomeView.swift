@@ -55,6 +55,8 @@ struct ChildHomeView: View {
                             .font(.system(size: 20))
                             .foregroundColor(.secondary)
                     }
+                    .accessibilityLabel("Settings")
+                    .accessibilityHint("Opens settings and role switcher")
                     .accessibilityIdentifier("ChildHome_SettingsButton")
                 }
             }
@@ -148,6 +150,8 @@ struct ChildTestCardView: View {
             .cardStyle()
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("\(test.name), \((test.words ?? []).count) words")
+        .accessibilityHint("Double tap to practice this test")
         .accessibilityIdentifier("ChildTestCard_\(test.name)")
     }
 }

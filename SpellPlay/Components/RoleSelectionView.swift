@@ -35,6 +35,7 @@ struct RoleSelectionView: View {
                 }
                 .largeButtonStyle(color: AppConstants.primaryColor)
                 .accessibilityIdentifier("RoleSelection_ParentButton")
+                .accessibilityHint("Create and manage spelling tests")
 
                 Button(action: {
                     appState.selectedRole = .child
@@ -48,6 +49,7 @@ struct RoleSelectionView: View {
                 }
                 .largeButtonStyle(color: AppConstants.secondaryColor)
                 .accessibilityIdentifier("RoleSelection_ChildButton")
+                .accessibilityHint("Practice spelling and play games")
             }
             .padding(.horizontal, AppConstants.padding)
 

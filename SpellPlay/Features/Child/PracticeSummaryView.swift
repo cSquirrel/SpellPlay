@@ -167,6 +167,7 @@ struct PracticeSummaryView: View {
                     }
                     .largeButtonStyle(color: AppConstants.primaryColor)
                     .accessibilityIdentifier("PracticeSummary_PracticeAgainButton")
+                    .accessibilityHint("Starts another practice session")
 
                     Button(action: onBack) {
                         Text("Back to Tests")
@@ -174,6 +175,7 @@ struct PracticeSummaryView: View {
                     }
                     .largeButtonStyle(color: AppConstants.secondaryColor)
                     .accessibilityIdentifier("PracticeSummary_BackToTestsButton")
+                    .accessibilityHint("Returns to test list")
                 }
                 .padding(.horizontal, AppConstants.padding)
                 .padding(.bottom, 40)

@@ -55,6 +55,7 @@ struct BalloonView: View {
             }
         }
         .accessibilityLabel("Balloon letter \(String(letter))")
+        .accessibilityHint("Double tap to pop")
     }
 }
 

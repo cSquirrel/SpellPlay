@@ -207,6 +207,9 @@ struct PracticeView: View {
                             .shadow(color: AppConstants.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         .disabled(ttsService.isSpeaking)
+                        .accessibilityLabel("Play word at normal speed")
+                        .accessibilityHint("Double tap to hear the word")
+                        .accessibilityIdentifier("Practice_PlayNormalButton")
 
                         // Slow speed button (20% speed)
                         Button(action: {
@@ -230,6 +233,9 @@ struct PracticeView: View {
                             .shadow(color: AppConstants.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         .disabled(ttsService.isSpeaking)
+                        .accessibilityLabel("Play word at slow speed")
+                        .accessibilityHint("Double tap to hear the word slowly")
+                        .accessibilityIdentifier("Practice_PlaySlowButton")
                     }
                     .padding(.horizontal, AppConstants.padding)
 
@@ -315,6 +321,8 @@ struct PracticeView: View {
                 .disabled(practiceSession.availableCoins <= 0 || isInputDisabled || isWordComplete)
                 .opacity(practiceSession.availableCoins <= 0 || isWordComplete ? 0.6 : 1)
                 .padding(.bottom, 8)
+                .accessibilityLabel("Help coin, \(practiceSession.availableCoins) available")
+                .accessibilityHint("Double tap to reveal a letter in the word")
                 .accessibilityIdentifier("Practice_HelpCoinButton")
             }
 
@@ -368,6 +376,9 @@ struct PracticeView: View {
                             .buttonStyle(.plain)
                             .contentShape(Rectangle())
                             .disabled(ttsService.isSpeaking)
+                            .accessibilityLabel("Play word \(word.text)")
+                            .accessibilityHint("Double tap to hear the word")
+                            .accessibilityIdentifier("RoundTransition_PlayWord_\(word.text)")
                         }
                         .padding(AppConstants.padding)
                         .background(Color(.systemGray6))

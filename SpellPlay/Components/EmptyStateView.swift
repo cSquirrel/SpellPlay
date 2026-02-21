@@ -27,6 +27,7 @@ struct EmptyStateView: View {
             Image(systemName: icon)
                 .font(.system(size: 60))
                 .foregroundColor(.secondary)
+                .accessibilityHidden(true)
 
             Text(title)
                 .font(.system(size: AppConstants.titleSize, weight: .semibold))
@@ -45,6 +46,9 @@ struct EmptyStateView: View {
                 }
                 .largeButtonStyle(color: AppConstants.primaryColor)
                 .padding(.horizontal, AppConstants.padding)
+                .accessibilityLabel(actionTitle)
+                .accessibilityHint("Double tap to \(actionTitle.lowercased())")
+                .accessibilityIdentifier("EmptyState_ActionButton")
             }
         }
     }

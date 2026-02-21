@@ -42,7 +42,6 @@ struct WordInputView: View {
                 Text("Submit")
                     .font(.system(size: AppConstants.bodySize, weight: .semibold))
                     .foregroundColor(.white)
-                    .accessibilityIdentifier("WordInput_SubmitButton")
             }
             .frame(height: AppConstants.largeButtonHeight)
             .frame(maxWidth: .infinity)
@@ -51,6 +50,9 @@ struct WordInputView: View {
             .shadow(color: AppConstants.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
             .contentShape(Rectangle())
             .allowsHitTesting(!text.isEmpty)
+            .accessibilityLabel("Submit answer")
+            .accessibilityHint("Submits your spelling for the current word")
+            .accessibilityIdentifier("WordInput_SubmitButton")
         }
         .onAppear {
             // Focus the field after a short delay to ensure view is ready
