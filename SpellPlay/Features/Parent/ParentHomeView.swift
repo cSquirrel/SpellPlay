@@ -22,11 +22,11 @@ struct ParentHomeView: View {
                         icon: "book.closed",
                         title: "No Tests Yet",
                         message: "Create your first spelling test to get started",
-                        actionTitle: "Create Test")
-                    {
-                        showingCreateTest = true
-                    }
-                    .accessibilityIdentifier("ParentHome_EmptyState")
+                        actionTitle: "Create Test",
+                        action: { showingCreateTest = true },
+                        titleAccessibilityIdentifier: "ParentHome_EmptyStateText",
+                        actionButtonAccessibilityIdentifier: "ParentHome_CreateTestButton")
+                        .accessibilityIdentifier("ParentHome_EmptyState")
                 } else {
                     testListView
                 }
