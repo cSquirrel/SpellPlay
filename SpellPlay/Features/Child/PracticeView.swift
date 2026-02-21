@@ -14,8 +14,11 @@ struct PracticeView: View {
     @State private var showingRoundTransition = false
     @State private var nextRoundNumber = 1
     @State private var isInputDisabled = false
-    @State private var feedbackTimer: Timer?
-    @State private var nextWordTimer: Timer?
+    @State private var feedbackContinueTrigger: UUID?
+    @State private var startRoundTTSTrigger: UUID?
+    @State private var speakNextWordTrigger: UUID?
+    @State private var pendingNextWordText: String?
+    @State private var practiceAgainTrigger: UUID?
     @State private var incorrectAnswer: String = ""
     @State private var correctWord: String = ""
     @State private var feedbackMessage: String = ""
@@ -51,12 +54,7 @@ struct PracticeView: View {
                             practiceSession.reset()
                             practiceSession.setup(test: test, modelContext: modelContext)
                             hasStartedPractice = true
-                            // Auto-play first word after a short delay
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                if let firstWord = practiceSession.currentWord {
-                                    ttsService.speak(firstWord.text, rate: 0.3)
-                                }
-                            }
+                            practiceAgainTrigger = UUID()
                         },
                         onBack: {
                             dismiss()
@@ -86,9 +84,6 @@ struct PracticeView: View {
             }
             .alert("Cancel Practice?", isPresented: $showCancelConfirmation) {
                 Button("Cancel Practice", role: .destructive) {
-                    // Clean up timers before dismissing
-                    feedbackTimer?.invalidate()
-                    nextWordTimer?.invalidate()
                     dismiss()
                 }
                 Button("Continue", role: .cancel) {
@@ -101,12 +96,36 @@ struct PracticeView: View {
                 practiceSession.setup(test: test, modelContext: modelContext)
                 previousComboCount = 0
                 hasStartedPractice = true
-                // Auto-play first word after a short delay
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    if let firstWord = practiceSession.currentWord {
-                        ttsService.speak(firstWord.text, rate: 0.3)
-                    }
+            }
+            .task {
+                try? await Task.sleep(for: .seconds(0.5))
+                if let firstWord = practiceSession.currentWord {
+                    ttsService.speak(firstWord.text, rate: 0.3)
                 }
+            }
+            .task(id: practiceAgainTrigger) {
+                guard practiceAgainTrigger != nil else { return }
+                try? await Task.sleep(for: .seconds(0.5))
+                if let firstWord = practiceSession.currentWord {
+                    ttsService.speak(firstWord.text, rate: 0.3)
+                }
+            }
+            .task(id: startRoundTTSTrigger) {
+                guard startRoundTTSTrigger != nil else { return }
+                try? await Task.sleep(for: .seconds(0.5))
+                if let firstWord = practiceSession.currentWord {
+                    ttsService.speak(firstWord.text, rate: 0.3)
+                }
+            }
+            .task(id: feedbackContinueTrigger) {
+                guard feedbackContinueTrigger != nil else { return }
+                try? await Task.sleep(for: .seconds(1.5))
+                continueToNext()
+            }
+            .task(id: speakNextWordTrigger) {
+                guard speakNextWordTrigger != nil, let text = pendingNextWordText else { return }
+                try? await Task.sleep(for: .seconds(0.5))
+                ttsService.speak(text, rate: 0.3)
             }
             .onChange(of: practiceSession.newlyUnlockedAchievements) { oldValue, newValue in
                 // Show achievement unlock when new achievements are unlocked
@@ -116,11 +135,6 @@ struct PracticeView: View {
                         showAchievementUnlock = true
                     }
                 }
-            }
-            .onDisappear {
-                // Clean up timers when view disappears
-                feedbackTimer?.invalidate()
-                nextWordTimer?.invalidate()
             }
             .errorAlert(errorMessage: $practiceSession.errorMessage)
             .overlay {
@@ -382,15 +396,7 @@ struct PracticeView: View {
                     showingRoundTransition = false
                 }
                 practiceSession.startNextRound()
-
-                // Auto-play first word of new round after a short delay
-                Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
-                    Task { @MainActor in
-                        if let firstWord = practiceSession.currentWord {
-                            ttsService.speak(firstWord.text, rate: 0.3)
-                        }
-                    }
-                }
+                startRoundTTSTrigger = UUID()
             }) {
                 Text("Start Round")
                     .font(.system(size: AppConstants.bodySize, weight: .semibold))
@@ -438,16 +444,7 @@ struct PracticeView: View {
                 showFeedback = true
                 showContinueButton = false
             }
-
-            // Cancel any existing timer
-            feedbackTimer?.invalidate()
-
-            // Wait to hide feedback and move to next word
-            feedbackTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { _ in
-                Task { @MainActor in
-                    continueToNext()
-                }
-            }
+            feedbackContinueTrigger = UUID()
         } else {
             // For incorrect answers, calculate similarity and show detailed feedback with continue button
             incorrectAnswer = capturedAnswer
@@ -485,14 +482,8 @@ struct PracticeView: View {
                 showingRoundTransition = true
             }
         } else if !practiceSession.isComplete, let nextWord = practiceSession.currentWord {
-            // Auto-play next word after a short delay
-            let nextWordText = nextWord.text
-            nextWordTimer?.invalidate()
-            nextWordTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
-                Task { @MainActor in
-                    ttsService.speak(nextWordText, rate: 0.3)
-                }
-            }
+            pendingNextWordText = nextWord.text
+            speakNextWordTrigger = UUID()
         }
     }
 }

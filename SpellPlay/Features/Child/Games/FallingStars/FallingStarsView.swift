@@ -35,6 +35,11 @@ struct FallingStarsView: View {
 
     @State private var ttsService = TTSService()
 
+    /// Used to re-trigger startWord on reset (when currentWordIndex stays 0).
+    @State private var gameResetID = UUID()
+    /// Used to trigger celebration auto-dismiss via .task(id:).
+    @State private var celebrationDismissID = UUID()
+
     private var currentWord: Word? {
         guard currentWordIndex < words.count else { return nil }
         return words[currentWordIndex]
@@ -132,8 +137,16 @@ struct FallingStarsView: View {
             .task {
                 startGameIfNeeded()
             }
-            .task(id: currentWordIndex) {
+            .task(id: "\(currentWordIndex)-\(gameResetID)") {
+                guard phase == .playing else { return }
                 await startWord()
+            }
+            .task(id: celebrationDismissID) {
+                guard showCelebration else { return }
+                try? await Task.sleep(for: .milliseconds(700))
+                withAnimation(.easeOut(duration: 0.2)) {
+                    showCelebration = false
+                }
             }
             .fullScreenCover(isPresented: $showResult) {
                 if let result {
@@ -308,9 +321,7 @@ struct FallingStarsView: View {
         result = nil
         phase = .ready
         startGameIfNeeded()
-        Task { @MainActor in
-            await startWord()
-        }
+        gameResetID = UUID()
     }
 
     // MARK: - Timeline tick / spawning
@@ -465,12 +476,7 @@ struct FallingStarsView: View {
             showCelebration = true
         }
 
-        Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(700))
-            withAnimation(.easeOut(duration: 0.2)) {
-                showCelebration = false
-            }
-        }
+        celebrationDismissID = UUID()
     }
 
     // MARK: - Difficulty knobs
