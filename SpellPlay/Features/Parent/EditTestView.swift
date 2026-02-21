@@ -14,7 +14,7 @@ struct EditTestView: View {
     @State private var selectedWordForTTS: Word?
     @State private var errorMessage: String?
 
-    @State private var ttsService = TTSService()
+    @Environment(TTSService.self) private var ttsService
 
     init(test: SpellingTest) {
         self.test = test

@@ -38,7 +38,7 @@ struct RocketLaunchView: View {
     @State private var shakeOffset: CGFloat = 0
     @State private var showWordHint = true
 
-    @State private var ttsService = TTSService()
+    @Environment(TTSService.self) private var ttsService
 
     /// Used to trigger celebration dismiss via .task(id:)
     @State private var celebrationDismissID = UUID()
