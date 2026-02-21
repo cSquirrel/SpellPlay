@@ -29,6 +29,7 @@ struct RoleSwitcherView: View {
                             }
                         }
                     }
+                    .accessibilityHint("Double tap to switch to parent mode")
 
                     Button(action: {
                         appState.selectedRole = .child
@@ -47,6 +48,7 @@ struct RoleSwitcherView: View {
                             }
                         }
                     }
+                    .accessibilityHint("Double tap to switch to kid mode")
                 }
 
                 Section("Current Role") {
@@ -68,6 +70,7 @@ struct RoleSwitcherView: View {
                     Button("Done") {
                         dismiss()
                     }
+                    .accessibilityIdentifier("RoleSwitcher_DoneButton")
                 }
             }
         }

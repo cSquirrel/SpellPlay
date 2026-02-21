@@ -42,6 +42,8 @@ struct ParentHomeView: View {
                                 .font(.system(size: 20))
                                 .foregroundColor(.secondary)
                         }
+                        .accessibilityLabel("Settings")
+                        .accessibilityHint("Opens settings and role switcher")
                         .accessibilityIdentifier("ParentHome_SettingsButton")
 
                         SyncStatusView()
@@ -55,6 +57,8 @@ struct ParentHomeView: View {
                         Image(systemName: "plus")
                             .font(.system(size: 20, weight: .semibold))
                     }
+                    .accessibilityLabel("Create test")
+                    .accessibilityHint("Creates a new spelling test")
                     .accessibilityIdentifier("ParentHome_CreateTestToolbarButton")
                 }
             }
@@ -138,6 +142,8 @@ struct TestCardView: View {
                         .foregroundColor(AppConstants.primaryColor)
                 }
                 .frame(width: AppConstants.minimumTouchTarget, height: AppConstants.minimumTouchTarget)
+                .accessibilityLabel("Edit test")
+                .accessibilityHint("Opens editor for \(test.name)")
 
                 Button(action: onDelete) {
                     Image(systemName: "trash")
@@ -145,6 +151,8 @@ struct TestCardView: View {
                         .foregroundColor(AppConstants.errorColor)
                 }
                 .frame(width: AppConstants.minimumTouchTarget, height: AppConstants.minimumTouchTarget)
+                .accessibilityLabel("Delete test")
+                .accessibilityHint("Deletes \(test.name) permanently")
             }
         }
         .padding(AppConstants.padding)

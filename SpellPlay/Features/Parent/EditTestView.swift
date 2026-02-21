@@ -90,6 +90,8 @@ struct EditTestView: View {
                                 .buttonStyle(.plain)
                                 .frame(width: AppConstants.minimumTouchTarget, height: AppConstants.minimumTouchTarget)
                                 .contentShape(Rectangle())
+                                .accessibilityLabel("Play pronunciation for \(word.text)")
+                                .accessibilityHint("Double tap to hear the word")
 
                                 Button(action: {
                                     modelContext.delete(word)
@@ -102,6 +104,8 @@ struct EditTestView: View {
                                 .buttonStyle(.plain)
                                 .frame(width: AppConstants.minimumTouchTarget, height: AppConstants.minimumTouchTarget)
                                 .contentShape(Rectangle())
+                                .accessibilityLabel("Remove \(word.text) from list")
+                                .accessibilityHint("Double tap to remove this word")
                             }
                             .padding(.vertical, 4)
                         }

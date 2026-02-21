@@ -688,11 +688,12 @@ get_sim_app_path_name_ws({
 
 ## Accessibility
 
-- Always provide accessibilityLabel for interactive elements
-- Use accessibilityIdentifier for UI testing
-- Implement accessibilityHint where actions aren't obvious
-- Test with VoiceOver enabled
-- Support Dynamic Type
+- **accessibilityLabel:** Always provide for interactive elements when the default (e.g. button title) is unclear. **Icon-only buttons must have an explicit accessibilityLabel** (e.g. "Settings", "Close", "Edit test").
+- **accessibilityIdentifier:** Use for UI test targets. Naming scheme: `ScreenOrFeature_Element` (e.g. `ParentHome_SettingsButton`, `Practice_SubmitButton`). Use stable, predictable IDs; include dynamic suffixes only when needed (e.g. `TestCard_Name_\(test.name)`).
+- **accessibilityHint:** Add where the action is not obvious (e.g. "Double tap to open settings", "Double tap to play word").
+- **Decorative images:** Mark with `.accessibilityHidden(true)` when the image adds no information beyond adjacent text.
+- **Where appropriate:** Primary actions with clear visible text may rely on default labels. Custom controls and icon-only buttons always get labels and, when helpful, hints.
+- Test with VoiceOver enabled; support Dynamic Type.
 
 ## Security & Privacy
 

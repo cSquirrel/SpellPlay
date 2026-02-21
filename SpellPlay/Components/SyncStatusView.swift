@@ -26,6 +26,7 @@ struct SyncStatusView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(syncService.syncStatus.displayMessage)
+        .accessibilityHint("Double tap for sync details")
         .accessibilityIdentifier("syncStatusButton")
         .sheet(isPresented: $showingDetails) {
             SyncStatusDetailView()

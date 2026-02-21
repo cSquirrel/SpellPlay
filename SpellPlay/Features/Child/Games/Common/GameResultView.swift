@@ -54,6 +54,7 @@ struct GameResultView: View {
                         }
                         .largeButtonStyle(color: AppConstants.primaryColor)
                         .accessibilityIdentifier("GameResult_PlayAgainButton")
+                        .accessibilityHint("Plays the same game again")
 
                         Button(action: onChooseDifferentGame) {
                             Text("Different Game")
@@ -63,6 +64,7 @@ struct GameResultView: View {
                         }
                         .largeButtonStyle(color: AppConstants.secondaryColor)
                         .accessibilityIdentifier("GameResult_DifferentGameButton")
+                        .accessibilityHint("Returns to game selection")
 
                         Button(action: { dismiss() }) {
                             Text("Done")
@@ -72,6 +74,7 @@ struct GameResultView: View {
                         }
                         .largeButtonStyle(color: Color(.systemGray4))
                         .accessibilityIdentifier("GameResult_DoneButton")
+                        .accessibilityHint("Returns to word list")
                     }
                     .padding(.horizontal, AppConstants.padding)
                     .padding(.bottom, AppConstants.padding)
