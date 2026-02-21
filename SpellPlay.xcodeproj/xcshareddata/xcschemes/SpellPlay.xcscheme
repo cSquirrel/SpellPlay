@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "2610"
-   version = "1.7">
+   version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
@@ -28,15 +28,6 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
-      <TestPlans>
-         <TestPlanReference
-            reference = "container:SpellPlay.xctestplan">
-         </TestPlanReference>
-         <TestPlanReference
-            reference = "container:SpellPlay/SpellPlay.xctestplan"
-            default = "YES">
-         </TestPlanReference>
-      </TestPlans>
       <Testables>
          <TestableReference
             skipped = "NO">
@@ -45,6 +36,17 @@
                BlueprintIdentifier = "8B41F65B2DEDD0D6001A66F9"
                BuildableName = "WordCraft.xctest"
                BlueprintName = "SpellPlayUITests"
+               ReferencedContainer = "container:SpellPlay.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "321825D22F49F1DE00B7576D"
+               BuildableName = "SpellPlayTests.xctest"
+               BlueprintName = "SpellPlayTests"
                ReferencedContainer = "container:SpellPlay.xcodeproj">
             </BuildableReference>
          </TestableReference>
