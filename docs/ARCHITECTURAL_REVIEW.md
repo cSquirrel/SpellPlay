@@ -277,13 +277,15 @@ struct LevelService {
 
 ---
 
-### 13. **ModelContext Access Pattern**
+### 13. **ModelContext Access Pattern** ✅ Documented
 
 **Issue:** Services require `ModelContext` passed in constructor
 
-**Optimization:**
-- Consider using `@Environment(\.modelContext)` in services via dependency injection
-- Or create a `DataService` protocol for consistent access
+**Resolution (ISSUE_013 / #26):** Pattern is documented in **docs/ARCHITECTURE.md** (ModelContext Access):
+- Views own `ModelContext` via `@Environment(\.modelContext)` and pass it into services.
+- Services (`AchievementService`, `StreakService`) receive context in initializer; call sites are StatsView, ChildHomeView, StatsCardView, and PracticeSessionState.setup.
+- **Exception:** PracticeSessionState holds context and creates services in `setup(test:modelContext:)`; documented as allowed exception.
+- Tests use in-memory `ModelContainer` and pass resulting context to services.
 
 ---
 
