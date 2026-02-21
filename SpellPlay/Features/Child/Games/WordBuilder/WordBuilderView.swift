@@ -35,6 +35,11 @@ struct WordBuilderView: View {
 
     @State private var ttsService = TTSService()
 
+    /// Used to re-trigger startWord on reset (when currentWordIndex stays 0).
+    @State private var gameResetID = UUID()
+    /// Used to trigger celebration auto-dismiss via .task(id:).
+    @State private var celebrationDismissID = UUID()
+
     private var currentWord: Word? {
         guard currentWordIndex < words.count else { return nil }
         return words[currentWordIndex]
@@ -119,8 +124,21 @@ struct WordBuilderView: View {
             .task {
                 startGameIfNeeded()
             }
-            .task(id: currentWordIndex) {
+            .task(id: "\(currentWordIndex)-\(gameResetID)") {
+                guard phase == .playing else { return }
                 await startWord()
+            }
+            .task(id: wiggleSlotIndex) {
+                guard wiggleSlotIndex != nil else { return }
+                try? await Task.sleep(for: .milliseconds(600))
+                wiggleSlotIndex = nil
+            }
+            .task(id: celebrationDismissID) {
+                guard showCelebration else { return }
+                try? await Task.sleep(for: .milliseconds(700))
+                withAnimation(.easeOut(duration: 0.2)) {
+                    showCelebration = false
+                }
             }
             .fullScreenCover(isPresented: $showResult) {
                 if let result {
@@ -212,10 +230,6 @@ struct WordBuilderView: View {
                         totalMistakes += 1
                         withAnimation(.spring(response: 0.2, dampingFraction: 0.3).repeatCount(3, autoreverses: true)) {
                             wiggleSlotIndex = index
-                        }
-                        Task { @MainActor in
-                            try? await Task.sleep(for: .milliseconds(600))
-                            wiggleSlotIndex = nil
                         }
                         showCelebrationTransient(type: .comboBreakthrough, message: "Try again", emoji: "💭")
                         return false
@@ -380,9 +394,7 @@ struct WordBuilderView: View {
         result = nil
         phase = .ready
         startGameIfNeeded()
-        Task { @MainActor in
-            await startWord()
-        }
+        gameResetID = UUID()
     }
 
     private func showCelebrationTransient(type: CelebrationType, message: String?, emoji: String?) {
@@ -394,12 +406,7 @@ struct WordBuilderView: View {
             showCelebration = true
         }
 
-        Task { @MainActor in
-            try? await Task.sleep(for: .milliseconds(700))
-            withAnimation(.easeOut(duration: 0.2)) {
-                showCelebration = false
-            }
-        }
+        celebrationDismissID = UUID()
     }
 }
 

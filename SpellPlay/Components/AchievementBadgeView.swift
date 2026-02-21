@@ -81,13 +81,10 @@ struct AchievementUnlockView: View {
                 scale = 1.0
                 rotation = 360
             }
-
-            Task {
-                try? await Task.sleep(nanoseconds: 300_000_000)
-                await MainActor.run {
-                    showConfetti = true
-                }
-            }
+        }
+        .task {
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            showConfetti = true
         }
     }
 }
