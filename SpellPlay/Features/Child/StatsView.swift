@@ -35,8 +35,9 @@ struct StatsView: View {
                             VStack(spacing: 16) {
                                 HStack {
                                     Text("More Stats")
-                                        .font(.system(size: AppConstants.titleSize, weight: .bold))
+                                        .font(.title.bold())
                                         .foregroundColor(.primary)
+                                        .accessibilityAddTraits(.isHeader)
                                     Spacer()
                                 }
                                 .padding(.horizontal, AppConstants.padding)
@@ -45,7 +46,7 @@ struct StatsView: View {
                                 HStack {
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text("Sessions Completed")
-                                            .font(.system(size: AppConstants.bodySize))
+                                            .font(.body)
                                             .foregroundColor(.secondary)
                                         Text("\(progress.totalSessionsCompleted)")
                                             .font(.system(size: 32, weight: .bold))
@@ -71,7 +72,7 @@ struct StatsView: View {
                             VStack(spacing: 16) {
                                 ProgressView()
                                 Text("Loading stats...")
-                                    .font(.system(size: AppConstants.bodySize))
+                                    .font(.body)
                                     .foregroundColor(.secondary)
                             }
                             .padding(AppConstants.padding * 2)

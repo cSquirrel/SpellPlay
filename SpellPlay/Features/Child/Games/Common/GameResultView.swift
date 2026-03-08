@@ -17,13 +17,13 @@ struct GameResultView: View {
 
                 VStack(spacing: 20) {
                     Text("Great job!")
-                        .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
+                        .font(.largeTitle.bold())
                         .foregroundColor(AppConstants.primaryColor)
                         .accessibilityIdentifier("GameResult_Title")
 
                     VStack(spacing: 14) {
                         Text(title)
-                            .font(.system(size: AppConstants.titleSize, weight: .semibold))
+                            .font(.title2)
                             .foregroundColor(.primary)
 
                         HStack(spacing: 12) {
@@ -48,7 +48,7 @@ struct GameResultView: View {
                     VStack(spacing: 12) {
                         Button(action: onPlayAgain) {
                             Text("Play Again")
-                                .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                                .font(.body.weight(.semibold))
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .contentShape(Rectangle())
                         }
@@ -58,7 +58,7 @@ struct GameResultView: View {
 
                         Button(action: onChooseDifferentGame) {
                             Text("Different Game")
-                                .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                                .font(.body.weight(.semibold))
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .contentShape(Rectangle())
                         }
@@ -68,7 +68,7 @@ struct GameResultView: View {
 
                         Button(action: { dismiss() }) {
                             Text("Done")
-                                .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                                .font(.body.weight(.semibold))
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .contentShape(Rectangle())
                         }
@@ -89,16 +89,17 @@ struct GameResultView: View {
     private func statTile(title: String, value: String, tint: Color) -> some View {
         VStack(spacing: 6) {
             Text(title)
-                .font(.system(size: AppConstants.captionSize, weight: .medium))
+                .font(.caption.weight(.medium))
                 .foregroundColor(.secondary)
 
             Text(value)
-                .font(.system(size: 26, weight: .bold))
+                .font(.title2.bold())
                 .foregroundColor(tint)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
         .background(tint.opacity(0.10))
         .cornerRadius(AppConstants.cornerRadius)
+        .accessibilityElement(children: .combine)
     }
 }

@@ -10,10 +10,24 @@ struct SpellingComparisonView: View {
         HStack(spacing: 4) {
             ForEach(Array(comparisonData.enumerated()), id: \.offset) { _, letterData in
                 Text(letterData.letter)
-                    .font(.system(size: AppConstants.bodySize, weight: .medium))
+                    .font(.body.weight(.medium))
                     .foregroundColor(letterData.isCorrect ? AppConstants.successColor : AppConstants.errorColor)
+                    .underline(!letterData.isCorrect, color: AppConstants.errorColor)
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(comparisonAccessibilityLabel)
+    }
+
+    private var comparisonAccessibilityLabel: String {
+        let incorrectLetters = comparisonData.filter { !$0.isCorrect }
+        if incorrectLetters.isEmpty {
+            return "All letters correct"
+        }
+        let incorrectPositions = comparisonData.enumerated()
+            .filter { !$0.element.isCorrect }
+            .map { "position \($0.offset + 1): \($0.element.letter)" }
+        return "Your answer: \(userAnswer). Incorrect letters at \(incorrectPositions.joined(separator: ", "))"
     }
 
     private var comparisonData: [(letter: String, isCorrect: Bool)] {

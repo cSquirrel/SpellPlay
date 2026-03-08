@@ -57,6 +57,7 @@ struct StarView: View {
             }
         }
         .accessibilityLabel("Star letter \(String(letter))")
+        .accessibilityHint("Double tap to catch")
         .accessibilityIdentifier("FallingStars_Star_\(String(letter))_\(id.uuidString)")
     }
 }

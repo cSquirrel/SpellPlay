@@ -26,7 +26,7 @@ struct StatsCardView: View {
                 // Show empty state while loading
                 VStack {
                     Text("Loading stats...")
-                        .font(.system(size: AppConstants.bodySize))
+                        .font(.body)
                         .foregroundColor(.secondary)
                 }
                 .padding(AppConstants.padding)
@@ -41,8 +41,9 @@ struct StatsCardView: View {
             // Header
             HStack {
                 Text("My Stats")
-                    .font(.system(size: AppConstants.titleSize, weight: .bold))
+                    .font(.title.bold())
                     .foregroundColor(.primary)
+                    .accessibilityAddTraits(.isHeader)
                 Spacer()
             }
 
@@ -55,38 +56,44 @@ struct StatsCardView: View {
                         Image(systemName: "star.fill")
                             .font(.system(size: 24))
                             .foregroundColor(AppConstants.secondaryColor)
+                            .accessibilityHidden(true)
 
                         Text("Level")
-                            .font(.system(size: AppConstants.captionSize))
+                            .font(.caption)
                             .foregroundColor(.secondary)
 
                         Text("\(progress.level)")
-                            .font(.system(size: 28, weight: .bold))
+                            .font(.title.bold())
                             .foregroundColor(AppConstants.primaryColor)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(AppConstants.primaryColor.opacity(0.1))
                     .cornerRadius(AppConstants.cornerRadius)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Level: \(progress.level)")
 
                     // Total Points
                     VStack(spacing: 8) {
                         Image(systemName: "star.fill")
                             .font(.system(size: 24))
                             .foregroundColor(AppConstants.secondaryColor)
+                            .accessibilityHidden(true)
 
                         Text("Points")
-                            .font(.system(size: AppConstants.captionSize))
+                            .font(.caption)
                             .foregroundColor(.secondary)
 
                         Text("\(progress.totalPoints)")
-                            .font(.system(size: 28, weight: .bold))
+                            .font(.title.bold())
                             .foregroundColor(AppConstants.primaryColor)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(AppConstants.primaryColor.opacity(0.1))
                     .cornerRadius(AppConstants.cornerRadius)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Points: \(progress.totalPoints)")
                 }
 
                 // Second row: Stars and Words
@@ -96,38 +103,44 @@ struct StatsCardView: View {
                         Image(systemName: "star.fill")
                             .font(.system(size: 24))
                             .foregroundColor(.yellow)
+                            .accessibilityHidden(true)
 
                         Text("Stars")
-                            .font(.system(size: AppConstants.captionSize))
+                            .font(.caption)
                             .foregroundColor(.secondary)
 
                         Text("\(progress.totalStars)")
-                            .font(.system(size: 28, weight: .bold))
+                            .font(.title.bold())
                             .foregroundColor(.primary)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(Color.yellow.opacity(0.1))
                     .cornerRadius(AppConstants.cornerRadius)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Stars: \(progress.totalStars)")
 
                     // Words Mastered
                     VStack(spacing: 8) {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 24))
                             .foregroundColor(AppConstants.successColor)
+                            .accessibilityHidden(true)
 
                         Text("Words")
-                            .font(.system(size: AppConstants.captionSize))
+                            .font(.caption)
                             .foregroundColor(.secondary)
 
                         Text("\(progress.totalWordsMastered)")
-                            .font(.system(size: 28, weight: .bold))
+                            .font(.title.bold())
                             .foregroundColor(.primary)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(AppConstants.successColor.opacity(0.1))
                     .cornerRadius(AppConstants.cornerRadius)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Words mastered: \(progress.totalWordsMastered)")
                 }
 
                 // Level Progress
@@ -140,11 +153,12 @@ struct StatsCardView: View {
             VStack(spacing: 12) {
                 HStack {
                     Text("Achievements")
-                        .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                        .font(.body.weight(.semibold))
                         .foregroundColor(.primary)
+                        .accessibilityAddTraits(.isHeader)
                     Spacer()
                     Text("\(progress.unlockedAchievements.count)/\(Achievement.allAchievements.count)")
-                        .font(.system(size: AppConstants.captionSize))
+                        .font(.caption)
                         .foregroundColor(.secondary)
                 }
 
@@ -161,7 +175,7 @@ struct StatsCardView: View {
                                 .font(.system(size: 40))
 
                             Text(achievement.name)
-                                .font(.system(size: AppConstants.captionSize, weight: .medium))
+                                .font(.caption.weight(.medium))
                                 .foregroundColor(.primary)
                                 .lineLimit(2)
                                 .multilineTextAlignment(.center)
@@ -174,7 +188,9 @@ struct StatsCardView: View {
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
                                 .stroke(isUnlocked ? Color.green : Color.gray.opacity(0.3), lineWidth: 2))
-                        .opacity(isUnlocked ? 1.0 : 0.4) // Fade out locked achievements
+                        .opacity(isUnlocked ? 1.0 : 0.4)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("\(achievement.name), \(isUnlocked ? "unlocked" : "locked")")
                     }
                 }
             }

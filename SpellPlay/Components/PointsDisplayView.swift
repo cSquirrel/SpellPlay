@@ -2,6 +2,7 @@ import SwiftUI
 
 struct PointsDisplayView: View {
     let points: Int
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var displayedPoints: Int = 0
     @State private var showPopup = false
     @State private var popupPoints: Int = 0
@@ -11,9 +12,10 @@ struct PointsDisplayView: View {
             Image(systemName: "star.fill")
                 .font(.system(size: 20))
                 .foregroundColor(AppConstants.secondaryColor)
+                .accessibilityHidden(true)
 
             Text("\(displayedPoints)")
-                .font(.system(size: AppConstants.titleSize, weight: .bold))
+                .font(.title.bold())
                 .foregroundColor(AppConstants.primaryColor)
                 .contentTransition(.numericText())
         }
@@ -24,9 +26,9 @@ struct PointsDisplayView: View {
         .overlay(
             // Points popup animation
             Group {
-                if showPopup {
+                if showPopup, !reduceMotion {
                     Text("+\(popupPoints)")
-                        .font(.system(size: 24, weight: .bold))
+                        .font(.title3.bold())
                         .foregroundColor(AppConstants.secondaryColor)
                         .padding(12)
                         .background(AppConstants.secondaryColor.opacity(0.2))
@@ -34,8 +36,11 @@ struct PointsDisplayView: View {
                         .offset(y: -60)
                         .transition(.scale.combined(with: .opacity))
                         .animation(.spring(response: 0.4, dampingFraction: 0.6), value: showPopup)
+                        .accessibilityHidden(true)
                 }
             })
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(displayedPoints) points")
         .onChange(of: points) { oldValue, newValue in
             let difference = newValue - oldValue
             if difference > 0 {

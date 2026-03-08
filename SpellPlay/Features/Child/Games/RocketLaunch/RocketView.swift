@@ -17,6 +17,7 @@ struct RocketView: View {
                 .offset(y: 8)
         }
         .offset(y: verticalOffset)
+        .accessibilityHidden(true)
         .onChange(of: fuelLevel) { _, _ in
             updateFlameAnimation()
         }

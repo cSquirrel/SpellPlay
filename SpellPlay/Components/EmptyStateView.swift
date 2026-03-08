@@ -30,11 +30,12 @@ struct EmptyStateView: View {
                 .accessibilityHidden(true)
 
             Text(title)
-                .font(.system(size: AppConstants.titleSize, weight: .semibold))
+                .font(.title2)
                 .foregroundColor(.primary)
+                .accessibilityAddTraits(.isHeader)
 
             Text(message)
-                .font(.system(size: AppConstants.bodySize))
+                .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, AppConstants.padding)
@@ -42,7 +43,7 @@ struct EmptyStateView: View {
             if let actionTitle, let action {
                 Button(action: action) {
                     Text(actionTitle)
-                        .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                        .font(.body.weight(.semibold))
                 }
                 .largeButtonStyle(color: AppConstants.primaryColor)
                 .padding(.horizontal, AppConstants.padding)

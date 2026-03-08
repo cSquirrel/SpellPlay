@@ -49,6 +49,7 @@ struct BalloonView: View {
         .rotationEffect(.degrees(wobbleDegrees))
         .contentShape(Rectangle())
         .onTapGesture(perform: onTap)
+        .accessibilityIdentifier("BalloonPop_Balloon_\(String(letter))")
         .onAppear {
             withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
                 wobbleDegrees = 4

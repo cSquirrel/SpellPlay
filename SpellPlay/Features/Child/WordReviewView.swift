@@ -27,11 +27,12 @@ struct WordReviewView: View {
                         VStack(spacing: 16) {
                             // Title
                             Text("Words to Practice")
-                                .font(.system(size: AppConstants.titleSize, weight: .semibold))
+                                .font(.title2)
                                 .foregroundColor(.primary)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 .padding(.horizontal, AppConstants.padding)
                                 .padding(.top, AppConstants.padding)
+                                .accessibilityAddTraits(.isHeader)
                                 .accessibilityIdentifier("WordReview_Title")
 
                             // Words
@@ -39,7 +40,7 @@ struct WordReviewView: View {
                                 ForEach(sortedWords) { word in
                                     HStack {
                                         Text(word.text)
-                                            .font(.system(size: AppConstants.bodySize, weight: .medium))
+                                            .font(.body.weight(.medium))
                                             .foregroundColor(.primary)
 
                                         Spacer()
@@ -60,7 +61,7 @@ struct WordReviewView: View {
                             showPractice = true
                         }) {
                             Text("Start")
-                                .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                                .font(.body.weight(.semibold))
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 .contentShape(Rectangle())
                         }
@@ -74,7 +75,7 @@ struct WordReviewView: View {
                                 Image(systemName: "gamecontroller.fill")
                                 Text("Play Games")
                             }
-                            .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                            .font(.body.weight(.semibold))
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .contentShape(Rectangle())
                         }

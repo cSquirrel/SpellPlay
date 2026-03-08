@@ -77,7 +77,7 @@ struct PracticeView: View {
                             showCancelConfirmation = true
                         }) {
                             Text("Cancel")
-                                .font(.system(size: AppConstants.bodySize))
+                                .font(.body)
                                 .foregroundColor(.secondary)
                         }
                         .accessibilityIdentifier("Practice_CancelButton")
@@ -131,6 +131,7 @@ struct PracticeView: View {
                         message: "\(practiceSession.comboMultiplier)x Combo!",
                         emoji: "⚡")
                         .transition(.scale.combined(with: .opacity))
+                        .accessibilityAddTraits(.isModal)
                 }
 
                 // Achievement unlock overlay
@@ -174,7 +175,7 @@ struct PracticeView: View {
                     .tint(AppConstants.primaryColor)
 
                 Text(practiceSession.progressText)
-                    .font(.system(size: AppConstants.captionSize))
+                    .font(.caption)
                     .foregroundColor(.secondary)
                     .accessibilityIdentifier("Practice_ProgressText")
             }
@@ -197,7 +198,7 @@ struct PracticeView: View {
                                     .foregroundColor(.white)
 
                                 Text("Normal")
-                                    .font(.system(size: AppConstants.captionSize, weight: .medium))
+                                    .font(.caption.weight(.medium))
                                     .foregroundColor(.white)
                             }
                             .frame(maxWidth: .infinity)
@@ -223,7 +224,7 @@ struct PracticeView: View {
                                     .foregroundColor(.white)
 
                                 Text("Slow")
-                                    .font(.system(size: AppConstants.captionSize, weight: .medium))
+                                    .font(.caption.weight(.medium))
                                     .foregroundColor(.white)
                             }
                             .frame(maxWidth: .infinity)
@@ -259,7 +260,7 @@ struct PracticeView: View {
                                 // Incorrect answer feedback
                                 VStack(spacing: 12) {
                                     Text(feedbackMessage.isEmpty ? "Incorrect" : feedbackMessage)
-                                        .font(.system(size: AppConstants.titleSize, weight: .bold))
+                                        .font(.title.bold())
                                         .foregroundColor(AppConstants.errorColor)
 
                                     // Letter-by-letter comparison
@@ -270,7 +271,7 @@ struct PracticeView: View {
 
                                         // Show correct word below for reference
                                         Text(correctWord)
-                                            .font(.system(size: AppConstants.bodySize, weight: .medium))
+                                            .font(.body.weight(.medium))
                                             .foregroundColor(.secondary)
                                     }
 
@@ -279,12 +280,13 @@ struct PracticeView: View {
                                             continueToNext()
                                         }) {
                                             Text("Continue")
-                                                .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                                                .font(.body.weight(.semibold))
                                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                                 .contentShape(Rectangle())
                                         }
                                         .largeButtonStyle(color: AppConstants.primaryColor)
                                         .padding(.top, 8)
+                                        .accessibilityIdentifier("Practice_ContinueButton")
                                     }
                                 }
                                 .transition(.scale.combined(with: .opacity))
@@ -307,7 +309,7 @@ struct PracticeView: View {
                         Text("🪙")
                             .font(.system(size: 20))
                         Text("Help (\(practiceSession.availableCoins))")
-                            .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                            .font(.body.weight(.semibold))
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
@@ -343,12 +345,13 @@ struct PracticeView: View {
         VStack(spacing: 24) {
             VStack(spacing: 16) {
                 Text("Round \(nextRoundNumber)")
-                    .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
+                    .font(.largeTitle.bold())
                     .foregroundColor(AppConstants.primaryColor)
+                    .accessibilityAddTraits(.isHeader)
                     .accessibilityIdentifier("RoundTransition_RoundTitle")
 
                 Text("Misspelled Words")
-                    .font(.system(size: AppConstants.titleSize, weight: .semibold))
+                    .font(.title2)
                     .foregroundColor(.secondary)
                     .accessibilityIdentifier("RoundTransition_Subtitle")
             }
@@ -360,7 +363,7 @@ struct PracticeView: View {
                     ForEach(practiceSession.misspelledWords, id: \.id) { word in
                         HStack {
                             Text(word.text)
-                                .font(.system(size: AppConstants.bodySize, weight: .medium))
+                                .font(.body.weight(.medium))
                                 .foregroundColor(.primary)
                                 .accessibilityIdentifier("RoundTransition_Word_\(word.text)")
 
@@ -404,7 +407,7 @@ struct PracticeView: View {
                 }
             }) {
                 Text("Start Round")
-                    .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                    .font(.body.weight(.semibold))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .contentShape(Rectangle())
             }

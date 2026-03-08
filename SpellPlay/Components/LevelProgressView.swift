@@ -21,17 +21,19 @@ struct LevelProgressView: View {
         experience - experienceForCurrentLevel
     }
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
         VStack(spacing: 8) {
             HStack {
                 Text("Level \(level)")
-                    .font(.system(size: AppConstants.titleSize, weight: .bold))
+                    .font(.title.bold())
                     .foregroundColor(AppConstants.primaryColor)
 
                 Spacer()
 
                 Text("\(experienceInCurrentLevel)/\(experienceNeeded) XP")
-                    .font(.system(size: AppConstants.bodySize))
+                    .font(.body)
                     .foregroundColor(.secondary)
             }
 
@@ -49,10 +51,13 @@ struct LevelProgressView: View {
                                 startPoint: .leading,
                                 endPoint: .trailing))
                         .frame(width: geometry.size.width * progress)
-                        .animation(.spring(response: 0.5, dampingFraction: 0.8), value: progress)
+                        .animation(reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.8), value: progress)
                 }
             }
             .frame(height: 12)
+            .accessibilityElement()
+            .accessibilityLabel("Level progress")
+            .accessibilityValue("\(Int(progress * 100)) percent")
         }
         .padding(16)
         .background(AppConstants.primaryColor.opacity(0.1))
@@ -77,6 +82,7 @@ struct LevelProgressView: View {
 
 struct LevelUpView: View {
     let newLevel: Int
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var scale: CGFloat = 0.5
     @State private var rotation: Double = 0
     @State private var showConfetti = false
@@ -84,7 +90,7 @@ struct LevelUpView: View {
     var body: some View {
         ZStack {
             // Confetti effect
-            if showConfetti {
+            if showConfetti, !reduceMotion {
                 ForEach(0 ..< 40, id: \.self) { index in
                     Text(["🎉", "⭐", "✨", "🎊", "🌟", "💫", "🚀"].randomElement() ?? "🎉")
                         .font(.system(size: 30))
@@ -97,11 +103,12 @@ struct LevelUpView: View {
                                 .delay(Double(index) * 0.05),
                             value: showConfetti)
                 }
+                .accessibilityHidden(true)
             }
 
             VStack(spacing: 24) {
                 Text("LEVEL UP!")
-                    .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
+                    .font(.largeTitle.bold())
                     .foregroundColor(AppConstants.secondaryColor)
 
                 Text("\(newLevel)")
@@ -111,16 +118,20 @@ struct LevelUpView: View {
                     .rotationEffect(.degrees(rotation))
 
                 Text("You've reached level \(newLevel)!")
-                    .font(.system(size: AppConstants.titleSize, weight: .semibold))
+                    .font(.title2)
                     .foregroundColor(.primary)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Level up! You've reached level \(newLevel)")
+        .accessibilityAddTraits(.isModal)
         .onAppear {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.6)) {
+            withAnimation(reduceMotion ? nil : .spring(response: 0.6, dampingFraction: 0.6)) {
                 scale = 1.0
-                rotation = 360
+                rotation = reduceMotion ? 0 : 360
             }
 
+            guard !reduceMotion else { return }
             Task {
                 try? await Task.sleep(nanoseconds: 300_000_000)
                 await MainActor.run {

@@ -3,6 +3,7 @@ import SwiftUI
 struct StarCollectionView: View {
     let stars: Int
     let totalStars: Int
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var animatedStars: Int = 0
 
     var body: some View {
@@ -13,13 +14,13 @@ struct StarCollectionView: View {
                     .foregroundColor(index < stars ? .yellow : .gray.opacity(0.3))
                     .scaleEffect(index < animatedStars ? 1.2 : 1.0)
                     .animation(
-                        .spring(response: 0.3, dampingFraction: 0.6).delay(Double(index) * 0.1),
+                        reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.6).delay(Double(index) * 0.1),
                         value: animatedStars)
             }
 
             if totalStars > 0 {
                 Text("(\(totalStars) total)")
-                    .font(.system(size: AppConstants.captionSize))
+                    .font(.caption)
                     .foregroundColor(.secondary)
             }
         }
@@ -27,9 +28,10 @@ struct StarCollectionView: View {
         .padding(.vertical, 8)
         .background(Color.yellow.opacity(0.1))
         .cornerRadius(AppConstants.cornerRadius)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(stars) of 3 stars earned, \(totalStars) total")
         .onChange(of: stars) { oldValue, newValue in
             if newValue > oldValue {
-                // Animate stars appearing
                 withAnimation {
                     animatedStars = newValue
                 }
@@ -51,18 +53,21 @@ struct SessionStarTotalView: View {
             Image(systemName: "star.fill")
                 .font(.system(size: 24))
                 .foregroundColor(.yellow)
+                .accessibilityHidden(true)
 
             Text("\(totalStars)")
-                .font(.system(size: AppConstants.titleSize, weight: .bold))
+                .font(.title.bold())
                 .foregroundColor(.primary)
 
             Text("stars earned")
-                .font(.system(size: AppConstants.bodySize))
+                .font(.body)
                 .foregroundColor(.secondary)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
         .background(Color.yellow.opacity(0.15))
         .cornerRadius(AppConstants.cornerRadius)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(totalStars) stars earned")
     }
 }

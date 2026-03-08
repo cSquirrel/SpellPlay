@@ -28,7 +28,7 @@ struct WordSelectionView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Choose Words to Practice")
-                                .font(.system(size: AppConstants.titleSize, weight: .bold))
+                                .font(.title.bold())
                                 .foregroundColor(.primary)
                                 .padding(.horizontal, AppConstants.padding)
                                 .padding(.top, AppConstants.padding)
@@ -44,7 +44,7 @@ struct WordSelectionView: View {
                                     }
                                 } label: {
                                     Text(selectedWordIds.count == sortedWords.count ? "Deselect All" : "Select All")
-                                        .font(.system(size: AppConstants.captionSize, weight: .medium))
+                                        .font(.caption.weight(.medium))
                                         .foregroundColor(AppConstants.primaryColor)
                                 }
                                 .accessibilityIdentifier("WordSelection_SelectAllButton")
@@ -52,7 +52,7 @@ struct WordSelectionView: View {
                                 Spacer()
 
                                 Text("\(selectedWordIds.count) of \(sortedWords.count) selected")
-                                    .font(.system(size: AppConstants.captionSize))
+                                    .font(.caption)
                                     .foregroundColor(.secondary)
                             }
                             .padding(.horizontal, AppConstants.padding)
@@ -72,7 +72,7 @@ struct WordSelectionView: View {
                         showGameSelection = true
                     }) {
                         Text("Continue")
-                            .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                            .font(.body.weight(.semibold))
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .contentShape(Rectangle())
                     }
@@ -124,7 +124,7 @@ struct WordSelectionView: View {
                     .foregroundColor(selectedWordIds.contains(word.id) ? AppConstants.primaryColor : .gray)
 
                 Text(word.text)
-                    .font(.system(size: AppConstants.bodySize, weight: .medium))
+                    .font(.body.weight(.medium))
                     .foregroundColor(.primary)
 
                 Spacer()

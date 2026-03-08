@@ -120,16 +120,16 @@ struct TestCardView: View {
         HStack {
             VStack(alignment: .leading, spacing: 8) {
                 Text(test.name)
-                    .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                    .font(.body.weight(.semibold))
                     .foregroundColor(.primary)
                     .accessibilityIdentifier("TestCard_Name_\(test.name)")
 
                 Text("\((test.words ?? []).count) words")
-                    .font(.system(size: AppConstants.captionSize))
+                    .font(.caption)
                     .foregroundColor(.secondary)
 
                 Text("Last practiced: \(lastPracticedText)")
-                    .font(.system(size: AppConstants.captionSize))
+                    .font(.caption)
                     .foregroundColor(.secondary)
             }
 
@@ -144,6 +144,7 @@ struct TestCardView: View {
                 .frame(width: AppConstants.minimumTouchTarget, height: AppConstants.minimumTouchTarget)
                 .accessibilityLabel("Edit test")
                 .accessibilityHint("Opens editor for \(test.name)")
+                .accessibilityIdentifier("TestCard_EditButton_\(test.name)")
 
                 Button(action: onDelete) {
                     Image(systemName: "trash")
@@ -153,6 +154,7 @@ struct TestCardView: View {
                 .frame(width: AppConstants.minimumTouchTarget, height: AppConstants.minimumTouchTarget)
                 .accessibilityLabel("Delete test")
                 .accessibilityHint("Deletes \(test.name) permanently")
+                .accessibilityIdentifier("TestCard_DeleteButton_\(test.name)")
             }
         }
         .padding(AppConstants.padding)

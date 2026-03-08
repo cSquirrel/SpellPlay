@@ -7,7 +7,7 @@ extension View {
             .frame(maxWidth: .infinity)
             .background(color)
             .foregroundColor(.white)
-            .font(.system(size: AppConstants.bodySize, weight: .semibold))
+            .font(.body.weight(.semibold))
             .cornerRadius(AppConstants.cornerRadius)
             .shadow(color: color.opacity(0.3), radius: 8, x: 0, y: 4)
             .contentShape(Rectangle())

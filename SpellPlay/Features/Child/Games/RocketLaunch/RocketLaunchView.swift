@@ -118,7 +118,7 @@ struct RocketLaunchView: View {
                                 HStack(spacing: 6) {
                                     Image(systemName: "speaker.wave.2.fill")
                                     Text("Hear Word")
-                                        .font(.system(size: AppConstants.captionSize, weight: .semibold))
+                                        .font(.caption.weight(.semibold))
                                 }
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
@@ -138,7 +138,7 @@ struct RocketLaunchView: View {
                                 HStack(spacing: 6) {
                                     Image(systemName: "slider.horizontal.3")
                                     Text(difficulty.displayName)
-                                        .font(.system(size: AppConstants.captionSize, weight: .semibold))
+                                        .font(.caption.weight(.semibold))
                                 }
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
@@ -255,7 +255,7 @@ struct RocketLaunchView: View {
     private var missionObjective: some View {
         VStack(spacing: 8) {
             Text("Mission Word")
-                .font(.system(size: AppConstants.captionSize, weight: .semibold))
+                .font(.caption.weight(.semibold))
                 .foregroundColor(.white.opacity(0.8))
                 .textCase(.uppercase)
 
@@ -302,11 +302,11 @@ struct RocketLaunchView: View {
         VStack(spacing: 8) {
             HStack {
                 Text("Fuel")
-                    .font(.system(size: AppConstants.captionSize, weight: .semibold))
+                    .font(.caption.weight(.semibold))
                     .foregroundColor(.white.opacity(0.9))
                 Spacer()
                 Text("\(Int(fuelLevel * 100))%")
-                    .font(.system(size: AppConstants.captionSize, weight: .bold))
+                    .font(.caption.bold())
                     .foregroundColor(.white.opacity(0.9))
             }
 

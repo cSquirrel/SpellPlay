@@ -8,14 +8,15 @@ struct RoleSelectionView: View {
             Spacer()
 
             Text("Welcome to WordCraft!")
-                .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
+                .font(.largeTitle.bold())
                 .foregroundColor(AppConstants.primaryColor)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, AppConstants.padding)
+                .accessibilityAddTraits(.isHeader)
                 .accessibilityIdentifier("RoleSelection_WelcomeText")
 
             Text("Choose your role to get started")
-                .font(.system(size: AppConstants.bodySize))
+                .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, AppConstants.padding)
@@ -30,7 +31,7 @@ struct RoleSelectionView: View {
                         Image(systemName: "person.fill")
                             .font(.system(size: 24))
                         Text("I am a Parent")
-                            .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                            .font(.body.weight(.semibold))
                     }
                 }
                 .largeButtonStyle(color: AppConstants.primaryColor)
@@ -44,7 +45,7 @@ struct RoleSelectionView: View {
                         Image(systemName: "face.smiling")
                             .font(.system(size: 24))
                         Text("I am a Kid")
-                            .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                            .font(.body.weight(.semibold))
                     }
                 }
                 .largeButtonStyle(color: AppConstants.secondaryColor)

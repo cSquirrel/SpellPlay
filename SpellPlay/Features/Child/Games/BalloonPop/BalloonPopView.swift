@@ -198,7 +198,7 @@ struct BalloonPopView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "speaker.wave.2.fill")
                     Text("Hear Word")
-                        .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                        .font(.body.weight(.semibold))
                 }
                 .frame(maxWidth: .infinity, minHeight: AppConstants.largeButtonHeight)
             }
@@ -217,7 +217,7 @@ struct BalloonPopView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "slider.horizontal.3")
                     Text(difficulty.displayName)
-                        .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                        .font(.body.weight(.semibold))
                 }
                 .frame(minHeight: AppConstants.largeButtonHeight)
             }

@@ -11,10 +11,12 @@ struct OnboardingView: View {
             Image(systemName: role == .parent ? "book.fill" : "gamecontroller.fill")
                 .font(.system(size: 80))
                 .foregroundColor(role == .parent ? AppConstants.primaryColor : AppConstants.secondaryColor)
+                .accessibilityHidden(true)
 
             Text(role == .parent ? "Parent Mode" : "Practice Mode")
-                .font(.system(size: AppConstants.titleSize, weight: .bold))
+                .font(.title.bold())
                 .foregroundColor(role == .parent ? AppConstants.primaryColor : AppConstants.secondaryColor)
+                .accessibilityAddTraits(.isHeader)
 
             VStack(alignment: .leading, spacing: 16) {
                 if role == .parent {
@@ -47,7 +49,7 @@ struct OnboardingView: View {
                 isPresented = false
             }) {
                 Text("Get Started")
-                    .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                    .font(.body.weight(.semibold))
             }
             .largeButtonStyle(color: role == .parent ? AppConstants.primaryColor : AppConstants.secondaryColor)
             .padding(.horizontal, AppConstants.padding)
@@ -69,12 +71,14 @@ struct OnboardingItem: View {
                 .font(.system(size: 24))
                 .foregroundColor(AppConstants.primaryColor)
                 .frame(width: 32)
+                .accessibilityHidden(true)
 
             Text(text)
-                .font(.system(size: AppConstants.bodySize))
+                .font(.body)
                 .foregroundColor(.primary)
 
             Spacer()
         }
+        .accessibilityElement(children: .combine)
     }
 }

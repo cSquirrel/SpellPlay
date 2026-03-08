@@ -78,14 +78,15 @@ struct ChildHomeView: View {
             Image(systemName: "book.closed")
                 .font(.system(size: 60))
                 .foregroundColor(.secondary)
+                .accessibilityHidden(true)
 
             Text("No Tests Available")
-                .font(.system(size: AppConstants.titleSize, weight: .semibold))
+                .font(.title2)
                 .foregroundColor(.primary)
                 .accessibilityIdentifier("ChildHome_EmptyStateText")
 
             Text("Ask a parent to create a spelling test for you!")
-                .font(.system(size: AppConstants.bodySize))
+                .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, AppConstants.padding)
@@ -127,22 +128,24 @@ struct ChildTestCardView: View {
                     Image(systemName: "book.fill")
                         .font(.system(size: 32))
                         .foregroundColor(AppConstants.secondaryColor)
+                        .accessibilityHidden(true)
 
                     Spacer()
 
                     Image(systemName: "play.circle.fill")
                         .font(.system(size: 32))
                         .foregroundColor(AppConstants.primaryColor)
+                        .accessibilityHidden(true)
                 }
 
                 Text(test.name)
-                    .font(.system(size: AppConstants.titleSize, weight: .bold))
+                    .font(.title.bold())
                     .foregroundColor(.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .accessibilityIdentifier("ChildTestCard_Name_\(test.name)")
 
                 Text("\((test.words ?? []).count) words")
-                    .font(.system(size: AppConstants.bodySize))
+                    .font(.body)
                     .foregroundColor(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
