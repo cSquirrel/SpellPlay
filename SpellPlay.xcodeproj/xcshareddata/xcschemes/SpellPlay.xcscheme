@@ -21,6 +21,20 @@
                ReferencedContainer = "container:SpellPlay.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3218244D2F49D8E000B7576D"
+               BuildableName = "SpellPlayTests.xctest"
+               BlueprintName = "SpellPlayTests"
+               ReferencedContainer = "container:SpellPlay.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -28,16 +42,18 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
-      <TestPlans>
-         <TestPlanReference
-            reference = "container:SpellPlay.xctestplan">
-         </TestPlanReference>
-         <TestPlanReference
-            reference = "container:SpellPlay/SpellPlay.xctestplan"
-            default = "YES">
-         </TestPlanReference>
-      </TestPlans>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3218244D2F49D8E000B7576D"
+               BuildableName = "SpellPlayTests.xctest"
+               BlueprintName = "SpellPlayTests"
+               ReferencedContainer = "container:SpellPlay.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
          <TestableReference
             skipped = "NO">
             <BuildableReference
