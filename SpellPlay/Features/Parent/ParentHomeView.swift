@@ -79,11 +79,9 @@ struct ParentHomeView: View {
         ScrollView {
             LazyVStack(spacing: 16) {
                 ForEach(tests) { test in
-                    TestCardView(test: test) {
-                        selectedTest = test
-                    } onDelete: {
-                        deleteTest(test)
-                    }
+                    TestCardView(test: test, mode: .parent(
+                        onEdit: { selectedTest = test },
+                        onDelete: { deleteTest(test) }))
                 }
             }
             .padding(AppConstants.padding)
@@ -99,66 +97,5 @@ struct ParentHomeView: View {
         } catch {
             errorMessage = "Failed to delete test: \(error.localizedDescription)"
         }
-    }
-}
-
-struct TestCardView: View {
-    let test: SpellingTest
-    let onEdit: () -> Void
-    let onDelete: () -> Void
-
-    /// Uses cached DateFormatter for better performance
-    private var lastPracticedText: String {
-        if let lastDate = test.lastPracticed {
-            lastDate.mediumFormatted
-        } else {
-            "Never"
-        }
-    }
-
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(test.name)
-                    .font(.body.weight(.semibold))
-                    .foregroundColor(.primary)
-                    .accessibilityIdentifier("TestCard_Name_\(test.name)")
-
-                Text("\((test.words ?? []).count) words")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-
-                Text("Last practiced: \(lastPracticedText)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-
-            Spacer()
-
-            HStack(spacing: 12) {
-                Button(action: onEdit) {
-                    Image(systemName: "pencil")
-                        .font(.system(size: 18))
-                        .foregroundColor(AppConstants.primaryColor)
-                }
-                .frame(width: AppConstants.minimumTouchTarget, height: AppConstants.minimumTouchTarget)
-                .accessibilityLabel("Edit test")
-                .accessibilityHint("Opens editor for \(test.name)")
-                .accessibilityIdentifier("TestCard_EditButton_\(test.name)")
-
-                Button(action: onDelete) {
-                    Image(systemName: "trash")
-                        .font(.system(size: 18))
-                        .foregroundColor(AppConstants.errorColor)
-                }
-                .frame(width: AppConstants.minimumTouchTarget, height: AppConstants.minimumTouchTarget)
-                .accessibilityLabel("Delete test")
-                .accessibilityHint("Deletes \(test.name) permanently")
-                .accessibilityIdentifier("TestCard_DeleteButton_\(test.name)")
-            }
-        }
-        .padding(AppConstants.padding)
-        .cardStyle()
-        .accessibilityIdentifier("TestCard_\(test.name)")
     }
 }

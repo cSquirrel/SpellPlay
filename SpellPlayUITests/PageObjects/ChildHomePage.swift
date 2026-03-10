@@ -4,7 +4,7 @@ class ChildHomePage: BasePage {
     // MARK: - Properties
 
     var testCards: XCUIElementQuery {
-        app.otherElements.matching(NSPredicate(format: "identifier BEGINSWITH 'ChildTestCard_'"))
+        app.otherElements.matching(NSPredicate(format: "identifier BEGINSWITH 'TestCard_'"))
     }
 
     var emptyStateText: XCUIElement {
@@ -28,7 +28,7 @@ class ChildHomePage: BasePage {
     // MARK: - Action Methods
 
     func tapTestCard(named name: String) -> PracticePage {
-        let card = app.otherElements["ChildTestCard_\(name)"]
+        let card = app.otherElements["TestCard_\(name)"]
         waitForElement(card)
         card.tap()
         sleep(1) // Wait for navigation
@@ -44,7 +44,7 @@ class ChildHomePage: BasePage {
     // MARK: - Verification Methods
 
     func verifyTestExists(named name: String) -> Bool {
-        let card = app.otherElements["ChildTestCard_\(name)"]
+        let card = app.otherElements["TestCard_\(name)"]
         return waitForElement(card)
     }
 
