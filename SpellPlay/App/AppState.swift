@@ -40,6 +40,11 @@ class AppState {
     }
 
     init() {
+        if ProcessInfo.processInfo.arguments.contains("UI_TESTING_RESET_STATE") {
+            UserDefaults.standard.removeObject(forKey: "selectedRole")
+            UserDefaults.standard.removeObject(forKey: "hasCompletedOnboarding_parent")
+            UserDefaults.standard.removeObject(forKey: "hasCompletedOnboarding_child")
+        }
         if let role = selectedRole {
             currentRole = role
         }
