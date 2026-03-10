@@ -1,8 +1,9 @@
 import AVFoundation
 import Foundation
 
-/// Text-to-Speech service that manages speech synthesis
-/// Uses @Observable for efficient SwiftUI observation
+/// Text-to-Speech service that manages speech synthesis.
+/// Uses `@Observable` for SwiftUI observation. TTS is provided via environment from the app root
+/// (see `WordCraftApp`); do not create per-view instances — use `@Environment(TTSService.self)` in views.
 @Observable
 @MainActor
 final class TTSService: NSObject, AVSpeechSynthesizerDelegate {
@@ -69,6 +70,8 @@ final class TTSService: NSObject, AVSpeechSynthesizerDelegate {
 // MARK: - AVSpeechSynthesizerDelegate
 
 extension TTSService {
+    /// Delegate runs on nonisolated context; hopping to MainActor is required. Do not replace with .task
+    /// (see issue #20: .task is for view lifecycle; delegate callbacks stay as Task { @MainActor in }).
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         Task { @MainActor in
             self.isSpeaking = false
