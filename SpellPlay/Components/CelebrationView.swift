@@ -14,6 +14,7 @@ struct CelebrationView: View {
     let message: String?
     let emoji: String?
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showConfetti = false
     @State private var scale: CGFloat = 0.5
     @State private var rotation: Double = 0
@@ -27,7 +28,7 @@ struct CelebrationView: View {
     var body: some View {
         ZStack {
             // Confetti effect using emojis
-            if showConfetti {
+            if showConfetti, !reduceMotion {
                 ForEach(0 ..< confettiCount, id: \.self) { index in
                     Text(confettiEmojis.randomElement() ?? "🎉")
                         .font(.system(size: confettiSize))
@@ -40,6 +41,7 @@ struct CelebrationView: View {
                                 .delay(Double(index) * 0.05),
                             value: showConfetti)
                 }
+                .accessibilityHidden(true)
             }
 
             VStack(spacing: 16) {
@@ -50,18 +52,21 @@ struct CelebrationView: View {
 
                 if let message = displayMessage {
                     Text(message)
-                        .font(.system(size: AppConstants.titleSize, weight: .bold))
+                        .font(.title.bold())
                         .foregroundColor(messageColor)
                 }
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(displayMessage ?? "Celebration")
         .onAppear {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.6)) {
+            withAnimation(reduceMotion ? nil : .spring(response: 0.6, dampingFraction: 0.6)) {
                 scale = 1.0
-                rotation = 360
+                rotation = reduceMotion ? 0 : 360
             }
         }
         .task {
+            guard !reduceMotion else { return }
             try? await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
             await MainActor.run {
                 showConfetti = true

@@ -43,6 +43,7 @@ struct FishView: View {
             }
         }
         .accessibilityLabel("Fish letter \(String(letter))")
+        .accessibilityHint("Double tap to catch")
         .accessibilityIdentifier("FishCatcher_Fish_\(String(letter))_\(id.uuidString)")
     }
 }

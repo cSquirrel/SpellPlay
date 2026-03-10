@@ -26,6 +26,7 @@ struct SyncStatusView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(syncService.syncStatus.displayMessage)
+        .accessibilityHint("Double tap for sync details")
         .accessibilityIdentifier("syncStatusButton")
         .sheet(isPresented: $showingDetails) {
             SyncStatusDetailView()
@@ -61,6 +62,7 @@ struct SyncStatusDetailView: View {
                             .frame(width: 44, height: 44)
                             .background(statusColor.opacity(0.15))
                             .clipShape(Circle())
+                            .accessibilityHidden(true)
 
                         VStack(alignment: .leading, spacing: 4) {
                             Text(statusTitle)
@@ -71,6 +73,7 @@ struct SyncStatusDetailView: View {
                         }
                     }
                     .padding(.vertical, 8)
+                    .accessibilityElement(children: .combine)
                 }
 
                 if let lastSync = syncService.lastSyncDate {
@@ -92,6 +95,7 @@ struct SyncStatusDetailView: View {
                         Label("Refresh Sync Status", systemImage: "arrow.triangle.2.circlepath")
                     }
                     .disabled(syncService.syncStatus == .syncing)
+                    .accessibilityIdentifier("SyncStatus_RefreshButton")
                 } footer: {
                     Text(
                         "Your spelling tests and progress sync automatically across devices signed in to the same iCloud account.")
@@ -104,6 +108,7 @@ struct SyncStatusDetailView: View {
                         } label: {
                             Label("Open Settings", systemImage: "gear")
                         }
+                        .accessibilityIdentifier("SyncStatus_OpenSettingsButton")
                     } footer: {
                         Text("Sign in to iCloud and enable iCloud Drive to allow syncing.")
                     }
@@ -114,6 +119,7 @@ struct SyncStatusDetailView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") { dismiss() }
+                        .accessibilityIdentifier("SyncStatus_DoneButton")
                 }
             }
         }

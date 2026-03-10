@@ -20,7 +20,7 @@ struct CreateTestView: View {
             Form {
                 Section("Test Name") {
                     TextField("Enter test name", text: $testName)
-                        .font(.system(size: AppConstants.bodySize))
+                        .font(.body)
                         .accessibilityIdentifier("CreateTest_TestNameField")
                 }
 
@@ -29,7 +29,7 @@ struct CreateTestView: View {
                         .accessibilityIdentifier("CreateTest_HelpCoinsStepper")
 
                     Text("Number of hints available during the test.")
-                        .font(.system(size: AppConstants.captionSize))
+                        .font(.caption)
                         .foregroundColor(.secondary)
                 }
 
@@ -37,7 +37,7 @@ struct CreateTestView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         TextEditor(text: $wordText)
                             .frame(height: 120)
-                            .font(.system(size: AppConstants.bodySize))
+                            .font(.body)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                             .overlay(
@@ -46,7 +46,7 @@ struct CreateTestView: View {
                             .accessibilityIdentifier("CreateTest_WordTextEditor")
 
                         Text("Enter words separated by commas or new lines")
-                            .font(.system(size: AppConstants.captionSize))
+                            .font(.caption)
                             .foregroundColor(.secondary)
 
                         Button(action: addWords) {
@@ -65,7 +65,7 @@ struct CreateTestView: View {
                         ForEach(Array(words.enumerated()), id: \.offset) { index, word in
                             HStack(spacing: 12) {
                                 Text(word)
-                                    .font(.system(size: AppConstants.bodySize))
+                                    .font(.body)
                                     .accessibilityIdentifier("CreateTest_Word_\(word)")
 
                                 Spacer()
@@ -83,6 +83,9 @@ struct CreateTestView: View {
                                 .buttonStyle(.plain)
                                 .frame(width: AppConstants.minimumTouchTarget, height: AppConstants.minimumTouchTarget)
                                 .contentShape(Rectangle())
+                                .accessibilityLabel("Play pronunciation for \(word)")
+                                .accessibilityHint("Double tap to hear the word")
+                                .accessibilityIdentifier("CreateTest_SpeakWord_\(word)")
 
                                 Button(action: {
                                     words.remove(at: index)
@@ -94,6 +97,9 @@ struct CreateTestView: View {
                                 .buttonStyle(.plain)
                                 .frame(width: AppConstants.minimumTouchTarget, height: AppConstants.minimumTouchTarget)
                                 .contentShape(Rectangle())
+                                .accessibilityLabel("Remove \(word) from list")
+                                .accessibilityHint("Double tap to remove this word")
+                                .accessibilityIdentifier("CreateTest_RemoveWord_\(word)")
                             }
                             .padding(.vertical, 4)
                         }

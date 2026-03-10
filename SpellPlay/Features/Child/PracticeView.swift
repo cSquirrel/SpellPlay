@@ -74,7 +74,7 @@ struct PracticeView: View {
                             showCancelConfirmation = true
                         }) {
                             Text("Cancel")
-                                .font(.system(size: AppConstants.bodySize))
+                                .font(.body)
                                 .foregroundColor(.secondary)
                         }
                         .accessibilityIdentifier("Practice_CancelButton")
@@ -138,6 +138,7 @@ struct PracticeView: View {
                         message: "\(practiceSession.comboMultiplier)x Combo!",
                         emoji: "⚡")
                         .transition(.scale.combined(with: .opacity))
+                        .accessibilityAddTraits(.isModal)
                 }
                 if
                     showAchievementUnlock, let achievementId = unlockedAchievement,
@@ -175,7 +176,7 @@ struct PracticeView: View {
                     .progressViewStyle(.linear)
                     .tint(AppConstants.primaryColor)
                 Text(practiceSession.progressText)
-                    .font(.system(size: AppConstants.captionSize))
+                    .font(.caption)
                     .foregroundColor(.secondary)
                     .accessibilityIdentifier("Practice_ProgressText")
             }
@@ -194,7 +195,7 @@ struct PracticeView: View {
                                     .font(.system(size: 40))
                                     .foregroundColor(.white)
                                 Text("Normal")
-                                    .font(.system(size: AppConstants.captionSize, weight: .medium))
+                                    .font(.caption.weight(.medium))
                                     .foregroundColor(.white)
                             }
                             .frame(maxWidth: .infinity)
@@ -204,6 +205,9 @@ struct PracticeView: View {
                             .shadow(color: AppConstants.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         .disabled(ttsService.isSpeaking)
+                        .accessibilityLabel("Play word at normal speed")
+                        .accessibilityHint("Double tap to hear the word")
+                        .accessibilityIdentifier("Practice_PlayNormalButton")
 
                         Button(action: {
                             ttsService.speak(word.text, rate: 0.1)
@@ -213,7 +217,7 @@ struct PracticeView: View {
                                     .font(.system(size: 40))
                                     .foregroundColor(.white)
                                 Text("Slow")
-                                    .font(.system(size: AppConstants.captionSize, weight: .medium))
+                                    .font(.caption.weight(.medium))
                                     .foregroundColor(.white)
                             }
                             .frame(maxWidth: .infinity)
@@ -223,6 +227,9 @@ struct PracticeView: View {
                             .shadow(color: AppConstants.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
                         .disabled(ttsService.isSpeaking)
+                        .accessibilityLabel("Play word at slow speed")
+                        .accessibilityHint("Double tap to hear the word slowly")
+                        .accessibilityIdentifier("Practice_PlaySlowButton")
                     }
                     .padding(.horizontal, AppConstants.padding)
 
@@ -242,14 +249,14 @@ struct PracticeView: View {
                             } else {
                                 VStack(spacing: 12) {
                                     Text(feedbackMessage.isEmpty ? "Incorrect" : feedbackMessage)
-                                        .font(.system(size: AppConstants.titleSize, weight: .bold))
+                                        .font(.title.bold())
                                         .foregroundColor(AppConstants.errorColor)
                                     VStack(spacing: 8) {
                                         SpellingComparisonView(
                                             userAnswer: incorrectAnswer,
                                             correctWord: correctWord)
                                         Text(correctWord)
-                                            .font(.system(size: AppConstants.bodySize, weight: .medium))
+                                            .font(.body.weight(.medium))
                                             .foregroundColor(.secondary)
                                     }
                                     if showContinueButton {
@@ -257,12 +264,13 @@ struct PracticeView: View {
                                             continueToNext()
                                         }) {
                                             Text("Continue")
-                                                .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                                                .font(.body.weight(.semibold))
                                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                                                 .contentShape(Rectangle())
                                         }
                                         .largeButtonStyle(color: AppConstants.primaryColor)
                                         .padding(.top, 8)
+                                        .accessibilityIdentifier("Practice_ContinueButton")
                                     }
                                 }
                                 .transition(.scale.combined(with: .opacity))
@@ -283,7 +291,7 @@ struct PracticeView: View {
                         Text("🪙")
                             .font(.system(size: 20))
                         Text("Help (\(practiceSession.availableCoins))")
-                            .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                            .font(.body.weight(.semibold))
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 10)
@@ -297,6 +305,8 @@ struct PracticeView: View {
                 .disabled(practiceSession.availableCoins <= 0 || isInputDisabled || isWordComplete)
                 .opacity(practiceSession.availableCoins <= 0 || isWordComplete ? 0.6 : 1)
                 .padding(.bottom, 8)
+                .accessibilityLabel("Help coin, \(practiceSession.availableCoins) available")
+                .accessibilityHint("Double tap to reveal a letter in the word")
                 .accessibilityIdentifier("Practice_HelpCoinButton")
             }
 
@@ -316,11 +326,12 @@ struct PracticeView: View {
         VStack(spacing: 24) {
             VStack(spacing: 16) {
                 Text("Round \(nextRoundNumber)")
-                    .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
+                    .font(.largeTitle.bold())
                     .foregroundColor(AppConstants.primaryColor)
+                    .accessibilityAddTraits(.isHeader)
                     .accessibilityIdentifier("RoundTransition_RoundTitle")
                 Text("Misspelled Words")
-                    .font(.system(size: AppConstants.titleSize, weight: .semibold))
+                    .font(.title2)
                     .foregroundColor(.secondary)
                     .accessibilityIdentifier("RoundTransition_Subtitle")
             }
@@ -331,7 +342,7 @@ struct PracticeView: View {
                     ForEach(practiceSession.misspelledWords, id: \.id) { word in
                         HStack {
                             Text(word.text)
-                                .font(.system(size: AppConstants.bodySize, weight: .medium))
+                                .font(.body.weight(.medium))
                                 .foregroundColor(.primary)
                                 .accessibilityIdentifier("RoundTransition_Word_\(word.text)")
                             Spacer()
@@ -345,6 +356,9 @@ struct PracticeView: View {
                             .buttonStyle(.plain)
                             .contentShape(Rectangle())
                             .disabled(ttsService.isSpeaking)
+                            .accessibilityLabel("Play word \(word.text)")
+                            .accessibilityHint("Double tap to hear the word")
+                            .accessibilityIdentifier("RoundTransition_PlayWord_\(word.text)")
                         }
                         .padding(AppConstants.padding)
                         .background(Color(.systemGray6))
@@ -362,7 +376,7 @@ struct PracticeView: View {
                 startRoundTTSTrigger = UUID()
             }) {
                 Text("Start Round")
-                    .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                    .font(.body.weight(.semibold))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .contentShape(Rectangle())
             }

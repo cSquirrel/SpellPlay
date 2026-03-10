@@ -55,8 +55,9 @@ struct PracticeSummaryView: View {
 
                         VStack(spacing: 20) {
                             Text("Practice Complete!")
-                                .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
+                                .font(.largeTitle.bold())
                                 .foregroundColor(AppConstants.primaryColor)
+                                .accessibilityAddTraits(.isHeader)
 
                             // Performance grade
                             if let grade = performanceGrade {
@@ -71,53 +72,60 @@ struct PracticeSummaryView: View {
                                         Image(systemName: "star.fill")
                                             .font(.system(size: 30))
                                             .foregroundColor(AppConstants.secondaryColor)
+                                            .accessibilityHidden(true)
 
                                         Text("\(sessionPoints)")
-                                            .font(.system(size: 32, weight: .bold))
+                                            .font(.title.bold())
                                             .foregroundColor(AppConstants.primaryColor)
 
                                         Text("points")
-                                            .font(.system(size: AppConstants.captionSize))
+                                            .font(.caption)
                                             .foregroundColor(.secondary)
                                     }
                                     .frame(maxWidth: .infinity)
                                     .padding(AppConstants.padding)
                                     .background(AppConstants.primaryColor.opacity(0.1))
                                     .cornerRadius(AppConstants.cornerRadius)
+                                    .accessibilityElement(children: .combine)
+                                    .accessibilityLabel("\(sessionPoints) points")
 
                                     // Stars earned
                                     VStack(spacing: 8) {
                                         Image(systemName: "star.fill")
                                             .font(.system(size: 30))
                                             .foregroundColor(.yellow)
+                                            .accessibilityHidden(true)
 
                                         Text("\(totalStars)")
-                                            .font(.system(size: 32, weight: .bold))
+                                            .font(.title.bold())
                                             .foregroundColor(.primary)
 
                                         Text("stars")
-                                            .font(.system(size: AppConstants.captionSize))
+                                            .font(.caption)
                                             .foregroundColor(.secondary)
                                     }
                                     .frame(maxWidth: .infinity)
                                     .padding(AppConstants.padding)
                                     .background(Color.yellow.opacity(0.1))
                                     .cornerRadius(AppConstants.cornerRadius)
+                                    .accessibilityElement(children: .combine)
+                                    .accessibilityLabel("\(totalStars) stars")
                                 }
 
                                 // Round count display
                                 VStack(spacing: 8) {
                                     Text("Completed in")
-                                        .font(.system(size: AppConstants.bodySize))
+                                        .font(.body)
                                         .foregroundColor(.secondary)
 
                                     Text("\(roundsCompleted) round\(roundsCompleted == 1 ? "" : "s")")
-                                        .font(.system(size: 36, weight: .bold))
+                                        .font(.largeTitle.bold())
                                         .foregroundColor(AppConstants.primaryColor)
                                         .accessibilityIdentifier("PracticeSummary_RoundsCompleted")
                                 }
                                 .padding(AppConstants.padding * 2)
                                 .cardStyle()
+                                .accessibilityElement(children: .combine)
 
                                 // Level progress
                                 LevelProgressView(
@@ -133,8 +141,9 @@ struct PracticeSummaryView: View {
                                 if !newlyUnlockedAchievements.isEmpty {
                                     VStack(spacing: 12) {
                                         Text("Achievements Unlocked")
-                                            .font(.system(size: AppConstants.titleSize, weight: .bold))
+                                            .font(.title.bold())
                                             .foregroundColor(.primary)
+                                            .accessibilityAddTraits(.isHeader)
 
                                         ScrollView(.horizontal, showsIndicators: false) {
                                             HStack(spacing: 12) {
@@ -163,17 +172,19 @@ struct PracticeSummaryView: View {
                 VStack(spacing: 16) {
                     Button(action: onPracticeAgain) {
                         Text("Practice Again")
-                            .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                            .font(.body.weight(.semibold))
                     }
                     .largeButtonStyle(color: AppConstants.primaryColor)
                     .accessibilityIdentifier("PracticeSummary_PracticeAgainButton")
+                    .accessibilityHint("Starts another practice session")
 
                     Button(action: onBack) {
                         Text("Back to Tests")
-                            .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                            .font(.body.weight(.semibold))
                     }
                     .largeButtonStyle(color: AppConstants.secondaryColor)
                     .accessibilityIdentifier("PracticeSummary_BackToTestsButton")
+                    .accessibilityHint("Returns to test list")
                 }
                 .padding(.horizontal, AppConstants.padding)
                 .padding(.bottom, 40)

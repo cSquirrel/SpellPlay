@@ -226,7 +226,7 @@ struct RocketLaunchView: View {
     private var missionObjective: some View {
         VStack(spacing: 8) {
             Text("Mission Word")
-                .font(.system(size: AppConstants.captionSize, weight: .semibold))
+                .font(.caption.weight(.semibold))
                 .foregroundColor(.white.opacity(0.8))
                 .textCase(.uppercase)
 
@@ -273,11 +273,11 @@ struct RocketLaunchView: View {
         VStack(spacing: 8) {
             HStack {
                 Text("Fuel")
-                    .font(.system(size: AppConstants.captionSize, weight: .semibold))
+                    .font(.caption.weight(.semibold))
                     .foregroundColor(.white.opacity(0.9))
                 Spacer()
                 Text("\(Int(fuelLevel * 100))%")
-                    .font(.system(size: AppConstants.captionSize, weight: .bold))
+                    .font(.caption.bold())
                     .foregroundColor(.white.opacity(0.9))
             }
 

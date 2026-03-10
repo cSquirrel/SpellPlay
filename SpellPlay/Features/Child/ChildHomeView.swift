@@ -60,6 +60,8 @@ struct ChildHomeView: View {
                             .font(.system(size: 20))
                             .foregroundColor(.secondary)
                     }
+                    .accessibilityLabel("Settings")
+                    .accessibilityHint("Opens settings and role switcher")
                     .accessibilityIdentifier("ChildHome_SettingsButton")
                 }
             }

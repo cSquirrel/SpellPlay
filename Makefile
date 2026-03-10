@@ -1,7 +1,7 @@
 # SwiftFormat Makefile for SpellPlay
 # Usage: make format | make lint | make format-check
 
-.PHONY: format lint format-check format-staged help install-swiftformat
+.PHONY: format lint lint-fix format-check format-staged help install-swiftformat
 
 # Default target
 help:
@@ -9,6 +9,7 @@ help:
 	@echo "  make format         - Format all Swift files"
 	@echo "  make format-check   - Check formatting without making changes (dry-run)"
 	@echo "  make lint           - Lint all Swift files (report issues)"
+	@echo "  make lint-fix       - Lint and apply SwiftFormat fixes"
 	@echo "  make format-staged  - Format only git-staged Swift files"
 	@echo "  make install        - Install SwiftFormat via Homebrew"
 	@echo ""
@@ -49,6 +50,12 @@ lint:
 	@echo "Linting Swift files..."
 	@swiftformat $(SOURCES) --config .swiftformat --lint $(VERBOSITY)
 	@echo "✅ Lint complete"
+
+# Lint and apply fixes (same as lint but allows swiftformat to fix)
+lint-fix:
+	@echo "Linting and fixing Swift files..."
+	@swiftformat $(SOURCES) --config .swiftformat $(VERBOSITY)
+	@echo "✅ Lint-fix complete"
 
 # Format only staged files (useful for pre-commit)
 format-staged:

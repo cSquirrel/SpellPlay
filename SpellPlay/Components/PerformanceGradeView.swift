@@ -2,6 +2,7 @@ import SwiftUI
 
 struct PerformanceGradeView: View {
     let grade: PerformanceGrade
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var scale: CGFloat = 0.8
     @State private var opacity: Double = 0
 
@@ -14,7 +15,7 @@ struct PerformanceGradeView: View {
                 .opacity(opacity)
 
             Text(gradeMessage)
-                .font(.system(size: AppConstants.bodySize))
+                .font(.body)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
         }
@@ -25,8 +26,10 @@ struct PerformanceGradeView: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: AppConstants.cornerRadius)
                         .stroke(grade.color, lineWidth: 3)))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Grade: \(grade.rawValue). \(gradeMessage)")
         .onAppear {
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
+            withAnimation(reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.7)) {
                 scale = 1.0
                 opacity = 1.0
             }

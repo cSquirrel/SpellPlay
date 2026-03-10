@@ -3,7 +3,7 @@ import SwiftUI
 
 @main
 struct WordCraftApp: App {
-    @State private var appState = AppState()
+    @State private var appState: AppState
     @State private var cloudSyncService = CloudSyncService()
     @State private var ttsService = TTSService()
     @State private var showOnboarding = false
@@ -28,6 +28,16 @@ struct WordCraftApp: App {
         }
     }()
 
+    init() {
+        if CommandLine.arguments.contains("-UITestingReset") {
+            let defaults = UserDefaults.standard
+            defaults.removeObject(forKey: "selectedRole")
+            defaults.removeObject(forKey: "hasCompletedOnboarding_parent")
+            defaults.removeObject(forKey: "hasCompletedOnboarding_child")
+        }
+        _appState = State(initialValue: AppState())
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -42,7 +52,7 @@ struct WordCraftApp: App {
                         showOnboarding = true
                     }
                 }
-                .onChange(of: appState.selectedRole) { _, newValue in
+                .onChange(of: appState.currentRole) { _, newValue in
                     // Show onboarding when a role is selected for the first time
                     if let role = newValue, !appState.hasCompletedOnboarding(for: role) {
                         showOnboarding = true

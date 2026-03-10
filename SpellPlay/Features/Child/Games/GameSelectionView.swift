@@ -18,7 +18,7 @@ struct GameSelectionView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
                         Text("Choose a Game")
-                            .font(.system(size: AppConstants.titleSize, weight: .bold))
+                            .font(.title.bold())
                             .foregroundColor(.primary)
                             .padding(.horizontal, AppConstants.padding)
                             .padding(.top, AppConstants.padding)
@@ -26,7 +26,7 @@ struct GameSelectionView: View {
 
                         // Show selected words count
                         Text("\(selectedWords.count) word\(selectedWords.count == 1 ? "" : "s") selected")
-                            .font(.system(size: AppConstants.captionSize))
+                            .font(.caption)
                             .foregroundColor(.secondary)
                             .padding(.horizontal, AppConstants.padding)
                             .accessibilityIdentifier("GameSelection_WordCount")
@@ -94,11 +94,11 @@ struct GameSelectionView: View {
                     .font(.system(size: 44))
 
                 Text(game.title)
-                    .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                    .font(.body.weight(.semibold))
                     .foregroundColor(.primary)
 
                 Text(subtitleText)
-                    .font(.system(size: AppConstants.captionSize))
+                    .font(.caption)
                     .foregroundColor(.secondary)
             }
             .frame(maxWidth: .infinity)
@@ -173,11 +173,11 @@ private struct ComingSoonView: View {
 
                 VStack(spacing: 12) {
                     Text("Coming soon")
-                        .font(.system(size: AppConstants.largeTitleSize, weight: .bold))
+                        .font(.largeTitle.bold())
                         .foregroundColor(AppConstants.primaryColor)
 
                     Text("\(gameName) is not available yet.")
-                        .font(.system(size: AppConstants.bodySize))
+                        .font(.body)
                         .foregroundColor(.secondary)
                 }
                 .padding(AppConstants.padding)

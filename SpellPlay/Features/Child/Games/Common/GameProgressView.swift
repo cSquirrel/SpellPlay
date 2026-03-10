@@ -12,14 +12,14 @@ struct GameProgressView: View {
         VStack(spacing: 10) {
             HStack {
                 Text(title)
-                    .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                    .font(.body.weight(.semibold))
                     .foregroundColor(.primary)
                     .accessibilityIdentifier("Game_Title")
 
                 Spacer()
 
                 Text("\(wordIndex + 1)/\(max(wordCount, 1))")
-                    .font(.system(size: AppConstants.captionSize, weight: .semibold))
+                    .font(.caption.weight(.semibold))
                     .foregroundColor(.secondary)
                     .accessibilityLabel("Word \(wordIndex + 1) of \(max(wordCount, 1))")
                     .accessibilityIdentifier("Game_ProgressText")
@@ -30,7 +30,7 @@ struct GameProgressView: View {
 
                 if comboMultiplier > 1 {
                     Text("\(comboMultiplier)x")
-                        .font(.system(size: AppConstants.captionSize, weight: .bold))
+                        .font(.caption.bold())
                         .foregroundColor(.yellow)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)

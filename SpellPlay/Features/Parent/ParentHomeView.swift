@@ -42,6 +42,8 @@ struct ParentHomeView: View {
                                 .font(.system(size: 20))
                                 .foregroundColor(.secondary)
                         }
+                        .accessibilityLabel("Settings")
+                        .accessibilityHint("Opens settings and role switcher")
                         .accessibilityIdentifier("ParentHome_SettingsButton")
 
                         SyncStatusView()
@@ -55,6 +57,8 @@ struct ParentHomeView: View {
                         Image(systemName: "plus")
                             .font(.system(size: 20, weight: .semibold))
                     }
+                    .accessibilityLabel("Create test")
+                    .accessibilityHint("Creates a new spelling test")
                     .accessibilityIdentifier("ParentHome_CreateTestToolbarButton")
                 }
             }

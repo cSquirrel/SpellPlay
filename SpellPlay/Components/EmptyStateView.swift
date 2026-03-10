@@ -39,6 +39,7 @@ struct EmptyStateView: View {
             Text(title)
                 .font(.title2.weight(.semibold))
                 .foregroundColor(.primary)
+                .accessibilityAddTraits(.isHeader)
                 .accessibilityIdentifier(when: titleAccessibilityIdentifier)
 
             Text(message)

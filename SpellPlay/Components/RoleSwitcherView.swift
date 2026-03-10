@@ -9,7 +9,7 @@ struct RoleSwitcherView: View {
             Form {
                 Section("Switch Role") {
                     Text("Change between Parent and Kid mode")
-                        .font(.system(size: AppConstants.bodySize))
+                        .font(.body)
                         .foregroundColor(.secondary)
 
                     Button(action: {
@@ -21,7 +21,6 @@ struct RoleSwitcherView: View {
                                 .foregroundColor(AppConstants.primaryColor)
                             Text("Switch to Parent Mode")
                                 .foregroundColor(.primary)
-                                .accessibilityIdentifier("RoleSwitcher_ParentButton")
                             Spacer()
                             if appState.currentRole == .parent {
                                 Image(systemName: "checkmark")
@@ -29,6 +28,10 @@ struct RoleSwitcherView: View {
                             }
                         }
                     }
+                    .accessibilityLabel(
+                        "Switch to Parent Mode\(appState.currentRole == .parent ? ", currently selected" : "")")
+                    .accessibilityHint("Double tap to switch to parent mode")
+                    .accessibilityIdentifier("RoleSwitcher_ParentButton")
 
                     Button(action: {
                         appState.selectedRole = .child
@@ -39,7 +42,6 @@ struct RoleSwitcherView: View {
                                 .foregroundColor(AppConstants.secondaryColor)
                             Text("Switch to Kid Mode")
                                 .foregroundColor(.primary)
-                                .accessibilityIdentifier("RoleSwitcher_ChildButton")
                             Spacer()
                             if appState.currentRole == .child {
                                 Image(systemName: "checkmark")
@@ -47,6 +49,10 @@ struct RoleSwitcherView: View {
                             }
                         }
                     }
+                    .accessibilityLabel(
+                        "Switch to Kid Mode\(appState.currentRole == .child ? ", currently selected" : "")")
+                    .accessibilityHint("Double tap to switch to kid mode")
+                    .accessibilityIdentifier("RoleSwitcher_ChildButton")
                 }
 
                 Section("Current Role") {
@@ -68,6 +74,7 @@ struct RoleSwitcherView: View {
                     Button("Done") {
                         dismiss()
                     }
+                    .accessibilityIdentifier("RoleSwitcher_DoneButton")
                 }
             }
         }

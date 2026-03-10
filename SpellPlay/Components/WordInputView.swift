@@ -12,7 +12,7 @@ struct WordInputView: View {
         VStack(spacing: 16) {
             TextField(placeholder, text: $text)
                 .textFieldStyle(.plain)
-                .font(.system(size: AppConstants.bodySize))
+                .font(.body)
                 .padding()
                 .background(Color(.systemGray6))
                 .cornerRadius(AppConstants.cornerRadius)
@@ -28,21 +28,14 @@ struct WordInputView: View {
                     }
                 }
 
-            ZStack {
-                // Invisible tap area covering entire button - must fill entire ZStack
-                Color.clear
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        if !text.isEmpty {
-                            onSubmit()
-                        }
-                    }
-
-                // Visible button content
+            Button(action: {
+                if !text.isEmpty {
+                    onSubmit()
+                }
+            }) {
                 Text("Submit")
-                    .font(.system(size: AppConstants.bodySize, weight: .semibold))
+                    .font(.body.weight(.semibold))
                     .foregroundColor(.white)
-                    .accessibilityIdentifier("WordInput_SubmitButton")
             }
             .frame(height: AppConstants.largeButtonHeight)
             .frame(maxWidth: .infinity)
@@ -50,7 +43,10 @@ struct WordInputView: View {
             .cornerRadius(AppConstants.cornerRadius)
             .shadow(color: AppConstants.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
             .contentShape(Rectangle())
-            .allowsHitTesting(!text.isEmpty)
+            .disabled(text.isEmpty)
+            .accessibilityLabel("Submit answer")
+            .accessibilityHint("Submits your spelling for the current word")
+            .accessibilityIdentifier("WordInput_SubmitButton")
         }
         .onAppear {
             // Focus the field after a short delay to ensure view is ready
