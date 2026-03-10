@@ -58,6 +58,16 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3218244D2F49D8E000B7576D"
+               BuildableName = "SpellPlayTests.xctest"
+               BlueprintName = "SpellPlayTests"
+               ReferencedContainer = "container:SpellPlay.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
                BlueprintIdentifier = "8B41F65B2DEDD0D6001A66F9"
                BuildableName = "WordCraft.xctest"
                BlueprintName = "SpellPlayUITests"
