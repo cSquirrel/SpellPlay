@@ -78,6 +78,7 @@ extension TTSService {
         }
     }
 
+    /// Delegate callback; Task { @MainActor in } required to update @MainActor state from nonisolated delegate.
     nonisolated func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
         Task { @MainActor in
             self.isSpeaking = false

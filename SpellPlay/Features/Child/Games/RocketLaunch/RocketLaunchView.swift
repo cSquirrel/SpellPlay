@@ -516,7 +516,7 @@ struct RocketLaunchView: View {
         guard !isLaunching else { return }
         isLaunching = true
 
-        // Countdown
+        // Button-triggered launch sequence; Task used for multi-step async work (countdown + animation).
         Task { @MainActor in
             for i in (1 ... 3).reversed() {
                 countdownValue = i
