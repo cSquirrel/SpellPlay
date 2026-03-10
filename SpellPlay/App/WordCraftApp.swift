@@ -5,6 +5,9 @@ import SwiftUI
 struct WordCraftApp: App {
     @State private var appState = AppState()
     @State private var cloudSyncService = CloudSyncService()
+    /// Single TTS instance for the app. Injected via environment so all games and TTS-using views share it.
+    /// Do not create per-view TTSService; use `@Environment(TTSService.self)` in views.
+    @State private var ttsService = TTSService()
     @State private var showOnboarding = false
 
     var modelContainer: ModelContainer = {
@@ -33,6 +36,7 @@ struct WordCraftApp: App {
                 .preferredColorScheme(.light) // Force light mode
                 .environment(appState)
                 .environment(cloudSyncService)
+                .environment(ttsService)
                 .modelContainer(modelContainer)
                 .onAppear {
                     // Show onboarding if role is selected and onboarding not completed for that role

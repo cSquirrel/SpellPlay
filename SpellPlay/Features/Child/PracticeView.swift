@@ -27,7 +27,7 @@ struct PracticeView: View {
     @State private var hasStartedPractice = false
     @State private var showCancelConfirmation = false
 
-    @State private var ttsService = TTSService()
+    @Environment(TTSService.self) private var ttsService
 
     var body: some View {
         NavigationStack {
