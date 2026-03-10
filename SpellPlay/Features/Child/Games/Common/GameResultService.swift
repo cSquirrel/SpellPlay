@@ -1,5 +1,21 @@
 import Foundation
 
+/// Default implementation of GameResultServiceProtocol for use by GameStateManager.
+/// Use this when creating GameStateManager in game views (e.g. GameStateManager(resultService: DefaultGameResultService.shared)).
+final class DefaultGameResultService: GameResultServiceProtocol {
+    static let shared = DefaultGameResultService()
+
+    private init() {}
+
+    func calculateResult(score: Int, totalStars: Int, wordsCompleted: Int, totalMistakes: Int) -> GameResult {
+        GameResultService.calculate(
+            totalPoints: score,
+            totalStars: totalStars,
+            wordsCompleted: wordsCompleted,
+            totalMistakes: totalMistakes)
+    }
+}
+
 /// Centralized service for computing and formatting game results.
 /// Single source of truth for result calculation; GameStateManager (#14) or Game Views Consolidation (#23) can call
 /// this service.

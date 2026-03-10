@@ -7,7 +7,7 @@ struct BalloonPopView: View {
 
     let words: [Word]
 
-    @State private var gameState = GameStateManager()
+    @State private var gameState = GameStateManager(resultService: DefaultGameResultService.shared)
 
     @State private var nextExpectedIndex = 0
 
