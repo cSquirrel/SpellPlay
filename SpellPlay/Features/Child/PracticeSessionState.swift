@@ -2,18 +2,11 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-/// Practice session state and business logic
-/// This is an @Observable model that encapsulates all practice session state
-/// following the modern SwiftUI MV pattern (Model-View, not MVVM)
-/// Note: Named "State" to avoid conflict with the SwiftData Model `PracticeSession`
+/// UI-facing practice session state only. No StreakService, AchievementService, or persistence.
+/// Business logic lives in PracticeService. Named "State" to avoid conflict with SwiftData PracticeSession.
 @MainActor
 @Observable
 final class PracticeSessionState {
-    private var modelContext: ModelContext?
-    private var streakService: StreakService?
-    private var achievementService: AchievementService?
-    var userProgress: UserProgress?
-
     var currentWordIndex = 0
     var userAnswer = ""
     var words: [Word] = []
@@ -23,7 +16,7 @@ final class PracticeSessionState {
     var availableCoins = 0
     var initialCoins = 0
 
-    // Round tracking properties
+    // Round tracking
     var currentRound = 1
     var wordsInCurrentRound: [Word] = []
     var roundResults: [UUID: Bool] = [:]
@@ -32,11 +25,11 @@ final class PracticeSessionState {
     var isRoundComplete = false
     var errorMessage: String?
 
-    // Gamification properties
+    // Gamification (display)
     var sessionPoints = 0
     var comboCount = 0
     var comboMultiplier = 1
-    var starsEarned: [Int] = [] // Stars per word
+    var starsEarned: [Int] = []
     var totalStarsEarned = 0
     var wordStartTime: Date?
     var roundStartTime: Date?
@@ -46,51 +39,9 @@ final class PracticeSessionState {
     var levelUpOccurred = false
     var newLevel: Int?
 
-    func setup(test: SpellingTest, modelContext: ModelContext) {
-        self.modelContext = modelContext
-        streakService = StreakService(modelContext: modelContext) { [weak self] errorMessage in
-            self?.errorMessage = errorMessage
-        }
-        achievementService = AchievementService(modelContext: modelContext) { [weak self] errorMessage in
-            self?.errorMessage = errorMessage
-        }
-        userProgress = achievementService?.getUserProgress()
-
-        // Sort words by displayOrder to preserve entry order
-        words = (test.words ?? []).sortedAsCreated()
-        currentWordIndex = 0
-        userAnswer = ""
-        correctAnswers = []
-        isComplete = false
-        currentStreak = streakService?.getCurrentStreak() ?? 0
-        availableCoins = test.helpCoins
-        initialCoins = test.helpCoins
-
-        // Initialize round tracking
-        currentRound = 1
-        // Use sorted words for the round
-        wordsInCurrentRound = words
-        roundResults = [:]
-        wordsMastered = []
-        allWordsMastered = false
-        isRoundComplete = false
-
-        // Initialize gamification
-        sessionPoints = 0
-        comboCount = 0
-        comboMultiplier = 1
-        starsEarned = []
-        totalStarsEarned = 0
-        roundStartTime = Date()
-        hadInitialMistakes = false
-        newlyUnlockedAchievements = []
-        performanceGrade = nil
-        levelUpOccurred = false
-        newLevel = nil
-
-        // Start timing for first word
-        wordStartTime = Date()
-    }
+    // For summary display (set from PracticeService.CompleteResult)
+    var currentLevel = 1
+    var experiencePoints = 0
 
     var currentWord: Word? {
         guard currentWordIndex < wordsInCurrentRound.count else { return nil }
@@ -110,98 +61,83 @@ final class PracticeSessionState {
         words.filter { !wordsMastered.contains($0.id) }
     }
 
-    func submitAnswer(with answer: String? = nil) -> PointsResult? {
-        guard let word = currentWord else { return nil }
-
-        // Use provided answer if available, otherwise fall back to userAnswer
-        let answerToEvaluate = answer ?? userAnswer
-        let isCorrect = word.text.matches(answerToEvaluate)
-        let isFirstTry = !roundResults.keys.contains(word.id) || roundResults[word.id] == nil
-
-        // Track if there were initial mistakes
-        if !isCorrect, !hadInitialMistakes {
-            hadInitialMistakes = true
-        }
-
-        correctAnswers.append(isCorrect)
-        roundResults[word.id] = isCorrect
-
-        // Calculate time taken
-        let timeTaken = wordStartTime.map { Date().timeIntervalSince($0) }
-
-        // Calculate points and stars
-        var pointsResult: PointsResult?
-        var stars = 0
-
-        if isCorrect {
-            // Increment combo for correct answers
-            comboCount += 1
-            comboMultiplier = PointsService.getComboMultiplier(for: comboCount)
-
-            // Calculate points
-            pointsResult = PointsService.calculatePoints(
-                isCorrect: true,
-                comboCount: comboCount,
-                timeTaken: timeTaken,
-                isFirstTry: isFirstTry)
-
-            // Add points to session
-            sessionPoints += pointsResult!.totalPoints
-
-            // Calculate stars (1-3 based on performance)
-            if let time = timeTaken, time <= PointsService.speedBonusThreshold, isFirstTry {
-                stars = 3
-            } else if isFirstTry {
-                stars = 2
-            } else {
-                stars = 1
-            }
-
-            totalStarsEarned += stars
-            wordsMastered.insert(word.id)
-        } else {
-            // Reset combo on incorrect answer
-            comboCount = 0
-            comboMultiplier = 1
-            stars = 0
-        }
-
-        starsEarned.append(stars)
+    /// Apply setup result from PracticeService.setup(...)
+    func apply(_ setup: PracticeService.SetupResult) {
+        words = setup.words
+        currentWordIndex = 0
         userAnswer = ""
-
-        // Reset word timing for next word
+        correctAnswers = []
+        isComplete = false
+        currentStreak = setup.currentStreak
+        availableCoins = setup.initialCoins
+        initialCoins = setup.initialCoins
+        currentRound = 1
+        wordsInCurrentRound = setup.words
+        roundResults = [:]
+        wordsMastered = []
+        allWordsMastered = false
+        isRoundComplete = false
+        sessionPoints = 0
+        comboCount = 0
+        comboMultiplier = 1
+        starsEarned = []
+        totalStarsEarned = 0
+        roundStartTime = Date()
+        hadInitialMistakes = false
+        newlyUnlockedAchievements = []
+        performanceGrade = nil
+        levelUpOccurred = false
+        newLevel = nil
         wordStartTime = Date()
-
-        // Check if we've completed the current round
-        if currentWordIndex < wordsInCurrentRound.count - 1 {
-            currentWordIndex += 1
-        } else {
-            // Round is complete - check for perfect round bonus
-            if isRoundPerfect() {
-                let bonus = PointsService.getPerfectRoundBonus()
-                sessionPoints += bonus
-            }
-
-            isRoundComplete = true
-
-            // Check if all words have been mastered
-            if wordsMastered.count == words.count {
-                allWordsMastered = true
-                completePractice()
-            }
-            // If not all words mastered, prepare for next round
-            // (The actual transition will be handled by the view)
-        }
-
-        return pointsResult
     }
 
-    private func isRoundPerfect() -> Bool {
-        roundResults.values.allSatisfy(\.self)
+    /// Apply submit result from PracticeService.submitAnswer(...). Caller passes updated hadInitialMistakes.
+    func apply(
+        _ result: PracticeService.SubmitResult,
+        wordId: UUID,
+        hadInitialMistakes: Bool
+    ) {
+        self.hadInitialMistakes = hadInitialMistakes
+        correctAnswers.append(result.isCorrect)
+        roundResults[wordId] = result.isCorrect
+        if let pr = result.pointsResult {
+            sessionPoints += pr.totalPoints
+        }
+        if result.isCorrect {
+            comboCount += 1
+            comboMultiplier = PointsService.getComboMultiplier(for: comboCount)
+            if result.wordMastered {
+                wordsMastered.insert(wordId)
+            }
+        } else {
+            comboCount = 0
+            comboMultiplier = 1
+        }
+        starsEarned.append(result.stars)
+        totalStarsEarned += result.stars
+        if let bonus = result.perfectRoundBonus {
+            sessionPoints += bonus
+        }
+        userAnswer = ""
+        wordStartTime = Date()
+        currentWordIndex = result.nextWordIndex
+        isRoundComplete = result.isRoundComplete
+        allWordsMastered = result.allWordsMastered
+    }
+
+    /// Apply complete result from PracticeService.completePractice(...)
+    func apply(_ result: PracticeService.CompleteResult) {
+        isComplete = true
+        currentStreak = result.currentStreak
+        newlyUnlockedAchievements = result.newlyUnlockedAchievements
+        performanceGrade = result.performanceGrade
+        levelUpOccurred = result.levelUpOccurred
+        newLevel = result.newLevel
+        currentLevel = result.currentLevel
+        experiencePoints = result.experiencePoints
     }
 
     func startNextRound() {
-        // Filter words that are NOT yet mastered
         wordsInCurrentRound = words.filter { !wordsMastered.contains($0.id) }
         currentWordIndex = 0
         roundResults = [:]
@@ -213,18 +149,12 @@ final class PracticeSessionState {
 
     func useHelpCoin() {
         guard availableCoins > 0, let word = currentWord else { return }
-
         let targetWord = word.text
         let currentInput = userAnswer
-
-        // Find common prefix
         var commonPrefixIndex = 0
         let targetChars = Array(targetWord)
         let inputChars = Array(currentInput)
-
         let maxIndex = min(targetChars.count, inputChars.count)
-
-        // While characters match (case insensitive)
         while commonPrefixIndex < maxIndex {
             if
                 String(targetChars[commonPrefixIndex]).lowercased() != String(inputChars[commonPrefixIndex])
@@ -234,99 +164,11 @@ final class PracticeSessionState {
             }
             commonPrefixIndex += 1
         }
-
-        // If we haven't revealed the whole word
         if commonPrefixIndex < targetChars.count {
-            // Reveal up to the common prefix + 1 character
             let nextChar = targetChars[commonPrefixIndex]
             let prefix = String(targetChars.prefix(commonPrefixIndex))
-
-            // Update the answer: keep correct prefix and add next correct character
-            // This effectively corrects any errors after the prefix and adds the next letter
             userAnswer = prefix + String(nextChar)
-
             availableCoins -= 1
-        }
-    }
-
-    private func completePractice() {
-        isComplete = true
-
-        // Calculate round time
-        let roundTime = roundStartTime.map { Date().timeIntervalSince($0) } ?? 0
-
-        // Update streak - use total words attempted across all rounds
-        if
-            let test = words.first?.test,
-            let streakService
-        {
-            // Calculate total words attempted (all rounds combined)
-            let totalAttempts = correctAnswers.count
-            let totalCorrect = wordsMastered.count
-
-            currentStreak = streakService.updateStreak(
-                for: test.id,
-                wordsAttempted: totalAttempts,
-                wordsCorrect: totalCorrect)
-
-            // Update test's lastPracticed date
-            test.lastPracticed = Date()
-
-            // Update user progress with points and stars
-            if let progress = userProgress {
-                progress.addPoints(sessionPoints)
-                progress.addStars(totalStarsEarned)
-
-                // Update words mastered count
-                let newWordsMastered = wordsMastered.count
-                let previousWordsMastered = progress.totalWordsMastered
-                if newWordsMastered > previousWordsMastered {
-                    for _ in previousWordsMastered ..< newWordsMastered {
-                        progress.incrementWordsMastered()
-                    }
-                }
-
-                progress.incrementSessionsCompleted()
-
-                // Check for level up
-                let oldLevel = progress.level
-                progress.level = LevelService.levelFromExperience(progress.experiencePoints)
-                if progress.level > oldLevel {
-                    levelUpOccurred = true
-                    newLevel = progress.level
-                }
-            }
-
-            // Check achievements
-            if
-                let achievementService,
-                let progress = userProgress
-            {
-                let sessionResults = AchievementService.SessionResults(
-                    isFirstSession: progress.totalSessionsCompleted == 1,
-                    hasPerfectRound: isRoundPerfect(),
-                    roundTimeSeconds: roundTime,
-                    currentStreak: currentStreak,
-                    helpCoinsUsed: initialCoins - availableCoins,
-                    wordsAttempted: totalAttempts,
-                    allWordsMastered: allWordsMastered,
-                    hadInitialMistakes: hadInitialMistakes)
-
-                newlyUnlockedAchievements = achievementService.checkAchievements(
-                    sessionResults: sessionResults,
-                    userProgress: progress)
-            }
-
-            // Calculate performance grade
-            let accuracy = words.count > 0 ? Double(wordsMastered.count) / Double(words.count) : 0.0
-            let allFirstTry = roundResults.values.allSatisfy(\.self) && correctAnswers.count == words.count
-            performanceGrade = PerformanceGrade.calculate(accuracy: accuracy, allFirstTry: allFirstTry)
-
-            do {
-                try modelContext?.save()
-            } catch {
-                errorMessage = "Your progress was saved, but some information couldn't be recorded."
-            }
         }
     }
 
@@ -335,16 +177,12 @@ final class PracticeSessionState {
         userAnswer = ""
         correctAnswers = []
         isComplete = false
-
-        // Reset round tracking
         currentRound = 1
         wordsInCurrentRound = words
         roundResults = [:]
         wordsMastered = []
         allWordsMastered = false
         isRoundComplete = false
-
-        // Reset gamification
         sessionPoints = 0
         comboCount = 0
         comboMultiplier = 1
@@ -358,7 +196,7 @@ final class PracticeSessionState {
     }
 }
 
-/// Performance grade enum
+/// Performance grade for practice summary
 enum PerformanceGrade: String {
     case perfect = "Perfect!"
     case excellent = "Excellent!"
@@ -368,11 +206,11 @@ enum PerformanceGrade: String {
 
     var color: Color {
         switch self {
-        case .perfect: Color(red: 1.0, green: 0.84, blue: 0.0) // Gold
-        case .excellent: Color(red: 0.2, green: 0.8, blue: 0.3) // Green
-        case .great: Color(red: 0.2, green: 0.6, blue: 0.9) // Blue
-        case .good: Color(red: 0.9, green: 0.5, blue: 0.2) // Orange
-        case .keepPracticing: Color(red: 0.9, green: 0.2, blue: 0.2) // Red
+        case .perfect: Color(red: 1.0, green: 0.84, blue: 0.0)
+        case .excellent: Color(red: 0.2, green: 0.8, blue: 0.3)
+        case .great: Color(red: 0.2, green: 0.6, blue: 0.9)
+        case .good: Color(red: 0.9, green: 0.5, blue: 0.2)
+        case .keepPracticing: Color(red: 0.9, green: 0.2, blue: 0.2)
         }
     }
 
@@ -390,6 +228,3 @@ enum PerformanceGrade: String {
         }
     }
 }
-
-/// Points result type alias
-typealias PointsResult = PointsService.PointsResult

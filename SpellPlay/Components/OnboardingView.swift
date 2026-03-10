@@ -17,6 +17,7 @@ struct OnboardingView: View {
                 .font(.title.bold())
                 .foregroundColor(role == .parent ? AppConstants.primaryColor : AppConstants.secondaryColor)
                 .accessibilityAddTraits(.isHeader)
+                .accessibilityIdentifier(role == .parent ? "Onboarding_ParentModeTitle" : "Onboarding_PracticeModeTitle")
 
             VStack(alignment: .leading, spacing: 16) {
                 if role == .parent {
