@@ -12,7 +12,7 @@ class RoleSwitcherPage: BasePage {
     }
 
     var doneButton: XCUIElement {
-        app.buttons["Done"]
+        app.buttons["RoleSwitcher_DoneButton"]
     }
 
     // MARK: - Initializer

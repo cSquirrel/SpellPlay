@@ -102,13 +102,16 @@ final class EdgeCaseTests: XCTestCase {
 
         _ = TestHelpers.createTestViaUI(app, name: "Persistence Test", words: ["cat", "dog"])
 
-        // Restart app
+        // Restart app (launch args still include UI_TESTING_RESET_STATE so we see role selection again)
         app.terminate()
         app.launch()
         sleep(2)
 
-        // Test should still exist
-        let parentHomePage2 = ParentHomePage(app: app)
+        // Navigate back to parent home so we can verify the test list
+        let roleSelectionPage2 = RoleSelectionPage(app: app)
+        let onboardingPage2 = roleSelectionPage2.tapParentButton()
+        let parentHomePage2 = onboardingPage2.dismissAsParent()
+
         XCTAssertTrue(
             parentHomePage2.verifyTestExists(named: "Persistence Test"),
             "Test should persist after app restart")

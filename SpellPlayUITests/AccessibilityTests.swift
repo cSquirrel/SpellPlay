@@ -8,7 +8,7 @@ final class AccessibilityTests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
-        app.launchArguments = ["-UITestingReset"]
+        app.launchArguments = ["UI_TESTING_RESET_STATE"]
         app.launch()
     }
 
@@ -147,9 +147,9 @@ final class AccessibilityTests: XCTestCase {
         // Step 2: Switch to child mode
         switchToChildMode()
 
-        // Step 3: Tap the test card to open Word Review
-        let testCard = app.buttons["ChildTestCard_UI Test Words"].firstMatch
-        XCTAssertTrue(testCard.waitForExistence(timeout: 5), "Child test card should exist")
+        // Step 3: Tap the test card to open Word Review (child cards use Button with TestCard_ identifier)
+        let testCard = app.buttons["TestCard_UI Test Words"].firstMatch
+        XCTAssertTrue(testCard.waitForExistence(timeout: 5), "Test card should exist on child home")
         testCard.tap()
 
         // Step 4: Start practice from Word Review
