@@ -47,7 +47,8 @@ final class RoleSelectionTests: XCTestCase {
         let onboardingPage = roleSelectionPage.tapParentButton()
         let parentHomePage = onboardingPage.dismissAsParent()
 
-        // Relaunch app - onboarding should not appear again
+        // Relaunch app - onboarding should not appear again (no reset so state is preserved)
+        app.launchArguments = []
         app.terminate()
         app.launch()
         sleep(2)
@@ -63,7 +64,8 @@ final class RoleSelectionTests: XCTestCase {
         let onboardingPage = roleSelectionPage.tapChildButton()
         let childHomePage = onboardingPage.dismissAsChild()
 
-        // Relaunch app - onboarding should not appear again
+        // Relaunch app - onboarding should not appear again (no reset so state is preserved)
+        app.launchArguments = []
         app.terminate()
         app.launch()
         sleep(2)

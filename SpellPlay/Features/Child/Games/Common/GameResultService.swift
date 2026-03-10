@@ -1,7 +1,8 @@
 import Foundation
 
 /// Default implementation of GameResultServiceProtocol for use by GameStateManager.
-/// Use this when creating GameStateManager in game views (e.g. GameStateManager(resultService: DefaultGameResultService.shared)).
+/// Use this when creating GameStateManager in game views (e.g. GameStateManager(resultService:
+/// DefaultGameResultService.shared)).
 final class DefaultGameResultService: GameResultServiceProtocol {
     static let shared = DefaultGameResultService()
 
