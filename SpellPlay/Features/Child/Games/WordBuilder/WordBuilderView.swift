@@ -33,7 +33,7 @@ struct WordBuilderView: View {
     @State private var result: GameResult?
     @State private var wiggleSlotIndex: Int? = nil
 
-    @State private var ttsService = TTSService()
+    @Environment(TTSService.self) private var ttsService
 
     /// Used to re-trigger startWord on reset (when currentWordIndex stays 0).
     @State private var gameResetID = UUID()

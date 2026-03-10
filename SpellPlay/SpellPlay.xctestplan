@@ -17,6 +17,14 @@
   },
   "testTargets" : [
     {
+      "enabled" : true,
+      "target" : {
+        "containerPath" : "container:SpellPlay.xcodeproj",
+        "identifier" : "3218244D2F49D8E000B7576D",
+        "name" : "SpellPlayTests"
+      }
+    },
+    {
       "enabled" : false,
       "skippedTests" : [
         "ChildFlowTests",

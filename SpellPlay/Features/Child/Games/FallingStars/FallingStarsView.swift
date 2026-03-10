@@ -33,7 +33,7 @@ struct FallingStarsView: View {
     @State private var showResult = false
     @State private var result: GameResult?
 
-    @State private var ttsService = TTSService()
+    @Environment(TTSService.self) private var ttsService
 
     /// Used to re-trigger startWord on reset (when currentWordIndex stays 0).
     @State private var gameResetID = UUID()
