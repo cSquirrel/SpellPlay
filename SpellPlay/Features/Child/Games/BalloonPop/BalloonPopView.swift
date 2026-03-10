@@ -3,130 +3,52 @@ import SwiftUI
 @MainActor
 struct BalloonPopView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(TTSService.self) private var ttsService
 
     let words: [Word]
 
-    @State private var difficulty: GameDifficulty = .easy
+    @State private var gameState = GameStateManager(resultService: DefaultGameResultService.shared)
 
-    @State private var phase: GamePhase = .ready
-    @State private var currentWordIndex = 0
     @State private var nextExpectedIndex = 0
 
     @State private var activeBalloons: [Balloon] = []
     @State private var lastSpawnAt: Date = .distantPast
 
-    @State private var score = 0
-    @State private var totalStars = 0
-    @State private var comboCount = 0
-    @State private var comboMultiplier = 1
-    @State private var totalMistakes = 0
-    @State private var mistakesThisWord = 0
-
-    @State private var wordStartTime: Date?
-
-    @State private var showCelebration = false
-    @State private var celebrationType: CelebrationType = .wordCorrect
-    @State private var celebrationMessage: String? = nil
-    @State private var celebrationEmoji: String? = nil
-
-    @State private var showResult = false
-    @State private var result: GameResult?
-
-    @State private var ttsService = TTSService()
+    @State private var celebrationDismissID = UUID()
 
     private var currentWord: Word? {
-        guard currentWordIndex < words.count else { return nil }
-        return words[currentWordIndex]
+        gameState.currentWord
     }
 
     private var targetText: String {
-        currentWord?.text ?? ""
+        gameState.targetText
     }
 
     var body: some View {
-        NavigationStack {
-            GeometryReader { geo in
-                ZStack {
-                    background
-                        .ignoresSafeArea()
-
-                    VStack(spacing: 0) {
-                        GameProgressView(
-                            title: "Balloon Pop",
-                            wordIndex: currentWordIndex,
-                            wordCount: words.count,
-                            points: score,
-                            comboMultiplier: comboMultiplier)
-
-                        wordDisplay
-                            .padding(.horizontal, AppConstants.padding)
-                            .padding(.top, 10)
-                            .accessibilityIdentifier("BalloonPop_WordDisplay")
-
-                        Spacer()
-
-                        // Balloon playfield
-                        TimelineView(.animation) { context in
-                            ZStack {
-                                ForEach(visibleBalloons(in: geo.size, now: context.date)) { balloon in
-                                    BalloonView(letter: balloon.letter, color: balloon.color) {
-                                        handleTap(balloon: balloon, now: context.date)
-                                    }
-                                    .position(
-                                        x: balloon.x,
-                                        y: balloonY(for: balloon, size: geo.size, now: context.date))
-                                    .accessibilityIdentifier("BalloonPop_Balloon_\(balloon.id.uuidString)")
-                                }
-                            }
-                            .onChange(of: context.date) { _, newDate in
-                                tick(now: newDate, size: geo.size)
-                            }
-                        }
-                        .accessibilityIdentifier("BalloonPop_Playfield")
-
-                        Spacer()
-
-                        controls
-                            .padding(.horizontal, AppConstants.padding)
-                            .padding(.bottom, AppConstants.padding)
-                    }
-
-                    if showCelebration {
-                        CelebrationView(type: celebrationType, message: celebrationMessage, emoji: celebrationEmoji)
-                            .transition(.scale.combined(with: .opacity))
-                            .accessibilityIdentifier("BalloonPop_Celebration")
-                    }
-                }
-            }
-            .navigationTitle("Balloon Pop")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.secondary)
-                    }
-                    .accessibilityLabel("Close")
-                    .accessibilityIdentifier("BalloonPop_CloseButton")
-                }
-            }
+        @Bindable var gameState = gameState
+        gameContent
+            .gameViewChrome(
+                title: "Balloon Pop",
+                wordCount: words.count,
+                gameState: gameState,
+                onClose: { dismiss() },
+                closeAccessibilityIdentifier: "BalloonPop_CloseButton")
             .task {
+                gameState.setup(words: words)
                 startGameIfNeeded()
             }
-            .task(id: currentWordIndex) {
+            .task(id: gameState.currentWordIndex) {
                 await startWord()
             }
             .task(id: celebrationDismissID) {
-                // Auto-hide celebration after delay
-                guard showCelebration else { return }
+                guard gameState.showCelebration else { return }
                 try? await Task.sleep(for: .milliseconds(700))
                 withAnimation(.easeOut(duration: 0.2)) {
-                    showCelebration = false
+                    gameState.hideCelebration()
                 }
             }
-            .fullScreenCover(isPresented: $showResult) {
-                if let result {
+            .fullScreenCover(isPresented: $gameState.showResult) {
+                if let result = gameState.result {
                     GameResultView(
                         title: "Balloon Pop",
                         result: result,
@@ -138,8 +60,58 @@ struct BalloonPopView: View {
                         })
                 }
             }
+            .accessibilityIdentifier("BalloonPop_Root")
+    }
+
+    private var gameContent: some View {
+        GeometryReader { geo in
+            ZStack {
+                background
+                    .ignoresSafeArea()
+
+                VStack(spacing: 0) {
+                    wordDisplay
+                        .padding(.horizontal, AppConstants.padding)
+                        .padding(.top, 10)
+                        .accessibilityIdentifier("BalloonPop_WordDisplay")
+
+                    Spacer()
+
+                    TimelineView(.animation) { context in
+                        ZStack {
+                            ForEach(visibleBalloons(in: geo.size, now: context.date)) { balloon in
+                                BalloonView(letter: balloon.letter, color: balloon.color) {
+                                    handleTap(balloon: balloon, now: context.date)
+                                }
+                                .position(
+                                    x: balloon.x,
+                                    y: balloonY(for: balloon, size: geo.size, now: context.date))
+                                .accessibilityIdentifier("BalloonPop_Balloon_\(balloon.id.uuidString)")
+                            }
+                        }
+                        .onChange(of: context.date) { _, newDate in
+                            tick(now: newDate, size: geo.size)
+                        }
+                    }
+                    .accessibilityIdentifier("BalloonPop_Playfield")
+
+                    Spacer()
+
+                    controls
+                        .padding(.horizontal, AppConstants.padding)
+                        .padding(.bottom, AppConstants.padding)
+                }
+
+                if gameState.showCelebration {
+                    CelebrationView(
+                        type: gameState.celebrationType,
+                        message: gameState.celebrationMessage,
+                        emoji: gameState.celebrationEmoji)
+                        .transition(.scale.combined(with: .opacity))
+                        .accessibilityIdentifier("BalloonPop_Celebration")
+                }
+            }
         }
-        .accessibilityIdentifier("BalloonPop_Root")
     }
 
     private var background: some View {
@@ -208,7 +180,7 @@ struct BalloonPopView: View {
             .accessibilityIdentifier("BalloonPop_SpeakWordButton")
 
             Menu {
-                Picker("Difficulty", selection: $difficulty) {
+                Picker("Difficulty", selection: $gameState.difficulty) {
                     ForEach(GameDifficulty.allCases) { d in
                         Text(d.displayName).tag(d)
                     }
@@ -216,7 +188,7 @@ struct BalloonPopView: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "slider.horizontal.3")
-                    Text(difficulty.displayName)
+                    Text(gameState.difficulty.displayName)
                         .font(.system(size: AppConstants.bodySize, weight: .semibold))
                 }
                 .frame(minHeight: AppConstants.largeButtonHeight)
@@ -230,30 +202,22 @@ struct BalloonPopView: View {
     // MARK: - Game lifecycle
 
     private func startGameIfNeeded() {
-        guard phase == .ready else { return }
-        phase = .playing
-        currentWordIndex = 0
+        guard gameState.phase == .ready else { return }
+        gameState.phase = .playing
         nextExpectedIndex = 0
-        score = 0
-        totalStars = 0
-        comboCount = 0
-        comboMultiplier = 1
-        totalMistakes = 0
-        mistakesThisWord = 0
+        activeBalloons.removeAll()
+        lastSpawnAt = .distantPast
     }
 
     private func startWord() async {
-        guard phase == .playing else { return }
+        guard gameState.phase == .playing else { return }
         guard currentWord != nil else { return }
 
-        // Reset per-word state
         nextExpectedIndex = 0
-        mistakesThisWord = 0
-        wordStartTime = Date()
+        gameState.startWordTimer()
         activeBalloons.removeAll()
         lastSpawnAt = .distantPast
 
-        // Small delay to let UI settle, then speak
         try? await Task.sleep(for: .milliseconds(250))
         if let currentWord {
             ttsService.speak(currentWord.text, rate: 0.3)
@@ -261,25 +225,21 @@ struct BalloonPopView: View {
     }
 
     private func resetAll() {
-        showResult = false
-        result = nil
-        phase = .ready
-        startGameIfNeeded()
-        // Note: startWord will be called automatically via .task(id: currentWordIndex)
+        gameState.reset()
+        gameState.phase = .playing
     }
 
     // MARK: - Timeline tick / spawning
 
     private func tick(now: Date, size: CGSize) {
-        guard phase == .playing else { return }
+        guard gameState.phase == .playing else { return }
         guard !targetText.isEmpty else { return }
 
-        // Remove balloons that have left the screen
         activeBalloons = activeBalloons.filter { balloon in
             balloonY(for: balloon, size: size, now: now) > -160
         }
 
-        let interval = spawnInterval(for: difficulty)
+        let interval = spawnInterval(for: gameState.difficulty)
         if now.timeIntervalSince(lastSpawnAt) >= interval {
             spawnBalloon(now: now, size: size)
             lastSpawnAt = now
@@ -289,10 +249,9 @@ struct BalloonPopView: View {
     private func spawnBalloon(now: Date, size: CGSize) {
         guard let nextLetter = expectedLetter else { return }
 
-        let letterToUse: Character = if shouldSpawnDecoy(for: difficulty) {
+        let letterToUse: Character = if shouldSpawnDecoy(for: gameState.difficulty) {
             randomDecoyLetter(avoid: nextLetter) ?? nextLetter
         } else {
-            // Spawn the correct next letter more often
             nextLetter
         }
 
@@ -304,7 +263,7 @@ struct BalloonPopView: View {
             letter: letterToUse,
             x: x,
             yStart: yStart,
-            speed: balloonSpeed(for: difficulty),
+            speed: balloonSpeed(for: gameState.difficulty),
             color: balloonColor(),
             spawnedAt: now)
 
@@ -323,91 +282,49 @@ struct BalloonPopView: View {
     // MARK: - Tap handling / scoring
 
     private func handleTap(balloon: Balloon, now: Date) {
-        guard phase == .playing else { return }
+        guard gameState.phase == .playing else { return }
 
-        // Remove balloon (harmless pop either way)
         activeBalloons.removeAll { $0.id == balloon.id }
 
         guard let expectedLetter else { return }
 
         if balloon.letter.lowercased() == expectedLetter.lowercased() {
             nextExpectedIndex += 1
-            showCelebrationTransient(type: .wordCorrect, message: nil, emoji: "✨")
+            gameState.showCelebration(type: .wordCorrect, message: nil, emoji: "✨")
+            celebrationDismissID = UUID()
 
             if nextExpectedIndex >= targetText.count {
                 completeWord(now: now)
             }
         } else {
-            mistakesThisWord += 1
-            totalMistakes += 1
-            showCelebrationTransient(type: .comboBreakthrough, message: "Try again", emoji: "💭")
+            gameState.handleIncorrectAnswer()
+            gameState.showCelebration(type: .comboBreakthrough, message: "Try again", emoji: "💭")
+            celebrationDismissID = UUID()
         }
     }
 
     private func completeWord(now: Date) {
-        let timeTaken = wordStartTime.map { now.timeIntervalSince($0) }
+        gameState.handleCorrectAnswer()
 
-        // Combo is based on mistake-free word completion
-        if mistakesThisWord == 0 {
-            comboCount += 1
-        } else {
-            comboCount = 0
-        }
-        comboMultiplier = PointsService.getComboMultiplier(for: comboCount)
-
+        let timeTaken = gameState.wordStartTime.map { now.timeIntervalSince($0) }
         let pointsResult = PointsService.calculatePoints(
             isCorrect: true,
-            comboCount: comboCount,
+            comboCount: gameState.comboCount,
             timeTaken: timeTaken,
-            isFirstTry: mistakesThisWord == 0)
-        score += pointsResult.totalPoints
-
-        let starsEarned = if mistakesThisWord == 0, let t = timeTaken, t <= PointsService.speedBonusThreshold {
-            3
-        } else if mistakesThisWord == 0 {
-            2
-        } else {
-            1
-        }
-        totalStars += starsEarned
-
-        showCelebrationTransient(
+            isFirstTry: gameState.mistakesThisWord == 0)
+        let starsEarned = timeTaken != nil && gameState.mistakesThisWord == 0
+            ? (timeTaken! <= PointsService.speedBonusThreshold ? 3 : 2)
+            : 1
+        gameState.showCelebration(
             type: .sessionComplete,
             message: "+\(pointsResult.totalPoints) pts • \(starsEarned)★",
             emoji: "🎉")
-
-        advanceToNextWord()
-    }
-
-    private func advanceToNextWord() {
-        if currentWordIndex >= words.count - 1 {
-            phase = .gameComplete
-            result = GameResult(
-                totalPoints: score,
-                totalStars: totalStars,
-                wordsCompleted: words.count,
-                totalMistakes: totalMistakes)
-            showResult = true
-        } else {
-            currentWordIndex += 1
-        }
-    }
-
-    /// Show celebration with auto-hide using state change tracking
-    /// Note: Using @State to track celebration dismiss via onChange is cleaner than Task {}
-    @State private var celebrationDismissID = UUID()
-
-    private func showCelebrationTransient(type: CelebrationType, message: String?, emoji: String?) {
-        celebrationType = type
-        celebrationMessage = message
-        celebrationEmoji = emoji
-
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-            showCelebration = true
-        }
-
-        // Trigger dismiss after delay
         celebrationDismissID = UUID()
+
+        gameState.advanceToNextWord()
+        if gameState.isComplete {
+            gameState.showResultScreen()
+        }
     }
 
     // MARK: - Difficulty knobs

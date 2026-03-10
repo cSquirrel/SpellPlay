@@ -36,7 +36,12 @@ struct ChildHomeView: View {
                     .ignoresSafeArea()
 
                 if tests.isEmpty {
-                    emptyStateView
+                    EmptyStateView(
+                        icon: "book.closed",
+                        title: "No Tests Available",
+                        message: "Ask a parent to create a spelling test for you!",
+                        titleAccessibilityIdentifier: "ChildHome_EmptyStateText")
+                        .accessibilityIdentifier("ChildHome_EmptyState")
                 } else {
                     testListView
                 }
@@ -68,25 +73,6 @@ struct ChildHomeView: View {
             .sheet(isPresented: $showingRoleSwitcher) {
                 RoleSwitcherView()
             }
-        }
-    }
-
-    private var emptyStateView: some View {
-        VStack(spacing: 24) {
-            Image(systemName: "book.closed")
-                .font(.system(size: 60))
-                .foregroundColor(.secondary)
-
-            Text("No Tests Available")
-                .font(.system(size: AppConstants.titleSize, weight: .semibold))
-                .foregroundColor(.primary)
-                .accessibilityIdentifier("ChildHome_EmptyStateText")
-
-            Text("Ask a parent to create a spelling test for you!")
-                .font(.system(size: AppConstants.bodySize))
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, AppConstants.padding)
         }
     }
 
