@@ -16,8 +16,11 @@ struct PracticeView: View {
     @State private var showingRoundTransition = false
     @State private var nextRoundNumber = 1
     @State private var isInputDisabled = false
-    @State private var feedbackTimer: Timer?
-    @State private var nextWordTimer: Timer?
+    @State private var feedbackContinueTrigger: UUID?
+    @State private var startRoundTTSTrigger: UUID?
+    @State private var speakNextWordTrigger: UUID?
+    @State private var pendingNextWordText: String?
+    @State private var practiceAgainTrigger: UUID?
     @State private var incorrectAnswer: String = ""
     @State private var correctWord: String = ""
     @State private var feedbackMessage: String = ""
@@ -51,12 +54,7 @@ struct PracticeView: View {
                             practiceSession.reset()
                             practiceSession.apply(practiceService.setup(test: test, modelContext: modelContext))
                             hasStartedPractice = true
-                            Task { @MainActor in
-                                try? await Task.sleep(for: .milliseconds(500))
-                                if let firstWord = practiceSession.currentWord {
-                                    ttsService.speak(firstWord.text, rate: 0.3)
-                                }
-                            }
+                            practiceAgainTrigger = UUID()
                         },
                         onBack: {
                             dismiss()
@@ -85,8 +83,6 @@ struct PracticeView: View {
             }
             .alert("Cancel Practice?", isPresented: $showCancelConfirmation) {
                 Button("Cancel Practice", role: .destructive) {
-                    feedbackTimer?.invalidate()
-                    nextWordTimer?.invalidate()
                     dismiss()
                 }
                 Button("Continue", role: .cancel) {}
@@ -97,10 +93,34 @@ struct PracticeView: View {
                 practiceSession.apply(practiceService.setup(test: test, modelContext: modelContext))
                 previousComboCount = 0
                 hasStartedPractice = true
-                try? await Task.sleep(for: .milliseconds(500))
+                try? await Task.sleep(for: .seconds(0.5))
                 if let firstWord = practiceSession.currentWord {
                     ttsService.speak(firstWord.text, rate: 0.3)
                 }
+            }
+            .task(id: practiceAgainTrigger) {
+                guard practiceAgainTrigger != nil else { return }
+                try? await Task.sleep(for: .seconds(0.5))
+                if let firstWord = practiceSession.currentWord {
+                    ttsService.speak(firstWord.text, rate: 0.3)
+                }
+            }
+            .task(id: startRoundTTSTrigger) {
+                guard startRoundTTSTrigger != nil else { return }
+                try? await Task.sleep(for: .seconds(0.5))
+                if let firstWord = practiceSession.currentWord {
+                    ttsService.speak(firstWord.text, rate: 0.3)
+                }
+            }
+            .task(id: feedbackContinueTrigger) {
+                guard feedbackContinueTrigger != nil else { return }
+                try? await Task.sleep(for: .seconds(1.5))
+                continueToNext()
+            }
+            .task(id: speakNextWordTrigger) {
+                guard speakNextWordTrigger != nil, let text = pendingNextWordText else { return }
+                try? await Task.sleep(for: .seconds(0.5))
+                ttsService.speak(text, rate: 0.3)
             }
             .onChange(of: practiceSession.newlyUnlockedAchievements) { oldValue, newValue in
                 if let firstAchievement = newValue.first, !oldValue.contains(firstAchievement) {
@@ -109,10 +129,6 @@ struct PracticeView: View {
                         showAchievementUnlock = true
                     }
                 }
-            }
-            .onDisappear {
-                feedbackTimer?.invalidate()
-                nextWordTimer?.invalidate()
             }
             .errorAlert(errorMessage: $practiceSession.errorMessage)
             .overlay {
@@ -343,12 +359,7 @@ struct PracticeView: View {
                     showingRoundTransition = false
                 }
                 practiceSession.startNextRound()
-                Task { @MainActor in
-                    try? await Task.sleep(for: .milliseconds(500))
-                    if let firstWord = practiceSession.currentWord {
-                        ttsService.speak(firstWord.text, rate: 0.3)
-                    }
-                }
+                startRoundTTSTrigger = UUID()
             }) {
                 Text("Start Round")
                     .font(.system(size: AppConstants.bodySize, weight: .semibold))
@@ -396,10 +407,7 @@ struct PracticeView: View {
                 showFeedback = true
                 showContinueButton = false
             }
-            feedbackTimer?.invalidate()
-            feedbackTimer = Timer.scheduledTimer(withTimeInterval: 1.5, repeats: false) { _ in
-                continueToNext()
-            }
+            feedbackContinueTrigger = UUID()
         } else {
             incorrectAnswer = capturedAnswer
             correctWord = word.text
@@ -443,11 +451,8 @@ struct PracticeView: View {
                 showingRoundTransition = true
             }
         } else if !practiceSession.isComplete, let nextWord = practiceSession.currentWord {
-            let nextWordText = nextWord.text
-            nextWordTimer?.invalidate()
-            nextWordTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
-                ttsService.speak(nextWordText, rate: 0.3)
-            }
+            pendingNextWordText = nextWord.text
+            speakNextWordTrigger = UUID()
         }
     }
 }

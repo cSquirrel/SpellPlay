@@ -43,6 +43,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		3218244F2F49D8E000B7576D /* SpellPlayTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SpellPlayTests;
+			sourceTree = "<group>";
+		};
 		8B41F6472DEDD0D5001A66F9 /* SpellPlay */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = SpellPlay;
@@ -125,6 +130,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		3218244D2F49D8E000B7576D /* SpellPlayTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 321824562F49D8E000B7576D /* Build configuration list for PBXNativeTarget "SpellPlayTests" */;
+			buildPhases = (
+				3218244A2F49D8E000B7576D /* Sources */,
+				3218244B2F49D8E000B7576D /* Frameworks */,
+				3218244C2F49D8E000B7576D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				321824532F49D8E000B7576D /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				3218244F2F49D8E000B7576D /* SpellPlayTests */,
+			);
+			name = SpellPlayTests;
+			packageProductDependencies = (
+			);
+			productName = SpellPlayTests;
+			productReference = 3218244E2F49D8E000B7576D /* SpellPlayTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		8B41F6442DEDD0D5001A66F9 /* SpellPlay */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8B41F6662DEDD0D6001A66F9 /* Build configuration list for PBXNativeTarget "SpellPlay" */;
@@ -460,6 +488,44 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_VERSION = 5.0;
 				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		321824542F49D8E000B7576D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = FXYZH4KYS4;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bluepocket.SpellPlayTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WordCraft.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/WordCraft";
+			};
+			name = Debug;
+		};
+		321824552F49D8E000B7576D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = FXYZH4KYS4;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bluepocket.SpellPlayTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WordCraft.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/WordCraft";
 			};
 			name = Release;
 		};

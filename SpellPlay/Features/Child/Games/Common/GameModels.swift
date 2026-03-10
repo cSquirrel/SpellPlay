@@ -29,3 +29,9 @@ struct GameResult: Equatable {
     let wordsCompleted: Int
     let totalMistakes: Int
 }
+
+/// Protocol for computing final game result. Implemented by GameResultService (#15).
+/// GameStateManager calls this when finishing a game; result calculation is not done inline.
+protocol GameResultServiceProtocol: AnyObject {
+    func calculateResult(score: Int, totalStars: Int, wordsCompleted: Int, totalMistakes: Int) -> GameResult
+}

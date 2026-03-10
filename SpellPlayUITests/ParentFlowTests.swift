@@ -6,6 +6,7 @@ final class ParentFlowTests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
         app = XCUIApplication()
+        app.launchArguments = ["UI_TESTING_RESET_STATE"]
         TestHelpers.resetOnboardingFlags()
     }
 

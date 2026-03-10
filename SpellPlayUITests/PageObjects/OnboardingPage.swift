@@ -20,14 +20,14 @@ class OnboardingPage: BasePage {
     // MARK: - Action Methods
 
     func dismissAsParent() -> ParentHomePage {
-        waitForElement(getStartedButton)
+        _ = waitForElement(getStartedButton, timeout: 10.0)
         getStartedButton.tap()
         sleep(1) // Wait for navigation
         return ParentHomePage(app: app)
     }
 
     func dismissAsChild() -> ChildHomePage {
-        waitForElement(getStartedButton)
+        _ = waitForElement(getStartedButton, timeout: 10.0)
         getStartedButton.tap()
         sleep(1) // Wait for navigation
         return ChildHomePage(app: app)
@@ -36,8 +36,8 @@ class OnboardingPage: BasePage {
     // MARK: - Verification Methods
 
     func verifyOnboardingContent(for role: TestHelpers.TestUserRole) -> Bool {
-        let expectedText = role == .parent ? "Parent Mode" : "Practice Mode"
-        let textElement = app.staticTexts[expectedText]
-        return waitForElement(textElement)
+        let identifier = role == .parent ? "Onboarding_ParentModeTitle" : "Onboarding_PracticeModeTitle"
+        let textElement = app.staticTexts[identifier]
+        return waitForElement(textElement, timeout: 10.0)
     }
 }
