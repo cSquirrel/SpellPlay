@@ -3,55 +3,33 @@ import SwiftUI
 @MainActor
 struct FishCatcherView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(TTSService.self) private var ttsService
 
     let words: [Word]
 
-    @State private var difficulty: GameDifficulty = .easy
+    @State private var gameState = GameStateManager(resultService: DefaultGameResultService.shared)
 
-    @State private var phase: GamePhase = .ready
-    @State private var currentWordIndex = 0
     @State private var nextExpectedIndex = 0
 
     @State private var activeFish: [Fish] = []
     @State private var lastSpawnAt: Date = .distantPast
 
-    @State private var score = 0
-    @State private var totalStars = 0
-    @State private var comboCount = 0
-    @State private var comboMultiplier = 1
-    @State private var totalMistakes = 0
-    @State private var mistakesThisWord = 0
-
-    @State private var wordStartTime: Date?
-
-    @State private var showCelebration = false
-    @State private var celebrationType: CelebrationType = .wordCorrect
-    @State private var celebrationMessage: String? = nil
-    @State private var celebrationEmoji: String? = nil
-
-    @State private var showResult = false
-    @State private var result: GameResult?
-
-    @Environment(TTSService.self) private var ttsService
-
     @State private var bucketBounce: CGFloat = 1.0
     @State private var waveOffset: CGFloat = 0
 
-    /// Used to re-trigger startWord on reset (when currentWordIndex stays 0).
-    @State private var gameResetID = UUID()
-    /// Used to trigger celebration auto-dismiss via .task(id:).
     @State private var celebrationDismissID = UUID()
 
     private var currentWord: Word? {
-        guard currentWordIndex < words.count else { return nil }
-        return words[currentWordIndex]
+        gameState.currentWord
     }
 
     private var targetText: String {
-        currentWord?.text ?? ""
+        gameState.targetText
     }
 
     var body: some View {
+        @Bindable var gameState = gameState
+
         NavigationStack {
             GeometryReader { geo in
                 ZStack {
@@ -61,10 +39,10 @@ struct FishCatcherView: View {
                     VStack(spacing: 0) {
                         GameProgressView(
                             title: "Fish Catcher",
-                            wordIndex: currentWordIndex,
+                            wordIndex: gameState.currentWordIndex,
                             wordCount: words.count,
-                            points: score,
-                            comboMultiplier: comboMultiplier)
+                            points: gameState.score,
+                            comboMultiplier: gameState.comboMultiplier)
 
                         wordDisplay
                             .padding(.horizontal, AppConstants.padding)
@@ -103,8 +81,11 @@ struct FishCatcherView: View {
                             .padding(.bottom, AppConstants.padding)
                     }
 
-                    if showCelebration {
-                        CelebrationView(type: celebrationType, message: celebrationMessage, emoji: celebrationEmoji)
+                    if gameState.showCelebration {
+                        CelebrationView(
+                            type: gameState.celebrationType,
+                            message: gameState.celebrationMessage,
+                            emoji: gameState.celebrationEmoji)
                             .transition(.scale.combined(with: .opacity))
                             .accessibilityIdentifier("FishCatcher_Celebration")
                     }
@@ -124,21 +105,21 @@ struct FishCatcherView: View {
                 }
             }
             .task {
+                gameState.setup(words: words)
                 startGameIfNeeded()
             }
-            .task(id: "\(currentWordIndex)-\(gameResetID)") {
-                guard phase == .playing else { return }
+            .task(id: gameState.currentWordIndex) {
                 await startWord()
             }
             .task(id: celebrationDismissID) {
-                guard showCelebration else { return }
+                guard gameState.showCelebration else { return }
                 try? await Task.sleep(for: .milliseconds(700))
                 withAnimation(.easeOut(duration: 0.2)) {
-                    showCelebration = false
+                    gameState.hideCelebration()
                 }
             }
-            .fullScreenCover(isPresented: $showResult) {
-                if let result {
+            .fullScreenCover(isPresented: $gameState.showResult) {
+                if let result = gameState.result {
                     GameResultView(
                         title: "Fish Catcher",
                         result: result,
@@ -163,13 +144,11 @@ struct FishCatcherView: View {
             startPoint: .top,
             endPoint: .bottom)
             .overlay(alignment: .bottom) {
-                // Water surface effect
                 WaveShape(offset: waveOffset)
                     .fill(Color(red: 0.3, green: 0.6, blue: 0.9).opacity(0.3))
                     .frame(height: 40)
             }
             .onAppear {
-                // Animate wave
                 withAnimation(.linear(duration: 3).repeatForever(autoreverses: false)) {
                     waveOffset = 360
                 }
@@ -199,7 +178,6 @@ struct FishCatcherView: View {
 
     private var bucketView: some View {
         VStack(spacing: 8) {
-            // Caught letters display
             if nextExpectedIndex > 0 {
                 HStack(spacing: 8) {
                     Text("Caught:")
@@ -220,7 +198,6 @@ struct FishCatcherView: View {
                 .accessibilityIdentifier("FishCatcher_CaughtLetters")
             }
 
-            // Bucket/net visual
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(
@@ -264,7 +241,7 @@ struct FishCatcherView: View {
             .accessibilityIdentifier("FishCatcher_SpeakWordButton")
 
             Menu {
-                Picker("Difficulty", selection: $difficulty) {
+                Picker("Difficulty", selection: $gameState.difficulty) {
                     ForEach(GameDifficulty.allCases) { d in
                         Text(d.displayName).tag(d)
                     }
@@ -272,7 +249,7 @@ struct FishCatcherView: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "slider.horizontal.3")
-                    Text(difficulty.displayName)
+                    Text(gameState.difficulty.displayName)
                         .font(.system(size: AppConstants.bodySize, weight: .semibold))
                 }
                 .frame(minHeight: AppConstants.largeButtonHeight)
@@ -286,30 +263,22 @@ struct FishCatcherView: View {
     // MARK: - Game lifecycle
 
     private func startGameIfNeeded() {
-        guard phase == .ready else { return }
-        phase = .playing
-        currentWordIndex = 0
+        guard gameState.phase == .ready else { return }
+        gameState.phase = .playing
         nextExpectedIndex = 0
-        score = 0
-        totalStars = 0
-        comboCount = 0
-        comboMultiplier = 1
-        totalMistakes = 0
-        mistakesThisWord = 0
+        activeFish.removeAll()
+        lastSpawnAt = .distantPast
     }
 
     private func startWord() async {
-        guard phase == .playing else { return }
+        guard gameState.phase == .playing else { return }
         guard currentWord != nil else { return }
 
-        // Reset per-word state
         nextExpectedIndex = 0
-        mistakesThisWord = 0
-        wordStartTime = Date()
+        gameState.startWordTimer()
         activeFish.removeAll()
         lastSpawnAt = .distantPast
 
-        // Small delay to let UI settle, then speak
         try? await Task.sleep(for: .milliseconds(250))
         if let currentWord {
             ttsService.speak(currentWord.text, rate: 0.3)
@@ -317,25 +286,21 @@ struct FishCatcherView: View {
     }
 
     private func resetAll() {
-        showResult = false
-        result = nil
-        phase = .ready
-        startGameIfNeeded()
-        gameResetID = UUID()
+        gameState.reset()
+        gameState.phase = .playing
     }
 
     // MARK: - Timeline tick / spawning
 
     private func tick(now: Date, size: CGSize) {
-        guard phase == .playing else { return }
+        guard gameState.phase == .playing else { return }
         guard !targetText.isEmpty else { return }
 
-        // Remove fish that have left the screen
         activeFish = activeFish.filter { fish in
             fishX(for: fish, size: size, now: now) < size.width + 100
         }
 
-        let interval = spawnInterval(for: difficulty)
+        let interval = spawnInterval(for: gameState.difficulty)
         if now.timeIntervalSince(lastSpawnAt) >= interval {
             spawnFish(now: now, size: size)
             lastSpawnAt = now
@@ -345,23 +310,19 @@ struct FishCatcherView: View {
     private func spawnFish(now: Date, size: CGSize) {
         guard let nextLetter = expectedLetter else { return }
 
-        let letterToUse: Character = if shouldSpawnDecoy(for: difficulty) {
+        let letterToUse: Character = if shouldSpawnDecoy(for: gameState.difficulty) {
             randomDecoyLetter(avoid: nextLetter) ?? nextLetter
         } else {
-            // Spawn the correct next letter more often
             nextLetter
         }
 
-        // Spawn from left side
         let startX: CGFloat = -50
 
-        // Random depth (y position) in the middle portion of the screen
-        // Leave room for top UI (~250) and bottom UI (~250)
         let topMargin: CGFloat = 250
         let bottomMargin: CGFloat = 250
         let availableHeight = size.height - topMargin - bottomMargin
-        let middleStart = topMargin + (availableHeight * 0.2) // Start 20% into available space
-        let middleEnd = topMargin + (availableHeight * 0.8) // End 80% into available space
+        let middleStart = topMargin + (availableHeight * 0.2)
+        let middleEnd = topMargin + (availableHeight * 0.8)
         let yDepth = CGFloat.random(in: middleStart ... middleEnd)
 
         let fish = Fish(
@@ -369,7 +330,7 @@ struct FishCatcherView: View {
             letter: letterToUse,
             startX: startX,
             yDepth: yDepth,
-            speed: fishSpeed(for: difficulty),
+            speed: fishSpeed(for: gameState.difficulty),
             color: fishColor(),
             spawnedAt: now)
 
@@ -391,9 +352,8 @@ struct FishCatcherView: View {
     // MARK: - Tap handling / scoring
 
     private func handleTap(fish: Fish, now: Date) {
-        guard phase == .playing else { return }
+        guard gameState.phase == .playing else { return }
 
-        // Remove fish
         activeFish.removeAll { $0.id == fish.id }
 
         guard let expectedLetter else { return }
@@ -401,7 +361,6 @@ struct FishCatcherView: View {
         if fish.letter.lowercased() == expectedLetter.lowercased() {
             nextExpectedIndex += 1
 
-            // Animate bucket bounce
             withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
                 bucketBounce = 1.2
             }
@@ -409,77 +368,41 @@ struct FishCatcherView: View {
                 bucketBounce = 1.0
             }
 
-            showCelebrationTransient(type: .wordCorrect, message: nil, emoji: "🐟")
+            gameState.showCelebration(type: .wordCorrect, message: nil, emoji: "🐟")
+            celebrationDismissID = UUID()
 
             if nextExpectedIndex >= targetText.count {
                 completeWord(now: now)
             }
         } else {
-            mistakesThisWord += 1
-            totalMistakes += 1
-            showCelebrationTransient(type: .comboBreakthrough, message: "Try again", emoji: "💧")
+            gameState.handleIncorrectAnswer()
+            gameState.showCelebration(type: .comboBreakthrough, message: "Try again", emoji: "💧")
+            celebrationDismissID = UUID()
         }
     }
 
     private func completeWord(now: Date) {
-        let timeTaken = wordStartTime.map { now.timeIntervalSince($0) }
+        gameState.handleCorrectAnswer()
 
-        // Combo is based on mistake-free word completion
-        if mistakesThisWord == 0 {
-            comboCount += 1
-        } else {
-            comboCount = 0
-        }
-        comboMultiplier = PointsService.getComboMultiplier(for: comboCount)
-
+        let timeTaken = gameState.wordStartTime.map { now.timeIntervalSince($0) }
         let pointsResult = PointsService.calculatePoints(
             isCorrect: true,
-            comboCount: comboCount,
+            comboCount: gameState.comboCount,
             timeTaken: timeTaken,
-            isFirstTry: mistakesThisWord == 0)
-        score += pointsResult.totalPoints
-
-        let starsEarned = if mistakesThisWord == 0, let t = timeTaken, t <= PointsService.speedBonusThreshold {
-            3
-        } else if mistakesThisWord == 0 {
-            2
-        } else {
-            1
-        }
-        totalStars += starsEarned
-
-        showCelebrationTransient(
+            isFirstTry: gameState.mistakesThisWord == 0)
+        let starsEarned = timeTaken != nil && gameState.mistakesThisWord == 0
+            ? (timeTaken! <= PointsService.speedBonusThreshold ? 3 : 2)
+            : 1
+        gameState.showCelebration(
             type: .sessionComplete,
             message: "+\(pointsResult.totalPoints) pts • \(starsEarned)★",
             emoji: "🌊")
-
-        advanceToNextWord()
-    }
-
-    private func advanceToNextWord() {
-        if currentWordIndex >= words.count - 1 {
-            phase = .gameComplete
-            result = GameResult(
-                totalPoints: score,
-                totalStars: totalStars,
-                wordsCompleted: words.count,
-                totalMistakes: totalMistakes)
-            showResult = true
-        } else {
-            currentWordIndex += 1
-        }
-    }
-
-    private func showCelebrationTransient(type: CelebrationType, message: String?, emoji: String?) {
-        celebrationType = type
-        celebrationMessage = message
-        celebrationEmoji = emoji
-
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-            showCelebration = true
-        }
-
         celebrationDismissID = UUID()
+
+        gameState.advanceToNextWord()
+        if gameState.isComplete {
+            gameState.showResultScreen()
+        }
     }
 
     // MARK: - Difficulty knobs
@@ -538,7 +461,6 @@ private struct Fish: Identifiable {
     let spawnedAt: Date
 }
 
-/// Simple wave shape for water surface effect
 private struct WaveShape: Shape {
     var offset: CGFloat = 0
 

@@ -3,53 +3,31 @@ import SwiftUI
 @MainActor
 struct FallingStarsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(TTSService.self) private var ttsService
 
     let words: [Word]
 
-    @State private var difficulty: GameDifficulty = .easy
+    @State private var gameState = GameStateManager(resultService: DefaultGameResultService.shared)
 
-    @State private var phase: GamePhase = .ready
-    @State private var currentWordIndex = 0
     @State private var nextExpectedIndex = 0
 
     @State private var activeStars: [Star] = []
     @State private var lastSpawnAt: Date = .distantPast
     @State private var constellationPoints: [CGPoint] = []
 
-    @State private var score = 0
-    @State private var totalStars = 0
-    @State private var comboCount = 0
-    @State private var comboMultiplier = 1
-    @State private var totalMistakes = 0
-    @State private var mistakesThisWord = 0
-
-    @State private var wordStartTime: Date?
-
-    @State private var showCelebration = false
-    @State private var celebrationType: CelebrationType = .wordCorrect
-    @State private var celebrationMessage: String? = nil
-    @State private var celebrationEmoji: String? = nil
-
-    @State private var showResult = false
-    @State private var result: GameResult?
-
-    @Environment(TTSService.self) private var ttsService
-
-    /// Used to re-trigger startWord on reset (when currentWordIndex stays 0).
-    @State private var gameResetID = UUID()
-    /// Used to trigger celebration auto-dismiss via .task(id:).
     @State private var celebrationDismissID = UUID()
 
     private var currentWord: Word? {
-        guard currentWordIndex < words.count else { return nil }
-        return words[currentWordIndex]
+        gameState.currentWord
     }
 
     private var targetText: String {
-        currentWord?.text ?? ""
+        gameState.targetText
     }
 
     var body: some View {
+        @Bindable var gameState = gameState
+
         NavigationStack {
             GeometryReader { geo in
                 ZStack {
@@ -59,10 +37,10 @@ struct FallingStarsView: View {
                     VStack(spacing: 0) {
                         GameProgressView(
                             title: "Falling Stars",
-                            wordIndex: currentWordIndex,
+                            wordIndex: gameState.currentWordIndex,
                             wordCount: words.count,
-                            points: score,
-                            comboMultiplier: comboMultiplier)
+                            points: gameState.score,
+                            comboMultiplier: gameState.comboMultiplier)
 
                         wordDisplay
                             .padding(.horizontal, AppConstants.padding)
@@ -71,14 +49,11 @@ struct FallingStarsView: View {
 
                         Spacer()
 
-                        // Star playfield with constellation overlay
                         ZStack {
-                            // Constellation lines
                             constellationPath
                                 .stroke(Color.yellow.opacity(0.6), lineWidth: 3)
                                 .shadow(color: .yellow.opacity(0.4), radius: 8)
 
-                            // Constellation points
                             ForEach(constellationPoints.indices, id: \.self) { idx in
                                 Circle()
                                     .fill(Color.yellow)
@@ -87,7 +62,6 @@ struct FallingStarsView: View {
                                     .shadow(color: .yellow.opacity(0.6), radius: 6)
                             }
 
-                            // Falling stars
                             TimelineView(.animation) { context in
                                 ZStack {
                                     ForEach(visibleStars(in: geo.size, now: context.date)) { star in
@@ -114,8 +88,11 @@ struct FallingStarsView: View {
                             .padding(.bottom, AppConstants.padding)
                     }
 
-                    if showCelebration {
-                        CelebrationView(type: celebrationType, message: celebrationMessage, emoji: celebrationEmoji)
+                    if gameState.showCelebration {
+                        CelebrationView(
+                            type: gameState.celebrationType,
+                            message: gameState.celebrationMessage,
+                            emoji: gameState.celebrationEmoji)
                             .transition(.scale.combined(with: .opacity))
                             .accessibilityIdentifier("FallingStars_Celebration")
                     }
@@ -135,21 +112,21 @@ struct FallingStarsView: View {
                 }
             }
             .task {
+                gameState.setup(words: words)
                 startGameIfNeeded()
             }
-            .task(id: "\(currentWordIndex)-\(gameResetID)") {
-                guard phase == .playing else { return }
+            .task(id: gameState.currentWordIndex) {
                 await startWord()
             }
             .task(id: celebrationDismissID) {
-                guard showCelebration else { return }
+                guard gameState.showCelebration else { return }
                 try? await Task.sleep(for: .milliseconds(700))
                 withAnimation(.easeOut(duration: 0.2)) {
-                    showCelebration = false
+                    gameState.hideCelebration()
                 }
             }
-            .fullScreenCover(isPresented: $showResult) {
-                if let result {
+            .fullScreenCover(isPresented: $gameState.showResult) {
+                if let result = gameState.result {
                     GameResultView(
                         title: "Falling Stars",
                         result: result,
@@ -169,7 +146,6 @@ struct FallingStarsView: View {
 
     private var nightSkyBackground: some View {
         ZStack {
-            // Gradient night sky
             LinearGradient(
                 colors: [
                     Color(red: 0.1, green: 0.05, blue: 0.2),
@@ -179,19 +155,16 @@ struct FallingStarsView: View {
                 startPoint: .top,
                 endPoint: .bottom)
 
-            // Twinkling background stars
             TimelineView(.animation) { timelineContext in
                 Canvas { graphicsContext, size in
                     let time = timelineContext.date.timeIntervalSince1970
                     let starCount = 50
 
                     for i in 0 ..< starCount {
-                        // Use a seed based on index for stable positions
                         var generator = SeededRandomNumberGenerator(seed: UInt64(i))
                         let x = CGFloat.random(in: 0 ... size.width, using: &generator)
                         let y = CGFloat.random(in: 0 ... size.height, using: &generator)
 
-                        // Twinkle effect: opacity oscillates
                         let twinklePhase = (time + Double(i) * 0.3).truncatingRemainder(dividingBy: 4.0)
                         let opacity = 0.3 + (sin(twinklePhase) * 0.4)
 
@@ -263,7 +236,7 @@ struct FallingStarsView: View {
             .accessibilityIdentifier("FallingStars_SpeakWordButton")
 
             Menu {
-                Picker("Difficulty", selection: $difficulty) {
+                Picker("Difficulty", selection: $gameState.difficulty) {
                     ForEach(GameDifficulty.allCases) { d in
                         Text(d.displayName).tag(d)
                     }
@@ -271,7 +244,7 @@ struct FallingStarsView: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "slider.horizontal.3")
-                    Text(difficulty.displayName)
+                    Text(gameState.difficulty.displayName)
                         .font(.system(size: AppConstants.bodySize, weight: .semibold))
                 }
                 .frame(minHeight: AppConstants.largeButtonHeight)
@@ -285,31 +258,24 @@ struct FallingStarsView: View {
     // MARK: - Game lifecycle
 
     private func startGameIfNeeded() {
-        guard phase == .ready else { return }
-        phase = .playing
-        currentWordIndex = 0
+        guard gameState.phase == .ready else { return }
+        gameState.phase = .playing
         nextExpectedIndex = 0
-        score = 0
-        totalStars = 0
-        comboCount = 0
-        comboMultiplier = 1
-        totalMistakes = 0
-        mistakesThisWord = 0
+        activeStars.removeAll()
+        constellationPoints.removeAll()
+        lastSpawnAt = .distantPast
     }
 
     private func startWord() async {
-        guard phase == .playing else { return }
+        guard gameState.phase == .playing else { return }
         guard currentWord != nil else { return }
 
-        // Reset per-word state
         nextExpectedIndex = 0
-        mistakesThisWord = 0
-        wordStartTime = Date()
+        gameState.startWordTimer()
         activeStars.removeAll()
         constellationPoints.removeAll()
         lastSpawnAt = .distantPast
 
-        // Small delay to let UI settle, then speak
         try? await Task.sleep(for: .milliseconds(250))
         if let currentWord {
             ttsService.speak(currentWord.text, rate: 0.3)
@@ -317,27 +283,23 @@ struct FallingStarsView: View {
     }
 
     private func resetAll() {
-        showResult = false
-        result = nil
-        phase = .ready
-        startGameIfNeeded()
-        gameResetID = UUID()
+        gameState.reset()
+        gameState.phase = .playing
     }
 
     // MARK: - Timeline tick / spawning
 
     private func tick(now: Date, size: CGSize) {
-        guard phase == .playing else { return }
+        guard gameState.phase == .playing else { return }
         guard !targetText.isEmpty else { return }
 
-        // Remove stars that have faded or left the screen
         activeStars = activeStars.filter { star in
             let elapsed = now.timeIntervalSince(star.spawnTime)
             let y = starY(for: star, size: size, now: now)
             return elapsed < star.lifetime && y < size.height + 100
         }
 
-        let interval = spawnInterval(for: difficulty)
+        let interval = spawnInterval(for: gameState.difficulty)
         if now.timeIntervalSince(lastSpawnAt) >= interval {
             spawnStar(now: now, size: size)
             lastSpawnAt = now
@@ -347,10 +309,9 @@ struct FallingStarsView: View {
     private func spawnStar(now: Date, size: CGSize) {
         guard let nextLetter = expectedLetter else { return }
 
-        let letterToUse: Character = if shouldSpawnDecoy(for: difficulty) {
+        let letterToUse: Character = if shouldSpawnDecoy(for: gameState.difficulty) {
             randomDecoyLetter(avoid: nextLetter) ?? nextLetter
         } else {
-            // Spawn the correct next letter more often
             nextLetter
         }
 
@@ -362,9 +323,9 @@ struct FallingStarsView: View {
             letter: letterToUse,
             startX: x,
             startY: yStart,
-            fallSpeed: fallSpeed(for: difficulty),
+            fallSpeed: fallSpeed(for: gameState.difficulty),
             spawnTime: now,
-            lifetime: starLifetime(for: difficulty))
+            lifetime: starLifetime(for: gameState.difficulty))
 
         activeStars.append(star)
     }
@@ -391,92 +352,53 @@ struct FallingStarsView: View {
     // MARK: - Tap handling / scoring
 
     private func handleTap(star: Star, now: Date, size: CGSize) {
-        guard phase == .playing else { return }
+        guard gameState.phase == .playing else { return }
 
-        // Capture position for constellation before removing
         let currentY = starY(for: star, size: size, now: now)
         let tapPosition = CGPoint(x: star.startX, y: currentY)
 
-        // Remove star
         activeStars.removeAll { $0.id == star.id }
 
         guard let expectedLetter else { return }
 
         if star.letter.lowercased() == expectedLetter.lowercased() {
             nextExpectedIndex += 1
-            // Add to constellation
             constellationPoints.append(tapPosition)
-            showCelebrationTransient(type: .wordCorrect, message: nil, emoji: "✨")
+            gameState.showCelebration(type: .wordCorrect, message: nil, emoji: "✨")
+            celebrationDismissID = UUID()
 
             if nextExpectedIndex >= targetText.count {
                 completeWord(now: now)
             }
         } else {
-            mistakesThisWord += 1
-            totalMistakes += 1
-            showCelebrationTransient(type: .comboBreakthrough, message: "Try again", emoji: "💭")
+            gameState.handleIncorrectAnswer()
+            gameState.showCelebration(type: .comboBreakthrough, message: "Try again", emoji: "💭")
+            celebrationDismissID = UUID()
         }
     }
 
     private func completeWord(now: Date) {
-        let timeTaken = wordStartTime.map { now.timeIntervalSince($0) }
+        gameState.handleCorrectAnswer()
 
-        // Combo is based on mistake-free word completion
-        if mistakesThisWord == 0 {
-            comboCount += 1
-        } else {
-            comboCount = 0
-        }
-        comboMultiplier = PointsService.getComboMultiplier(for: comboCount)
-
+        let timeTaken = gameState.wordStartTime.map { now.timeIntervalSince($0) }
         let pointsResult = PointsService.calculatePoints(
             isCorrect: true,
-            comboCount: comboCount,
+            comboCount: gameState.comboCount,
             timeTaken: timeTaken,
-            isFirstTry: mistakesThisWord == 0)
-        score += pointsResult.totalPoints
-
-        let starsEarned = if mistakesThisWord == 0, let t = timeTaken, t <= PointsService.speedBonusThreshold {
-            3
-        } else if mistakesThisWord == 0 {
-            2
-        } else {
-            1
-        }
-        totalStars += starsEarned
-
-        showCelebrationTransient(
+            isFirstTry: gameState.mistakesThisWord == 0)
+        let starsEarned = timeTaken != nil && gameState.mistakesThisWord == 0
+            ? (timeTaken! <= PointsService.speedBonusThreshold ? 3 : 2)
+            : 1
+        gameState.showCelebration(
             type: .sessionComplete,
             message: "Star Collector! +\(pointsResult.totalPoints) pts • \(starsEarned)★",
             emoji: "⭐")
-
-        advanceToNextWord()
-    }
-
-    private func advanceToNextWord() {
-        if currentWordIndex >= words.count - 1 {
-            phase = .gameComplete
-            result = GameResult(
-                totalPoints: score,
-                totalStars: totalStars,
-                wordsCompleted: words.count,
-                totalMistakes: totalMistakes)
-            showResult = true
-        } else {
-            currentWordIndex += 1
-        }
-    }
-
-    private func showCelebrationTransient(type: CelebrationType, message: String?, emoji: String?) {
-        celebrationType = type
-        celebrationMessage = message
-        celebrationEmoji = emoji
-
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.7)) {
-            showCelebration = true
-        }
-
         celebrationDismissID = UUID()
+
+        gameState.advanceToNextWord()
+        if gameState.isComplete {
+            gameState.showResultScreen()
+        }
     }
 
     // MARK: - Difficulty knobs

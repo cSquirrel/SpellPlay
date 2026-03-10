@@ -212,6 +212,11 @@ final class GameStateManager {
         showResult = true
     }
 
+    /// Convenience alias for finishGame() used by game views.
+    func showResultScreen() {
+        finishGame()
+    }
+
     // MARK: - Difficulty Helpers
 
     /// Get spawn interval based on difficulty (for games with spawning elements)
