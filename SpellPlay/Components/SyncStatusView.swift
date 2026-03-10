@@ -86,6 +86,7 @@ struct SyncStatusDetailView: View {
 
                 Section {
                     Button {
+                        // Explicit user action; fire-and-forget refresh (cancellation on navigate not required).
                         Task { await syncService.refreshSync() }
                     } label: {
                         Label("Refresh Sync Status", systemImage: "arrow.triangle.2.circlepath")
