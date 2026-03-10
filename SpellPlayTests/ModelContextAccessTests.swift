@@ -1,4 +1,4 @@
-import SpellPlay
+@testable import WordCraft
 import SwiftData
 import Testing
 
