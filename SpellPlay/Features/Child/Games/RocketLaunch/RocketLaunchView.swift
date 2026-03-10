@@ -7,7 +7,7 @@ struct RocketLaunchView: View {
 
     let words: [Word]
 
-    @State private var gameState = GameStateManager()
+    @State private var gameState = GameStateManager(resultService: DefaultGameResultService.shared)
 
     @State private var typedText: String = ""
 
@@ -32,7 +32,6 @@ struct RocketLaunchView: View {
 
     var body: some View {
         @Bindable var gameState = gameState
-
         gameContent
             .gameViewChrome(
                 title: "Rocket Launch",
@@ -48,6 +47,7 @@ struct RocketLaunchView: View {
                 await startWord()
             }
             .task(id: celebrationDismissID) {
+                // Auto-hide celebration after delay
                 guard gameState.showCelebration else { return }
                 try? await Task.sleep(for: .milliseconds(700))
                 withAnimation(.easeOut(duration: 0.2)) {

@@ -7,7 +7,7 @@ struct FishCatcherView: View {
 
     let words: [Word]
 
-    @State private var gameState = GameStateManager()
+    @State private var gameState = GameStateManager(resultService: DefaultGameResultService.shared)
 
     @State private var nextExpectedIndex = 0
 
@@ -29,7 +29,6 @@ struct FishCatcherView: View {
 
     var body: some View {
         @Bindable var gameState = gameState
-
         gameContent
             .gameViewChrome(
                 title: "Fish Catcher",

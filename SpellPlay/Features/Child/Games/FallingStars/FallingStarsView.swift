@@ -7,7 +7,7 @@ struct FallingStarsView: View {
 
     let words: [Word]
 
-    @State private var gameState = GameStateManager()
+    @State private var gameState = GameStateManager(resultService: DefaultGameResultService.shared)
 
     @State private var nextExpectedIndex = 0
 
@@ -27,7 +27,6 @@ struct FallingStarsView: View {
 
     var body: some View {
         @Bindable var gameState = gameState
-
         gameContent
             .gameViewChrome(
                 title: "Falling Stars",

@@ -7,7 +7,7 @@ struct WordBuilderView: View {
 
     let words: [Word]
 
-    @State private var gameState = GameStateManager()
+    @State private var gameState = GameStateManager(resultService: DefaultGameResultService.shared)
 
     @State private var scrambledLetters: [LetterTile] = []
     @State private var placedLetters: [Character?] = []
@@ -26,7 +26,6 @@ struct WordBuilderView: View {
 
     var body: some View {
         @Bindable var gameState = gameState
-
         gameContent
             .gameViewChrome(
                 title: "Word Builder",

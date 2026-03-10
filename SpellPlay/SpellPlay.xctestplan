@@ -1,61 +1,67 @@
 {
-  "configurations" : [
+  "configurations": [
     {
-      "id" : "24499A57-8A8C-49DD-9DF6-FD06943246D4",
-      "name" : "Test Scheme Action",
-      "options" : {
-
-      }
+      "id": "24499A57-8A8C-49DD-9DF6-FD06943246D4",
+      "name": "Test Scheme Action",
+      "options": {}
     }
   ],
-  "defaultOptions" : {
-    "targetForVariableExpansion" : {
-      "containerPath" : "container:SpellPlay.xcodeproj",
-      "identifier" : "8B41F6442DEDD0D5001A66F9",
-      "name" : "SpellPlay"
+  "defaultOptions": {
+    "targetForVariableExpansion": {
+      "containerPath": "container:SpellPlay.xcodeproj",
+      "identifier": "8B41F6442DEDD0D5001A66F9",
+      "name": "SpellPlay"
     }
   },
-  "testTargets" : [
+  "testTargets": [
     {
-      "enabled" : false,
-      "skippedTests" : [
+      "enabled": true,
+      "target": {
+        "containerPath": "container:SpellPlay.xcodeproj",
+        "identifier": "3218244D2F49D8E000B7576D",
+        "name": "SpellPlayTests"
+      }
+    },
+    {
+      "enabled": false,
+      "skippedTests": [
         "ChildFlowTests",
-        "ChildFlowTests\/testChildHome_EmptyState()",
-        "ChildFlowTests\/testChildHome_TestList()",
-        "ChildFlowTests\/testPracticeFlow_CorrectAnswer()",
-        "ChildFlowTests\/testPracticeFlow_IncorrectAnswer()",
-        "ChildFlowTests\/testPracticeFlow_IterativeRounds()",
-        "ChildFlowTests\/testPracticeFlow_RoundTransition()",
-        "ChildFlowTests\/testPracticeSummary_Display()",
+        "ChildFlowTests/testChildHome_EmptyState()",
+        "ChildFlowTests/testChildHome_TestList()",
+        "ChildFlowTests/testPracticeFlow_CorrectAnswer()",
+        "ChildFlowTests/testPracticeFlow_IncorrectAnswer()",
+        "ChildFlowTests/testPracticeFlow_IterativeRounds()",
+        "ChildFlowTests/testPracticeFlow_RoundTransition()",
+        "ChildFlowTests/testPracticeSummary_Display()",
         "EdgeCaseTests",
-        "EdgeCaseTests\/testDataPersistence_AppRestart()",
-        "EdgeCaseTests\/testDuplicateWords_Handling()",
-        "EdgeCaseTests\/testEmptyTestName_Validation()",
-        "EdgeCaseTests\/testEmptyWordsList_Validation()",
-        "EdgeCaseTests\/testWordInput_WhitespaceHandling()",
+        "EdgeCaseTests/testDataPersistence_AppRestart()",
+        "EdgeCaseTests/testDuplicateWords_Handling()",
+        "EdgeCaseTests/testEmptyTestName_Validation()",
+        "EdgeCaseTests/testEmptyWordsList_Validation()",
+        "EdgeCaseTests/testWordInput_WhitespaceHandling()",
         "ParentFlowTests",
-        "ParentFlowTests\/testCreateTest_EmptyState()",
-        "ParentFlowTests\/testCreateTest_RemoveWord()",
-        "ParentFlowTests\/testCreateTest_ValidInput()",
-        "ParentFlowTests\/testCreateTest_WordParsing()",
-        "ParentFlowTests\/testDeleteTest()",
-        "ParentFlowTests\/testEditTest_AddWords()",
-        "ParentFlowTests\/testEditTest_UpdateName()",
+        "ParentFlowTests/testCreateTest_EmptyState()",
+        "ParentFlowTests/testCreateTest_RemoveWord()",
+        "ParentFlowTests/testCreateTest_ValidInput()",
+        "ParentFlowTests/testCreateTest_WordParsing()",
+        "ParentFlowTests/testDeleteTest()",
+        "ParentFlowTests/testEditTest_AddWords()",
+        "ParentFlowTests/testEditTest_UpdateName()",
         "RoleSelectionTests",
-        "RoleSelectionTests\/testOnboarding_ChildDismissal()",
-        "RoleSelectionTests\/testOnboarding_ParentDismissal()",
-        "RoleSelectionTests\/testRoleSelection_ChildFlow()",
-        "RoleSelectionTests\/testRoleSelection_ParentFlow()",
-        "RoleSelectionTests\/testRoleSwitching()",
+        "RoleSelectionTests/testOnboarding_ChildDismissal()",
+        "RoleSelectionTests/testOnboarding_ParentDismissal()",
+        "RoleSelectionTests/testRoleSelection_ChildFlow()",
+        "RoleSelectionTests/testRoleSelection_ParentFlow()",
+        "RoleSelectionTests/testRoleSwitching()",
         "SpellPlayUITests",
-        "SpellPlayUITests\/testExample()"
+        "SpellPlayUITests/testExample()"
       ],
-      "target" : {
-        "containerPath" : "container:SpellPlay.xcodeproj",
-        "identifier" : "8B41F65B2DEDD0D6001A66F9",
-        "name" : "SpellPlayUITests"
+      "target": {
+        "containerPath": "container:SpellPlay.xcodeproj",
+        "identifier": "8B41F65B2DEDD0D6001A66F9",
+        "name": "SpellPlayUITests"
       }
     }
   ],
-  "version" : 1
+  "version": 1
 }
