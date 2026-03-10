@@ -33,7 +33,7 @@ struct FallingStarsView: View {
     @State private var showResult = false
     @State private var result: GameResult?
 
-    @State private var ttsService = TTSService()
+    @Environment(TTSService.self) private var ttsService
 
     private var currentWord: Word? {
         guard currentWordIndex < words.count else { return nil }
