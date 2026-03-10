@@ -43,15 +43,15 @@ class ParentHomePage: BasePage {
     }
 
     func tapTestCard(named name: String) -> EditTestPage {
-        let card = app.otherElements["TestCard_\(name)"]
-        waitForElement(card)
+        let card = element(matchingIdentifier: "TestCard_\(name)")
+        _ = waitForElement(card, timeout: 10.0)
         card.tap()
         return EditTestPage(app: app)
     }
 
     func deleteTest(named name: String) -> Self {
-        let card = app.otherElements["TestCard_\(name)"]
-        if card.exists {
+        let card = element(matchingIdentifier: "TestCard_\(name)")
+        if card.waitForExistence(timeout: 5) {
             // Swipe to delete or tap delete button
             card.swipeLeft()
             let deleteButton = app.buttons["Delete"]
@@ -71,12 +71,12 @@ class ParentHomePage: BasePage {
     // MARK: - Verification Methods
 
     func verifyTestExists(named name: String) -> Bool {
-        let card = app.otherElements["TestCard_\(name)"]
-        return waitForElement(card)
+        let card = element(matchingIdentifier: "TestCard_\(name)")
+        return waitForElement(card, timeout: 10.0)
     }
 
     func verifyEmptyState() -> Bool {
-        waitForElement(emptyStateText)
+        waitForElement(emptyStateText, timeout: 10.0)
     }
 
     // MARK: - Query Methods

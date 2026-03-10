@@ -1,3 +1,4 @@
+import CoreGraphics
 import XCTest
 
 class ChildHomePage: BasePage {
@@ -28,10 +29,17 @@ class ChildHomePage: BasePage {
     // MARK: - Action Methods
 
     func tapTestCard(named name: String) -> PracticePage {
-        let card = app.otherElements["TestCard_\(name)"]
-        waitForElement(card)
-        card.tap()
-        sleep(1) // Wait for navigation
+        // Child home uses Button for test cards
+        let card = app.buttons["TestCard_\(name)"]
+        _ = waitForElement(card, timeout: 10.0)
+        if !card.isHittable { app.swipeUp() }
+        // Use coordinate tap so the sheet opens reliably (avoids hit point -1,-1 in scroll views)
+        card.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        sleep(2) // Allow Word Review sheet to present
+        let startButton = app.buttons["WordReview_StartButton"]
+        _ = waitForElement(startButton, timeout: 10.0)
+        startButton.tap()
+        sleep(1) // Wait for Practice screen
         return PracticePage(app: app)
     }
 
@@ -44,12 +52,12 @@ class ChildHomePage: BasePage {
     // MARK: - Verification Methods
 
     func verifyTestExists(named name: String) -> Bool {
-        let card = app.otherElements["TestCard_\(name)"]
-        return waitForElement(card)
+        let card = element(matchingIdentifier: "TestCard_\(name)")
+        return waitForElement(card, timeout: 10.0)
     }
 
     func verifyEmptyState() -> Bool {
-        waitForElement(emptyStateText)
+        waitForElement(emptyStateText, timeout: 10.0)
     }
 
     func verifyStreakDisplayed(_ streak: Int) -> Bool {

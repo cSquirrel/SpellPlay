@@ -24,13 +24,13 @@ class RoleSelectionPage: BasePage {
     // MARK: - Action Methods
 
     func tapParentButton() -> OnboardingPage {
-        waitForElement(parentButton)
+        _ = waitForElement(parentButton, timeout: 10.0)
         parentButton.tap()
         return OnboardingPage(app: app)
     }
 
     func tapChildButton() -> OnboardingPage {
-        waitForElement(childButton)
+        _ = waitForElement(childButton, timeout: 10.0)
         childButton.tap()
         return OnboardingPage(app: app)
     }
