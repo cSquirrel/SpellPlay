@@ -33,6 +33,13 @@ class BasePage {
         element.exists && element.isHittable
     }
 
+    /// Find element by accessibility identifier (any type). Use when the same ID is used on different element kinds
+    /// (e.g. TestCard_ on parent = container, on child = button).
+    func element(matchingIdentifier identifier: String) -> XCUIElement {
+        let predicate = NSPredicate(format: "identifier == %@", identifier)
+        return app.descendants(matching: .any).matching(predicate).firstMatch
+    }
+
     /// Scroll to element if needed
     func scrollToElement(_ element: XCUIElement) {
         if !element.isHittable {
