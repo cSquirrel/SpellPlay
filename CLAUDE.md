@@ -8,6 +8,16 @@ This is a native **iOS application** built with **Swift 6.1+** and **SwiftUI**. 
 - **Platform:** iOS (Simulator and Device)
 - **Accessibility:** Full accessibility support using SwiftUI's accessibility modifiers
 
+## Xcode Project Generation
+
+The Xcode project is **generated** — do not edit `SpellPlay.xcodeproj` directly and do not commit it (it is gitignored).
+
+- **Source of truth:** `project.yml` (XcodeGen spec)
+- **Regenerate:** `make generate` (or `xcodegen generate`)
+- **Regenerate and open:** `make open`
+
+Run `make generate` after cloning, switching branches, or modifying `project.yml`.
+
 ## Project Structure
 
 The project follows a **workspace + SPM package** architecture:
