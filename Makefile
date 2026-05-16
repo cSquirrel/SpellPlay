@@ -1,7 +1,15 @@
-# SwiftFormat Makefile for SpellPlay
-# Usage: make format | make lint | make format-check
+# SpellPlay Makefile
+# Usage: make generate | make open | make format | make lint | make format-check
 
-.PHONY: format lint lint-fix format-check format-staged help install-swiftformat
+.PHONY: format lint lint-fix format-check format-staged help install-swiftformat generate open
+
+# Regenerate SpellPlay.xcodeproj from project.yml
+generate:
+	xcodegen generate
+
+# Regenerate and open the workspace in Xcode
+open: generate
+	open SpellPlay.xcworkspace
 
 # Default target
 help:
